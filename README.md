@@ -1,6 +1,6 @@
-# Welcome to your Expo app 👋
+# Tithi Miti — Nothing-style Dual Calendar
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Minimal, monochrome, dot-matrix vibes. Dual AD/BS calendars with smooth micro-animations, Romanized Nepali labels, events, reminders, converter, and widget-first strategy.
 
 ## Get started
 
@@ -8,6 +8,7 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
    ```bash
    npm install
+   npx expo install expo-notifications @react-native-async-storage/async-storage
    ```
 
 2. Start the app
@@ -24,6 +25,24 @@ In the output, you'll find options to open the app in a
 - [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+
+### Key Screens & Components
+
+- Tabs → Calendar: Month view with `AD/BS` toggle and `EN/Nep (Rom)` language control.
+- Converter: AD ↔ BS date converter using API-backed logic.
+- MonthGrid & DayCell: Nothing OS–inspired layout with subtle micro-animations.
+
+### Architecture
+
+- Domain: `src/domain/calendar/*` — types, AD/BS normalization, converter.
+- Services: `src/services/*` — API client, caching, events storage, notifications.
+- State: `src/state/appState.tsx` — calendar mode, language, selected date.
+- UI Theme: `src/ui/theme/nothing.ts` — monochrome tokens.
+- Widgets: `widgets/WidgetPreview.tsx` and `widgets/strategy.md`.
+
+### Widgets
+
+See `widgets/strategy.md` for Android Glance and iOS WidgetKit approach. Use `expo prebuild` to add native modules when ready. The in-app `WidgetPreview` mirrors OS widget UX.
 
 ## Get a fresh project
 
