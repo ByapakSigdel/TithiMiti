@@ -10,17 +10,34 @@ export interface BsDay {
   tithiRom?: string; // Romanized Nepali (e.g., 'Purnima')
   holidayNameRom?: string | null;
   events?: string[]; // List of event names (API provided)
+  nepalSambat?: number; // Nepal Sambat year
+  sakSambat?: number; // Sak Sambat year
   extraDetails?: {
+    // Times
     sunrise?: string;
     sunset?: string;
     moonrise?: string;
     moonset?: string;
     tithiEnd?: string;
+    tithiEndDisplay?: string;
+    // Panchanga
+    pakshya?: string;
     nakshatra?: string;
+    nakshatraEnd?: string;
     yog?: string;
+    yogEnd?: string;
     karan?: string;
-    ritu?: string; // Season
+    karanSecond?: string;
+    // Rashi
+    chandraRashi?: string;
+    chandraRashiEnd?: string;
+    suryaRashi?: string;
+    // Season
+    ritu?: string;
     ayan?: string;
+    // Muhurats
+    muhurats?: Array<{ name: string; time: string }>;
+    [key: string]: any; // Allow dynamic fields
   };
 }
 

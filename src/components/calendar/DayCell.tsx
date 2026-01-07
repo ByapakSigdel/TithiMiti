@@ -43,12 +43,19 @@ export function DayCell({ day, mode, isSelected, isToday, hasEvents, onPress }: 
   const primaryColor = isSelected ? colors.background : textColor;
   const secondaryColor = isSelected ? colors.textSecondary : colors.textSecondary;
 
+  // Today border color - ensure it's always visible
+  const todayBorderColor = isSelected ? colors.background : colors.text;
+
   return (
     <Pressable 
       onPress={onPress} 
       style={[
         styles.container, 
-        isToday && !isSelected && { borderWidth: 1, borderColor: colors.text }
+        // Today indicator - always show when it's today, even when selected
+        isToday && { 
+          borderWidth: 2, 
+          borderColor: todayBorderColor,
+        }
       ]}
     >
       {/* Animated Selection Background */}

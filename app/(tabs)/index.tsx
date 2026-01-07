@@ -5,6 +5,7 @@ import { convertAdToBs } from '@/src/domain/calendar/converter';
 import { getBsMonthName } from '@/src/domain/calendar/labels';
 import { BsDay } from '@/src/domain/calendar/types';
 import { initNotifications } from '@/src/services/notifications';
+import { updateWidget } from '@/src/services/widget/widgetService';
 import { useAppState } from '@/src/state/appState';
 import { NothingButton } from '@/src/ui/core/NothingButton';
 import { NothingText } from '@/src/ui/core/NothingText';
@@ -12,21 +13,25 @@ import { NothingTheme } from '@/src/ui/theme/nothing';
 import { areDatesEqual, getTodayISO } from '@/src/utils/dateUtils';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { BackHandler, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, { FadeIn, FadeOut, LinearTransition, runOnJS } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut, LinearTransition, runOnJS, useSharedValue } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CalendarScreen() {
   const router = useRouter();
-  const { mode, setMode, selectedDateISO, setSelectedDateISO, events, themeMode, setThemeMode, colors } = useAppState();
+  const { mode, setMode, selectedDateISO, setSelectedDateISO, events, themeMode, setThemeMode, activeTheme, colors } = useAppState();
   
   // Local state for the *viewed* month (distinct from selected date)
   const [viewYear, setViewYear] = useState(new Date().getFullYear());
   const [viewMonth, setViewMonth] = useState(new Date().getMonth() + 1); // 1-12
   const [isAddEventVisible, setIsAddEventVisible] = useState(false);
   const [selectedDay, setSelectedDay] = useState<BsDay | null>(null);
+  
+  // Control for the bottom sheet
+  const sheetTranslateY = useSharedValue(0);
+  const dayDetailSheetRef = useRef<any>(null);
 
   // Sync view with selected date or mode changes
   useEffect(() => {
@@ -81,7 +86,18 @@ export default function CalendarScreen() {
 
   useEffect(() => {
     initNotifications();
-  }, []);
+    
+    // Update widget with today's data
+    const updateTodayWidget = async () => {
+      const todayISO = getTodayISO();
+      const result = await convertAdToBs(todayISO);
+      if (result.bs) {
+        const todayEvents = events.filter(e => areDatesEqual(e.adDateISO, todayISO));
+        await updateWidget(result.bs, todayEvents);
+      }
+    };
+    updateTodayWidget();
+  }, [events]); // Update when events change
 
   // Handle Android Back Button
   useEffect(() => {
@@ -166,12 +182,12 @@ export default function CalendarScreen() {
         </View>
         <View style={styles.controls}>
           <Pressable 
-            onPress={() => setThemeMode(themeMode === 'dark' ? 'light' : 'dark')} 
+            onPress={() => setThemeMode(activeTheme === 'dark' ? 'light' : 'dark')} 
             style={[styles.modeToggle, { borderColor: colors.border, marginRight: 8 }]}
             hitSlop={10}
           >
             <Ionicons 
-              name={themeMode === 'dark' ? 'sunny-outline' : 'moon-outline'} 
+              name={activeTheme === 'dark' ? 'sunny-outline' : 'moon-outline'} 
               size={24} 
               color={colors.text} 
             />

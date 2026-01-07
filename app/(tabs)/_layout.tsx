@@ -27,8 +27,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="converter"
         options={{
-          title: 'Converter',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="arrow.right.arrow.left" color={color} />,
+          title: 'Services',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="wrench.and.screwdriver" color={color} />,
         }}
       />
       <Tabs.Screen

@@ -17,6 +17,7 @@ type AppState = {
   refreshEvents: () => Promise<void>;
   themeMode: ThemeMode;
   setThemeMode: (t: ThemeMode) => void;
+  activeTheme: 'light' | 'dark'; // The actual resolved theme
   colors: ThemeColors;
 };
 
@@ -32,10 +33,14 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   );
   const [events, setEvents] = useState<EventItem[]>([]);
 
-  const colors = useMemo(() => {
-    const active = themeMode === 'system' ? (systemScheme || 'light') : themeMode;
-    return active === 'dark' ? NothingColors.dark : NothingColors.light;
+  // Calculate active theme (resolved from themeMode and system preference)
+  const activeTheme: 'light' | 'dark' = useMemo(() => {
+    return themeMode === 'system' ? (systemScheme || 'light') : themeMode;
   }, [themeMode, systemScheme]);
+
+  const colors = useMemo(() => {
+    return activeTheme === 'dark' ? NothingColors.dark : NothingColors.light;
+  }, [activeTheme]);
 
   const refreshEvents = async () => {
     const all = await getAllEvents();
@@ -53,9 +58,10 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       selectedDateISO, setSelectedDateISO,
       events, refreshEvents,
       themeMode, setThemeMode,
+      activeTheme,
       colors
     }),
-    [mode, lang, selectedDateISO, events, themeMode, colors],
+    [mode, lang, selectedDateISO, events, themeMode, activeTheme, colors],
   );
   return <StateCtx.Provider value={value}>{children}</StateCtx.Provider>;
 }

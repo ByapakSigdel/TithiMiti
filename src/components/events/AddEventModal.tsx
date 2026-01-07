@@ -22,12 +22,22 @@ export function AddEventModal({ visible, onClose }: AddEventModalProps) {
 
     setLoading(true);
     try {
+      // Calculate reminder time: 1 day before at 9 AM
+      const eventDate = new Date(selectedDateISO);
+      const reminderDate = new Date(eventDate);
+      reminderDate.setDate(reminderDate.getDate() - 1);
+      reminderDate.setHours(9, 0, 0, 0); // Set to 9 AM
+      
+      // Only set reminder if it's in the future
+      const reminderISO = reminderDate > new Date() ? reminderDate.toISOString() : undefined;
+
       await eventsStore.addEvent({
         id: Date.now().toString(),
         title,
         description,
         adDateISO: selectedDateISO,
         isAllDay: true,
+        reminderAtISO: reminderISO,
       });
       await refreshEvents();
       setTitle('');
