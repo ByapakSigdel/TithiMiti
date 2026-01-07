@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="events_widget_description">Shows today\'s Nepali calendar events</string>
+    <string name="gold_silver_widget_description">Live gold and silver prices in Nepal</string>
+    <string name="horoscope_widget_description">Daily horoscope for your zodiac sign</string>
+    <string name="date_converter_widget_description">Current date in both AD and BS calendars</string>
+</resources>

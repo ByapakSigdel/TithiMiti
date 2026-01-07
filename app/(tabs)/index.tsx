@@ -5,7 +5,7 @@ import { convertAdToBs } from '@/src/domain/calendar/converter';
 import { getBsMonthName } from '@/src/domain/calendar/labels';
 import { BsDay } from '@/src/domain/calendar/types';
 import { initNotifications } from '@/src/services/notifications';
-import { updateWidget } from '@/src/services/widget/widgetService';
+import { updateDateWidget } from '@/src/services/widget/widgetService';
 import { useAppState } from '@/src/state/appState';
 import { NothingButton } from '@/src/ui/core/NothingButton';
 import { NothingText } from '@/src/ui/core/NothingText';
@@ -87,17 +87,17 @@ export default function CalendarScreen() {
   useEffect(() => {
     initNotifications();
     
-    // Update widget with today's data
+    // Update date widget with today's BS date
     const updateTodayWidget = async () => {
       const todayISO = getTodayISO();
       const result = await convertAdToBs(todayISO);
       if (result.bs) {
-        const todayEvents = events.filter(e => areDatesEqual(e.adDateISO, todayISO));
-        await updateWidget(result.bs, todayEvents);
+        const bsDate = `${result.bs.bsYear}/${result.bs.bsMonth}/${result.bs.bsDay}`;
+        await updateDateWidget(bsDate);
       }
     };
     updateTodayWidget();
-  }, [events]); // Update when events change
+  }, []);
 
   // Handle Android Back Button
   useEffect(() => {

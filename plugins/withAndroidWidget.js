@@ -20,22 +20,45 @@ const withAndroidWidgetFiles = (config) => {
       // Ensure directories exist
       if (!fs.existsSync(path.join(resDir, 'layout'))) fs.mkdirSync(path.join(resDir, 'layout'), { recursive: true });
       if (!fs.existsSync(path.join(resDir, 'xml'))) fs.mkdirSync(path.join(resDir, 'xml'), { recursive: true });
+      if (!fs.existsSync(path.join(resDir, 'values'))) fs.mkdirSync(path.join(resDir, 'values'), { recursive: true });
       if (!fs.existsSync(javaDir)) fs.mkdirSync(javaDir, { recursive: true });
 
-      // Copy files
+      // Copy strings.xml
       try {
         fs.copyFileSync(
-            path.join(widgetSourceDir, 'EventsWidget.kt'),
-            path.join(javaDir, 'EventsWidget.kt')
+          path.join(widgetSourceDir, 'res', 'values', 'strings.xml'),
+          path.join(resDir, 'values', 'widget_strings.xml')
         );
-        fs.copyFileSync(
-            path.join(widgetSourceDir, 'res', 'layout', 'events_widget.xml'),
-            path.join(resDir, 'layout', 'events_widget.xml')
-        );
-        fs.copyFileSync(
-            path.join(widgetSourceDir, 'res', 'xml', 'events_widget_info.xml'),
-            path.join(resDir, 'xml', 'events_widget_info.xml')
-        );
+      } catch (e) {
+        console.error("Error copying strings.xml:", e);
+      }
+
+      // Copy widget files
+      const widgets = [
+        'EventsWidget',
+        'GoldSilverWidget',
+        'HoroscopeWidget',
+        'DateConverterWidget'
+      ];
+
+      try {
+        for (const widget of widgets) {
+          fs.copyFileSync(
+            path.join(widgetSourceDir, `${widget}.kt`),
+            path.join(javaDir, `${widget}.kt`)
+          );
+          
+          const layoutName = widget.replace(/([A-Z])/g, '_$1').toLowerCase().substring(1);
+          fs.copyFileSync(
+            path.join(widgetSourceDir, 'res', 'layout', `${layoutName}.xml`),
+            path.join(resDir, 'layout', `${layoutName}.xml`)
+          );
+          
+          fs.copyFileSync(
+            path.join(widgetSourceDir, 'res', 'xml', `${layoutName}_info.xml`),
+            path.join(resDir, 'xml', `${layoutName}_info.xml`)
+          );
+        }
       } catch (e) {
         console.error("Error copying widget files:", e);
         throw e;
@@ -51,40 +74,48 @@ const withAndroidWidgetManifest = (config) => {
     const androidManifest = config.modResults;
     const mainApplication = androidManifest.manifest.application[0];
 
-    // Add receiver
+    // Add receivers for all widgets
     mainApplication.receiver = mainApplication.receiver || [];
     
-    // Check if already exists to avoid duplicates
-    const receiverExists = mainApplication.receiver.some(
-      (r) => r.$['android:name'] === '.widgets.EventsWidget'
-    );
+    const widgets = [
+      { name: 'EventsWidget', resource: 'events_widget_info' },
+      { name: 'GoldSilverWidget', resource: 'gold_silver_widget_info' },
+      { name: 'HoroscopeWidget', resource: 'horoscope_widget_info' },
+      { name: 'DateConverterWidget', resource: 'date_converter_widget_info' }
+    ];
 
-    if (!receiverExists) {
-      mainApplication.receiver.push({
-        $: {
-          'android:name': '.widgets.EventsWidget',
-          'android:exported': 'false',
-        },
-        'intent-filter': [
-          {
-            action: [
-              {
-                $: {
-                  'android:name': 'android.appwidget.action.APPWIDGET_UPDATE',
+    for (const widget of widgets) {
+      const receiverExists = mainApplication.receiver.some(
+        (r) => r.$['android:name'] === `.widgets.${widget.name}`
+      );
+
+      if (!receiverExists) {
+        mainApplication.receiver.push({
+          $: {
+            'android:name': `.widgets.${widget.name}`,
+            'android:exported': 'false',
+          },
+          'intent-filter': [
+            {
+              action: [
+                {
+                  $: {
+                    'android:name': 'android.appwidget.action.APPWIDGET_UPDATE',
+                  },
                 },
-              },
-            ],
-          },
-        ],
-        'meta-data': [
-          {
-            $: {
-              'android:name': 'android.appwidget.provider',
-              'android:resource': '@xml/events_widget_info',
+              ],
             },
-          },
-        ],
-      });
+          ],
+          'meta-data': [
+            {
+              $: {
+                'android:name': 'android.appwidget.provider',
+                'android:resource': `@xml/${widget.resource}`,
+              },
+            },
+          ],
+        });
+      }
     }
 
     return config;
