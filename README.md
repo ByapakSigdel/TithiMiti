@@ -2,7 +2,9 @@
 
 A modern Nepali calendar application designed to bridge cultural traditions with contemporary mobile technology. TithiMiti provides seamless conversion between Bikram Sambat and Gregorian calendars while offering comprehensive lunar calendar information, festival tracking, and essential tools for daily use.
 
-![TithiMiti Banner](./assets/images/tmlogo1.png)
+<p align="center">
+  <img src="./assets/images/tmlogo1.png" alt="TithiMiti Logo" width="200"/>
+</p>
 
 ## Overview
 
@@ -16,13 +18,13 @@ TithiMiti supports seamless switching between Bikram Sambat (BS) and Gregorian (
 
 **Bikram Sambat Calendar View**
 
-![BS Calendar View](./assets/images/CalendarView(BS).png)
+<img src="./assets/images/CalendarView(BS).png" alt="BS Calendar View" width="300"/>
 
 The Bikram Sambat view displays dates in the traditional Nepali calendar format, showing both BS and AD dates for each day. Users can easily identify holidays, festivals, and special occasions marked directly on the calendar grid.
 
 **Gregorian Calendar View**
 
-![AD Calendar View](./assets/images/CalendarView(AD).png)
+<img src="./assets/images/CalendarView(AD).png" alt="AD Calendar View" width="300"/>
 
 The AD calendar view provides a familiar interface while maintaining connections to Nepali cultural dates, displaying the corresponding Bikram Sambat date for each Gregorian date.
 
@@ -32,13 +34,13 @@ Track both traditional festivals and personal events with an intuitive event man
 
 **Monthly Event Overview**
 
-![Monthly Events](./assets/images/MonthsEvent.png)
+<img src="./assets/images/MonthsEvent.png" alt="Monthly Events" width="300"/>
 
 View all events, holidays, and festivals for any given month at a glance. The application aggregates data from the Nepali calendar API to display traditional festivals alongside your custom events.
 
 **Personal Event Creation**
 
-![Adding Custom Events](./assets/images/AddingCustomEvent.png)
+<img src="./assets/images/AddingCustomEvent.png" alt="Adding Custom Events" width="300"/>
 
 Create and manage personal events with support for both BS and AD date entry. Events are stored locally and sync across your calendar views.
 
@@ -48,7 +50,7 @@ Access comprehensive panchanga (almanac) information for any selected day.
 
 **Tithi and Panchanga Details**
 
-![Day Details - Part 1](./assets/images/ExtraDetailsOfDay1.png)
+<img src="./assets/images/ExtraDetailsOfDay1.png" alt="Day Details - Part 1" width="300"/>
 
 Each day displays detailed information including:
 - Tithi (lunar day) with precise ending time
@@ -61,7 +63,7 @@ Each day displays detailed information including:
 
 **Sunrise, Sunset, and Auspicious Times**
 
-![Day Details - Part 2](./assets/images/ExtraDetailsOfDay2.png)
+<img src="./assets/images/ExtraDetailsOfDay2.png" alt="Day Details - Part 2" width="300"/>
 
 Additional information includes:
 - Sunrise and sunset times
@@ -73,7 +75,7 @@ Additional information includes:
 
 The converter screen provides essential tools for daily use.
 
-![Tools and Utilities](./assets/images/Tools.png)
+<img src="./assets/images/Tools.png" alt="Tools and Utilities" width="300"/>
 
 **Date Conversion**
 Convert dates between Bikram Sambat and Gregorian calendars instantly. Enter a date in one format and receive the corresponding date in the other system.
