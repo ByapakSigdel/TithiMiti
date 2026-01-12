@@ -1,78 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@android:color/white"
-    android:padding="16dp">
+    android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/widget_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Metal Prices"
-        android:textSize="14sp"
-        android:textColor="#666666"
-        android:layout_alignParentTop="true"
-        android:paddingBottom="8dp"/>
+    <!-- Gradient Background -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#0F0F0F" />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/widget_title"
+        android:layout_height="match_parent"
         android:orientation="vertical"
-        android:layout_centerInParent="true">
+        android:padding="20dp">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="METAL PRICES"
+            android:textSize="11sp"
+            android:textColor="#888888"
+            android:letterSpacing="0.1"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Gold Price Card -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingBottom="12dp">
-            
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-                
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Gold (Tola)"
-                    android:textSize="12sp"
-                    android:textColor="#999999"/>
-                
-                <TextView
-                    android:id="@+id/gold_price"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Loading..."
-                    android:textSize="18sp"
-                    android:textColor="#FF0000"
-                    android:textStyle="bold"/>
-            </LinearLayout>
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
 
-            <LinearLayout
-                android:layout_width="0dp"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-                
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Silver (Tola)"
-                    android:textSize="12sp"
-                    android:textColor="#999999"/>
-                
-                <TextView
-                    android:id="@+id/silver_price"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Loading..."
-                    android:textSize="18sp"
-                    android:textColor="#000000"
-                    android:textStyle="bold"/>
-            </LinearLayout>
+                android:text="Gold per Tola"
+                android:textSize="13sp"
+                android:textColor="#AAAAAA"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/gold_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₨265,700"
+                android:textSize="32sp"
+                android:textColor="#FFD700"
+                android:textStyle="bold"
+                android:shadowColor="#80000000"
+                android:shadowDx="0"
+                android:shadowDy="2"
+                android:shadowRadius="4" />
+
+        </LinearLayout>
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#333333"
+            android:layout_marginVertical="8dp" />
+
+        <!-- Silver Price Card -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Silver per Tola"
+                android:textSize="13sp"
+                android:textColor="#AAAAAA"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/silver_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₨4,835"
+                android:textSize="32sp"
+                android:textColor="#C0C0C0"
+                android:textStyle="bold"
+                android:shadowColor="#80000000"
+                android:shadowDx="0"
+                android:shadowDy="2"
+                android:shadowRadius="4" />
+
         </LinearLayout>
 
         <TextView
@@ -81,8 +101,10 @@
             android:layout_height="wrap_content"
             android:text="Updated today"
             android:textSize="10sp"
-            android:textColor="#CCCCCC"
-            android:layout_gravity="end"/>
+            android:textColor="#666666"
+            android:layout_gravity="end"
+            android:layout_marginTop="8dp" />
+
     </LinearLayout>
 
-</RelativeLayout>
+</FrameLayout>

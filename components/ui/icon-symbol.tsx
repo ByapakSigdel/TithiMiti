@@ -1,11 +1,11 @@
 // Fallback for using MaterialIcons on Android and web.
 
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { SymbolViewProps, SymbolWeight } from 'expo-symbols';
+import { SymbolWeight } from 'expo-symbols';
 import { ComponentProps } from 'react';
 import { OpaqueColorValue, type StyleProp, type TextStyle } from 'react-native';
 
-type IconMapping = Record<SymbolViewProps['name'], ComponentProps<typeof MaterialIcons>['name']>;
+type IconMapping = Record<string, ComponentProps<typeof MaterialIcons>['name']>;
 type IconSymbolName = keyof typeof MAPPING;
 
 /**
@@ -22,6 +22,9 @@ const MAPPING = {
   'arrow.right.arrow.left': 'swap-horiz',
   'square.grid.2x2': 'grid-view',
   'list.bullet': 'list',
+  'gearshape.fill': 'dashboard',
+  'calendar.circle.fill': 'event-note',
+  'star.fill': 'auto-awesome',
 } as IconMapping;
 
 /**

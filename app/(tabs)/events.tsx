@@ -2,7 +2,8 @@ import { convertAdToBs } from '@/src/domain/calendar/converter';
 import { BS_MONTHS_ROMANIZED } from '@/src/domain/calendar/labels';
 import { BsDay, BsMonth } from '@/src/domain/calendar/types';
 import { getBsMonth } from '@/src/services/api/bsCalendarApi';
-import { updateEventsWidget } from '@/src/services/widget/widgetService';
+// Widget imports disabled for future iteration
+// import { updateEventsWidget, updateUserEventsWidget } from '@/src/services/widget/widgetService';
 import { useAppState } from '@/src/state/appState';
 import { NothingText } from '@/src/ui/core/NothingText';
 import React, { useEffect, useRef, useState } from 'react';
@@ -103,11 +104,28 @@ export default function EventsScreen() {
 
     // Update events widget with today's events
     const todayEvents = sorted.find(e => e.isToday);
-    if (todayEvents) {
-      updateEventsWidget(todayEvents.titles);
-    } else {
-      updateEventsWidget([]);
-    }
+    // Widget updates disabled
+    // if (todayEvents) {
+    //   updateEventsWidget(todayEvents.titles);
+    // } else {
+    //   updateEventsWidget([]);
+    // }
+
+    // Update user events widget with custom events only
+    // if (userEvents.length > 0) {
+    //   const sortedUserEvents = [...userEvents]
+    //     .sort((a, b) => a.adDateISO.localeCompare(b.adDateISO))
+    //     .filter(e => e.adDateISO >= todayISO)
+    //     .slice(0, 5)
+    //     .map(e => ({
+    //       title: e.title,
+    //       date: e.adDateISO,
+    //       adDateISO: e.adDateISO
+    //     }));
+    //   updateUserEventsWidget(sortedUserEvents);
+    // } else {
+    //   updateUserEventsWidget([]);
+    // }
 
     // Auto-scroll to today
     const todayIndex = sorted.findIndex(e => e.isToday);
@@ -161,7 +179,7 @@ export default function EventsScreen() {
                 </NothingText>
             </View>
             <View style={styles.eventContent}>
-                {item.titles.map((title, idx) => (
+                {item.titles.map((title: string, idx: number) => (
                   <NothingText key={idx} style={{ 
                     color: colors.text,
                     marginBottom: idx < item.titles.length - 1 ? 4 : 0

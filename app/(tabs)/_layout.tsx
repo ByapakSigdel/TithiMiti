@@ -2,7 +2,7 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 
 import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
+import { SvgIcon } from '@/components/svg-icon';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
@@ -21,21 +21,21 @@ export default function TabLayout() {
         name="converter"
         options={{
           title: 'Tools',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="gearshape.fill" color={color} />,
+          tabBarIcon: ({ color }) => <SvgIcon name="stat" size={28} color={color} />,
         }}
       />
       <Tabs.Screen
         name="index"
         options={{
           title: 'Calendar',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="calendar.circle.fill" color={color} />,
+          tabBarIcon: ({ color }) => <SvgIcon name="calendar-add" size={28} color={color} />,
         }}
       />
       <Tabs.Screen
         name="events"
         options={{
           title: 'Events',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="star.fill" color={color} />,
+          tabBarIcon: ({ color }) => <SvgIcon name="chat-duotone" size={28} color={color} />,
         }}
       />
     </Tabs>

@@ -6,6 +6,9 @@ import android.content.Context
 import android.widget.RemoteViews
 import com.byapak.tithimiti.R
 import org.json.JSONObject
+import android.app.PendingIntent
+import android.content.Intent
+import android.net.Uri
 
 class GoldSilverWidget : AppWidgetProvider() {
     override fun onUpdate(
@@ -24,30 +27,57 @@ internal fun updateGoldSilverWidget(
     appWidgetManager: AppWidgetManager,
     appWidgetId: Int
 ) {
-    val views = RemoteViews(context.packageName, R.layout.gold_silver_widget)
+    try {
+        val views = RemoteViews(context.packageName, R.layout.gold_silver_widget)
     
-    val prefs = context.getSharedPreferences("RCTAsyncLocalStorage_V1", Context.MODE_PRIVATE)
-    val goldSilverDataKey = prefs.all.keys.find { it.contains("gold-silver-cache") }
+    // Deep linking intent (Open Tools tab)
+    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("tithimiti://(tabs)/converter"))
+    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+    val pendingIntent = PendingIntent.getActivity(
+        context, 
+        0, 
+        intent, 
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    )
+    views.setOnClickPendingIntent(R.id.widget_root, pendingIntent)
+
+    // Read from SharedPreferences
+    val sharedPref = context.getSharedPreferences("WIDGET_DATA", Context.MODE_PRIVATE)
+    val dataString = sharedPref.getString("gold_silver_widget", "")
+    var goldTola = "N/A"
+    var silverTola = "N/A"
+    var date = ""
     
-    if (goldSilverDataKey != null) {
-        val jsonString = prefs.getString(goldSilverDataKey, "{}")
+    if (!dataString.isNullOrEmpty()) {
         try {
-            val data = JSONObject(jsonString ?: "{}")
-            val goldTola = data.optString("goldHallmarkTola", "N/A")
-            val silverTola = data.optString("silverTola", "N/A")
-            val date = data.optString("date", "")
-            
-            views.setTextViewText(R.id.gold_price, "₨$goldTola")
-            views.setTextViewText(R.id.silver_price, "₨$silverTola")
-            views.setTextViewText(R.id.updated_date, date)
+            val prices = JSONObject(dataString)
+            goldTola = prices.optString("goldHallmarkTola", "N/A")
+            silverTola = prices.optString("silverTola", "N/A")
+            date = prices.optString("date", "")
         } catch (e: Exception) {
-            views.setTextViewText(R.id.gold_price, "N/A")
-            views.setTextViewText(R.id.silver_price, "N/A")
+            e.printStackTrace()
         }
+    }
+
+    if (goldTola != "N/A") {
+        views.setTextViewText(R.id.gold_price, "₨$goldTola")
+        views.setTextViewText(R.id.silver_price, "₨$silverTola")
+        views.setTextViewText(R.id.updated_date, date)
     } else {
         views.setTextViewText(R.id.gold_price, "Loading...")
         views.setTextViewText(R.id.silver_price, "Loading...")
+        views.setTextViewText(R.id.updated_date, "Open app to sync")
     }
     
-    appWidgetManager.updateAppWidget(appWidgetId, views)
+        appWidgetManager.updateAppWidget(appWidgetId, views)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        try {
+            val fallbackViews = RemoteViews(context.packageName, R.layout.gold_silver_widget)
+            fallbackViews.setTextViewText(R.id.gold_price, "Error")
+            fallbackViews.setTextViewText(R.id.silver_price, "Error")
+            fallbackViews.setTextViewText(R.id.updated_date, "Open app")
+            appWidgetManager.updateAppWidget(appWidgetId, fallbackViews)
+        } catch (ignored: Exception) {}
+    }
 }

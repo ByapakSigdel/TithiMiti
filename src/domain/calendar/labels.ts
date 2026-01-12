@@ -5,6 +5,11 @@ export const BS_MONTHS_ROMANIZED = [
   'Kartik', 'Mangsir', 'Poush', 'Magh', 'Falgun', 'Chaitra'
 ];
 
+export const BS_MONTHS_NEPALI = [
+  'बैशाख', 'जेठ', 'असार', 'श्रावण', 'भाद्र', 'आश्विन',
+  'कार्तिक', 'मंसिर', 'पौष', 'माघ', 'फाल्गुन', 'चैत्र'
+];
+
 export const BS_DAYS_ROMANIZED = [
   'Aaitabar', 'Sombar', 'Mangalbar', 'Budhabar', 'Bihibar', 'Shukrabar', 'Sanibar'
 ];

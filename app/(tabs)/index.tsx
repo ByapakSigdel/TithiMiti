@@ -5,7 +5,8 @@ import { convertAdToBs } from '@/src/domain/calendar/converter';
 import { getBsMonthName } from '@/src/domain/calendar/labels';
 import { BsDay } from '@/src/domain/calendar/types';
 import { initNotifications } from '@/src/services/notifications';
-import { updateDateWidget } from '@/src/services/widget/widgetService';
+// Widget imports disabled for future iteration
+// import { initializeAllWidgets, updateDateWidget, updateTodayWidget } from '@/src/services/widget/widgetService';
 import { useAppState } from '@/src/state/appState';
 import { NothingButton } from '@/src/ui/core/NothingButton';
 import { NothingText } from '@/src/ui/core/NothingText';
@@ -87,16 +88,33 @@ export default function CalendarScreen() {
   useEffect(() => {
     initNotifications();
     
-    // Update date widget with today's BS date
-    const updateTodayWidget = async () => {
-      const todayISO = getTodayISO();
-      const result = await convertAdToBs(todayISO);
-      if (result.bs) {
-        const bsDate = `${result.bs.bsYear}/${result.bs.bsMonth}/${result.bs.bsDay}`;
-        await updateDateWidget(bsDate);
-      }
-    };
-    updateTodayWidget();
+    // Widgets disabled for future iteration
+    // Will be re-enabled after proper testing and debugging
+    
+    // initializeAllWidgets();
+    // const updateAllWidgets = async () => {
+    //   try {
+    //     const todayISO = getTodayISO();
+    //     const result = await convertAdToBs(todayISO);
+    //     if (result.bs) {
+    //       const bsDate = `${result.bs.bsYear}/${result.bs.bsMonth}/${result.bs.bsDay}`;
+    //       await updateDateWidget(bsDate);
+    //       const monthData = await getBsMonth(result.bs.bsYear, result.bs.bsMonth);
+    //       const todayData = monthData.days.find(d => d.adDateISO === todayISO);
+    //       if (todayData) {
+    //         await updateTodayWidget(
+    //           bsDate,
+    //           todayData.tithiRom || 'N/A',
+    //           todayData.extraDetails?.sunrise || '06:45',
+    //           todayData.extraDetails?.sunset || '17:30'
+    //         );
+    //       }
+    //     }
+    //   } catch (e) {
+    //     console.error('Failed to update widgets:', e);
+    //   }
+    // };
+    // updateAllWidgets();
   }, []);
 
   // Handle Android Back Button
@@ -172,6 +190,8 @@ export default function CalendarScreen() {
   const title = mode === 'BS' 
     ? `${getBsMonthName(viewMonth)} ${viewYear}`
     : `${new Date(viewYear, viewMonth - 1).toLocaleString('default', { month: 'long' })} ${viewYear}`;
+
+  console.log('[CalendarScreen] Rendering...', { mode, viewYear, viewMonth, title, colors });
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -315,7 +335,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modeToggle: {
-    padding: 8,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
     borderWidth: 1,
     borderRadius: 8,
     borderColor: NothingTheme.colors.black,

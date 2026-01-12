@@ -5,6 +5,10 @@ import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.widget.RemoteViews
 import com.byapak.tithimiti.R
+import android.app.PendingIntent
+import android.content.Intent
+import android.net.Uri
+import android.graphics.BitmapFactory
 
 class HoroscopeWidget : AppWidgetProvider() {
     override fun onUpdate(
@@ -23,26 +27,63 @@ internal fun updateHoroscopeWidget(
     appWidgetManager: AppWidgetManager,
     appWidgetId: Int
 ) {
-    val views = RemoteViews(context.packageName, R.layout.horoscope_widget)
+    try {
+        val views = RemoteViews(context.packageName, R.layout.horoscope_widget)
     
-    val prefs = context.getSharedPreferences("RCTAsyncLocalStorage_V1", Context.MODE_PRIVATE)
-    val zodiacKey = prefs.all.keys.find { it.contains("selected-zodiac") }
+    // Deep linking intent (Open Tools tab)
+    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("tithimiti://(tabs)/converter"))
+    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+    val pendingIntent = PendingIntent.getActivity(
+        context, 
+        0, 
+        intent, 
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    )
+    views.setOnClickPendingIntent(R.id.widget_root, pendingIntent)
+
+    // Read from SharedPreferences (like the blog shows)
+    val sharedPref = context.getSharedPreferences("WIDGET_DATA", Context.MODE_PRIVATE)
+    val dataString = sharedPref.getString("horoscope_widget", "")
     
     var zodiac = "Mesh"
     var horoscope = "Open app to see your horoscope"
+    var imagePath = ""
     
-    if (zodiacKey != null) {
-        zodiac = prefs.getString(zodiacKey, "Mesh") ?: "Mesh"
+    if (!dataString.isNullOrEmpty()) {
+        try {
+            val hData = org.json.JSONObject(dataString)
+            zodiac = hData.optString("zodiac", "Mesh")
+            horoscope = hData.optString("message", horoscope)
+            imagePath = hData.optString("imagePath", "")
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
     
-    // Get daily horoscope from cache
-    val horoscopeKey = prefs.all.keys.find { it.contains("daily-horoscope") }
-    if (horoscopeKey != null) {
-        horoscope = prefs.getString(horoscopeKey, horoscope) ?: horoscope
+    // Set background image if exists
+    if (imagePath.isNotEmpty()) {
+        try {
+            val imgFile = java.io.File(imagePath)
+            if (imgFile.exists()) {
+                val bitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
+                views.setImageViewBitmap(R.id.widget_bg_image, bitmap)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
     
     views.setTextViewText(R.id.zodiac_name, zodiac)
     views.setTextViewText(R.id.horoscope_text, horoscope)
     
-    appWidgetManager.updateAppWidget(appWidgetId, views)
+        appWidgetManager.updateAppWidget(appWidgetId, views)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        try {
+            val fallbackViews = RemoteViews(context.packageName, R.layout.horoscope_widget)
+            fallbackViews.setTextViewText(R.id.zodiac_name, "Error")
+            fallbackViews.setTextViewText(R.id.horoscope_text, "Open app for horoscope")
+            appWidgetManager.updateAppWidget(appWidgetId, fallbackViews)
+        } catch (ignored: Exception) {}
+    }
 }

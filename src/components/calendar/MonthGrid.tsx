@@ -28,12 +28,16 @@ export function MonthGrid({ year, month, mode, onSelectDay }: MonthGridProps) {
     setError(null);
     
     const fetchFn = mode === 'BS' ? getBsMonth : getAdMonth;
+    
+    console.log(`[MonthGrid] Fetching ${mode} ${year}/${month}`);
 
     fetchFn(year, month)
       .then(res => {
+        console.log(`[MonthGrid] Fetched ${res.days.length} days`);
         if (mounted) setData(res);
       })
       .catch(err => {
+        console.error(`[MonthGrid] Error:`, err);
         if (mounted) setError(err.message);
       })
       .finally(() => {

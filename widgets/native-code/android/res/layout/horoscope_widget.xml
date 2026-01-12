@@ -1,31 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@android:color/white"
-    android:padding="16dp">
+    android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/zodiac_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Mesh"
-        android:textSize="16sp"
-        android:textColor="#000000"
-        android:textStyle="bold"
-        android:layout_alignParentTop="true"
-        android:paddingBottom="8dp"/>
-
-    <TextView
-        android:id="@+id/horoscope_text"
+    <ImageView
+        android:id="@+id/widget_bg_image"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/zodiac_name"
-        android:text="Open app to see your daily horoscope"
-        android:textSize="13sp"
-        android:textColor="#333333"
-        android:lineSpacingMultiplier="1.2"
-        android:maxLines="4"
-        android:ellipsize="end"/>
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@android:color/darker_gray" />
 
-</RelativeLayout>
+    <!-- Dark overlay for better text readability -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#AA000000" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:gravity="center">
+
+        <!-- Opening Quote -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="\u201C"
+            android:textColor="#FFFFFF"
+            android:textSize="48sp"
+            android:textStyle="bold"
+            android:alpha="0.5"
+            android:layout_gravity="start" />
+
+        <!-- Horoscope Message -->
+        <TextView
+            android:id="@+id/horoscope_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Open app to see your horoscope"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="italic"
+            android:gravity="center"
+            android:lineSpacingExtra="4dp"
+            android:maxLines="6"
+            android:ellipsize="end"
+            android:shadowColor="#000000"
+            android:shadowDx="0"
+            android:shadowDy="2"
+            android:shadowRadius="4" />
+
+        <!-- Closing Quote -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="\u201D"
+            android:textColor="#FFFFFF"
+            android:textSize="48sp"
+            android:textStyle="bold"
+            android:alpha="0.5"
+            android:layout_gravity="end" />
+
+        <!-- Zodiac Sign -->
+        <TextView
+            android:id="@+id/zodiac_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Mesh"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:textAllCaps="true"
+            android:letterSpacing="0.15"
+            android:alpha="0.8"
+            android:shadowColor="#000000"
+            android:shadowDx="0"
+            android:shadowDy="1"
+            android:shadowRadius="2" />
+
+    </LinearLayout>
+</FrameLayout>

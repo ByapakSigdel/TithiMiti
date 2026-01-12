@@ -1,4 +1,4 @@
-const { withAndroidManifest, withDangerousMod } = require('@expo/config-plugins');
+const { withAndroidManifest, withDangerousMod, withMainApplication } = require('@expo/config-plugins');
 const fs = require('fs');
 const path = require('path');
 
@@ -38,8 +38,27 @@ const withAndroidWidgetFiles = (config) => {
         'EventsWidget',
         'GoldSilverWidget',
         'HoroscopeWidget',
-        'DateConverterWidget'
+        'DateConverterWidget',
+        'TodayDateWidget'
       ];
+
+      // Copy native module files
+      try {
+        fs.copyFileSync(
+          path.join(widgetSourceDir, 'WidgetUpdateModule.kt'),
+          path.join(javaDir, 'WidgetUpdateModule.kt')
+        );
+        fs.copyFileSync(
+          path.join(widgetSourceDir, 'WidgetPackage.kt'),
+          path.join(javaDir, 'WidgetPackage.kt')
+        );
+        fs.copyFileSync(
+          path.join(widgetSourceDir, 'WidgetUpdatePackage.kt'),
+          path.join(javaDir, 'WidgetUpdatePackage.kt')
+        );
+      } catch (e) {
+        console.error("Error copying native module files:", e);
+      }
 
       try {
         for (const widget of widgets) {
@@ -81,7 +100,8 @@ const withAndroidWidgetManifest = (config) => {
       { name: 'EventsWidget', resource: 'events_widget_info' },
       { name: 'GoldSilverWidget', resource: 'gold_silver_widget_info' },
       { name: 'HoroscopeWidget', resource: 'horoscope_widget_info' },
-      { name: 'DateConverterWidget', resource: 'date_converter_widget_info' }
+      { name: 'DateConverterWidget', resource: 'date_converter_widget_info' },
+      { name: 'TodayDateWidget', resource: 'today_date_widget_info' }
     ];
 
     for (const widget of widgets) {
@@ -122,8 +142,39 @@ const withAndroidWidgetManifest = (config) => {
   });
 };
 
+const withWidgetNativeModule = (config) => {
+  return withMainApplication(config, async (config) => {
+    const { modResults } = config;
+    let { contents } = modResults;
+    
+    // Add import for WidgetPackage (not WidgetUpdatePackage)
+    const importStatement = 'import com.byapak.tithimiti.widgets.WidgetPackage';
+    if (!contents.includes(importStatement)) {
+      // Add after other imports
+      contents = contents.replace(
+        /import com\.facebook\.react\.defaults\.DefaultReactNativeHost/,
+        `import com.facebook.react.defaults.DefaultReactNativeHost\n${importStatement}`
+      );
+    }
+    
+    // Add package to getPackages() - Kotlin style
+    const packageStatement = 'packages.add(WidgetPackage())';
+    if (!contents.includes(packageStatement)) {
+      // Find getPackages() method and add our package
+      contents = contents.replace(
+        /(override fun getPackages\(\): List<ReactPackage> \{[\s\S]*?val packages = PackageList\(this\)\.packages)/,
+        `$1\n            ${packageStatement}`
+      );
+    }
+    
+    config.modResults.contents = contents;
+    return config;
+  });
+};
+
 module.exports = (config) => {
   config = withAndroidWidgetFiles(config);
   config = withAndroidWidgetManifest(config);
+  config = withWidgetNativeModule(config);
   return config;
 };

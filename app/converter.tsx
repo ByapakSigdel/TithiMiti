@@ -1,91 +1,20 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FileSystem from 'expo-file-system/legacy';
 import { useFocusEffect } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import Animated, { ZoomIn } from 'react-native-reanimated';
 import { convertAdToBs, convertBsToAd } from '../src/domain/calendar/converter';
 import { getGoldSilverPrices, GoldSilverPrices } from '../src/services/api/goldSilverService';
-import { updateDateWidget, updateGoldSilverWidget, updateHoroscopeWidget } from '../src/services/widget/widgetService';
+import { clearHoroscopeCache, getHoroscopeForZodiac } from '../src/services/horoscope/horoscopeService';
+// Widget imports disabled for future iteration
+// import { updateDateWidget, updateGoldSilverWidget, updateHoroscopeWidget } from '../src/services/widget/widgetService';
 import { useAppState } from '../src/state/appState';
 import { NothingText } from '../src/ui/core/NothingText';
 
-
 const ZODIACS = ['Mesh', 'Vrishabha', 'Mithuna', 'Karka', 'Simha', 'Kanya', 'Tula', 'Vrishchika', 'Dhanu', 'Makara', 'Kumbha', 'Meen'];
-
-const HOROSCOPES: { [key: string]: string[] } = {
-  Mesh: [
-    "Stop rushing into everything without thinking. Your impulsive decisions might feel exciting but they're creating unnecessary chaos. Take a breath before you act, Mesh.",
-    "Not every battle needs to be fought today. Channel that fire energy into something productive instead of arguing with everyone. Save your energy for what truly matters, Mesh.",
-    "Your confidence is attractive but overconfidence is just arrogance in disguise. Listen to others' advice before making that big decision, Mesh.",
-    "That competitive streak is showing again. Remember, you're not always racing against others. Sometimes the real competition is with yourself, Mesh."
-  ],
-  Vrishabha: [
-    "Let go of what's no longer serving you, even if it feels comfortable. Clinging to the familiar is holding you back from better opportunities, Vrishabha.",
-    "Stop overthinking that purchase. Your financial anxiety is valid but don't let fear of spending prevent you from enjoying life's pleasures, Vrishabha.",
-    "Your stubborn nature is showing and it's not cute anymore. Sometimes being flexible is a strength, not a weakness, Vrishabha.",
-    "Change isn't your enemy. That resistance to new experiences is limiting your growth. Try something different today, Vrishabha."
-  ],
-  Mithuna: [
-    "Pick a lane and stick with it. Your scattered energy is preventing you from finishing anything meaningful. Focus on one thing today, Mithuna.",
-    "Stop talking and start listening. Not every conversation needs your input. Sometimes silence teaches more than words, Mithuna.",
-    "Finish what you started before jumping to the next shiny thing. Your inconsistency is creating problems you don't even notice, Mithuna.",
-    "Quality over quantity in everything today - conversations, tasks, relationships. Depth matters more than breadth, Mithuna."
-  ],
-  Karka: [
-    "Not everyone is out to hurt you. Your defensive walls are keeping out the good stuff too. Let people in occasionally, Karka.",
-    "Stop taking everything so personally. That comment wasn't about you. Your sensitivity is a gift but don't weaponize it, Karka.",
-    "You can't protect everyone from everything. Sometimes people need to face their own struggles to grow. Let go a little, Karka.",
-    "Your emotional manipulation tactics aren't as subtle as you think. Express your needs directly instead of guilt-tripping others, Karka."
-  ],
-  Simha: [
-    "The world doesn't revolve around you today. Share the spotlight and watch how much more you receive in return, Simha.",
-    "Your need for validation is showing. Create for yourself, not for applause. Authentic expression beats performed perfection, Simha.",
-    "Humility won't kill you. That defensive pride is just your ego protecting itself. Admit when you're wrong, Simha.",
-    "Not every moment needs to be dramatic. Sometimes quiet confidence speaks louder than grand gestures, Simha."
-  ],
-  Kanya: [
-    "Perfection is a myth that's stealing your joy. Good enough is actually good enough today. Let it go, Kanya.",
-    "Stop criticizing everyone including yourself. Your judgmental streak is creating distance in your relationships, Kanya.",
-    "Not everything needs to be optimized and organized. Sometimes chaos has its own wisdom. Relax your control, Kanya.",
-    "Your anxiety about health and wellness is becoming unhealthy. Trust your body knows what it's doing, Kanya."
-  ],
-  Tula: [
-    "Make a decision already. Your chronic indecisiveness is exhausting everyone around you. Sometimes you just have to choose, Tula.",
-    "Stop people-pleasing at the cost of your own needs. Saying no doesn't make you a bad person, Tula.",
-    "Your peace-keeping is actually conflict-avoidance. Address the real issues instead of smoothing everything over, Tula.",
-    "You don't need everyone to like you. Authenticity over approval today. Stand for something, Tula."
-  ],
-  Vrishchika: [
-    "Let go of that grudge you're carrying. It's poisoning only you, not them. Forgiveness is for your peace, Vrishchika.",
-    "Not everything is a conspiracy. Your trust issues are pushing away genuine people. Give someone the benefit of doubt, Vrishchika.",
-    "Stop stalking their social media. That obsessive behavior isn't giving you peace. Move forward, Vrishchika.",
-    "Your intensity scares people sometimes. Not everyone can handle your depth and that's okay. Find your tribe, Vrishchika."
-  ],
-  Dhanu: [
-    "Commitment isn't a cage. Your fear of being tied down is preventing beautiful connections. Stay still for once, Dhanu.",
-    "Think before you speak today. Your brutal honesty is just rudeness without compassion. Tact exists for a reason, Dhanu.",
-    "Running away won't solve the problem. Face what's in front of you instead of planning the next escape, Dhanu.",
-    "The grass isn't greener elsewhere. What you have here is valuable too. Practice gratitude, Dhanu."
-  ],
-  Makara: [
-    "Take a break from work. Your worth isn't measured by productivity alone. Rest is not laziness, Makara.",
-    "Stop carrying everyone's responsibilities. That martyr complex is exhausting you for no good reason, Makara.",
-    "Loosen up a bit. Not everything needs a plan. Sometimes spontaneity brings the best experiences, Makara.",
-    "Success isn't just about the destination. Enjoy the climb occasionally. You're missing the view, Makara."
-  ],
-  Kumbha: [
-    "Come back down to earth. Your detachment is making people feel unloved. Connection requires vulnerability, Kumbha.",
-    "Being different doesn't make you superior. Your intellectual arrogance is showing. Listen to others, Kumbha.",
-    "The future is important but so is the present. Stop living in tomorrow and engage with today, Kumbha.",
-    "Emotions aren't your enemy. That rational approach to feelings is keeping you lonely. Let yourself feel, Kumbha."
-  ],
-  Meen: [
-    "Reality check needed today. Stop escaping into fantasy when life gets hard. Face your problems, Meen.",
-    "You can't save everyone. That savior complex is draining you. Focus on your own healing first, Meen.",
-    "Stop playing the victim. You have more power than you're claiming. Take responsibility, Meen.",
-    "Ground yourself. Your head is in the clouds but your body needs attention too. Come back to reality, Meen."
-  ]
-};
+const ART_API_SEARCH = 'https://collectionapi.metmuseum.org/public/collection/v1/search?q=astrology|star|sky&hasImages=true&medium=Paintings';
+const ART_API_OBJECT = 'https://collectionapi.metmuseum.org/public/collection/v1/objects/';
 
 export default function ConverterScreen() {
   const { colors } = useAppState();
@@ -100,8 +29,8 @@ export default function ConverterScreen() {
   const [refreshing, setRefreshing] = useState(false);
   
   // Horoscope state
-  const [selectedZodiac, setSelectedZodiac] = useState<string>('Aries');
-  const [dailyHoroscope, setDailyHoroscope] = useState<string>('');
+  const [selectedZodiac, setSelectedZodiac] = useState<string>('Mesh');
+  const [dailyHoroscope, setDailyHoroscope] = useState<string>('Loading your horoscope...');
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
   // Load gold/silver prices from HamroPatro
@@ -114,8 +43,8 @@ export default function ConverterScreen() {
       const prices = await getGoldSilverPrices(forceRefresh);
       if (prices) {
         setGoldSilverPrices(prices);
-        // Update widget
-        await updateGoldSilverWidget(prices);
+        // Widget update disabled
+        // await updateGoldSilverWidget(prices);
       } else {
         setPricesError('Failed to fetch prices. Please try again.');
       }
@@ -132,6 +61,8 @@ export default function ConverterScreen() {
   useEffect(() => {
     loadSavedZodiac();
     loadMetalPrices();
+    // Clear any corrupted cache on first load
+    clearHoroscopeCache();
   }, []);
 
   useEffect(() => {
@@ -161,24 +92,66 @@ export default function ConverterScreen() {
       await AsyncStorage.setItem('selected-zodiac', zodiac);
       setSelectedZodiac(zodiac);
       setDropdownVisible(false);
-      // Update widget when zodiac changes
-      const messages = HOROSCOPES[zodiac] || HOROSCOPES.Mesh;
-      const dayOfYear = Math.floor((new Date().getTime() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
-      const index = dayOfYear % messages.length;
-      await updateHoroscopeWidget(zodiac, messages[index]);
     } catch (e) {
       console.error('Failed to save zodiac:', e);
     }
   };
 
+  const fetchArtImage = async () => {
+    try {
+      // Check if we already have an image for today
+      const today = new Date().toISOString().split('T')[0];
+      const savedDate = await AsyncStorage.getItem('art-image-date');
+      const savedPath = await AsyncStorage.getItem('art-image-path');
+      
+      if (savedDate === today && savedPath) {
+        return savedPath;
+      }
+
+      // Fetch new image
+      const searchRes = await fetch(ART_API_SEARCH);
+      const searchData = await searchRes.json();
+      
+      if (searchData.objectIDs && searchData.objectIDs.length > 0) {
+        // Pick random object from results
+        const randomId = searchData.objectIDs[Math.floor(Math.random() * Math.min(20, searchData.objectIDs.length))];
+        const objRes = await fetch(`${ART_API_OBJECT}${randomId}`);
+        const objData = await objRes.json();
+        
+        if (objData.primaryImageSmall) {
+          const downloadDest = FileSystem.documentDirectory + 'horoscope_bg.jpg';
+          await FileSystem.downloadAsync(objData.primaryImageSmall, downloadDest);
+          
+          await AsyncStorage.setItem('art-image-date', today);
+          await AsyncStorage.setItem('art-image-path', downloadDest);
+          return downloadDest;
+        }
+      }
+    } catch (e) {
+      console.error('Failed to fetch art image:', e);
+    }
+    return '';
+  };
+
   const generateDailyHoroscope = async () => {
-    const messages = HOROSCOPES[selectedZodiac] || HOROSCOPES.Mesh;
-    const dayOfYear = Math.floor((new Date().getTime() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
-    const index = dayOfYear % messages.length;
-    const horoscope = messages[index];
-    setDailyHoroscope(horoscope);
-    // Update widget
-    await updateHoroscopeWidget(selectedZodiac, horoscope);
+    try {
+      // Clear any old cached horoscopes
+      await clearHoroscopeCache();
+      
+      // Generate horoscope using Vedic algorithm (no API needed!)
+      const horoscope = await getHoroscopeForZodiac(selectedZodiac, null);
+      setDailyHoroscope(horoscope);
+      
+      // Fetch background image
+      const imagePath = await fetchArtImage();
+      
+      // Widget update disabled
+      // await updateHoroscopeWidget(selectedZodiac, horoscope, imagePath);
+      
+    } catch (error) {
+      console.error('Failed to generate horoscope:', error);
+      setDailyHoroscope('Unable to load your horoscope. Please try again.');
+    }
   };
 
   const handleConvert = async () => {
@@ -186,10 +159,10 @@ export default function ConverterScreen() {
       const r = await convertAdToBs(inputDate);
       const bsDate = r.bs ? `${r.bs.bsYear}/${r.bs.bsMonth}/${r.bs.bsDay}` : 'Invalid date';
       setResult(bsDate);
-      // Update date widget
-      if (r.bs) {
-        await updateDateWidget(bsDate);
-      }
+      // Widget update disabled
+      // if (r.bs) {
+      //   await updateDateWidget(bsDate);
+      // }
     } else {
       const parts = inputDate.split('/');
       if (parts.length === 3) {
