@@ -160,7 +160,7 @@ All personal events are stored locally on the device. No user data is transmitte
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/byapak/tithi-miti.git
+git clone https://github.com/ByapakSigdel/TithiMiti.git
 cd tithi-miti
 ```
 
@@ -339,44 +339,18 @@ When reporting bugs or requesting features, please include:
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Acknowledgments
-
-- Calendar data provided by [Bikram Sambat Data API](https://data.miti.bikram.io)
-- Gold and silver prices from HamroPatro
-- Nothing OS design inspiration for UI components
-- Expo team for excellent cross-platform development tools
-- React Native community for comprehensive library ecosystem
+Copyright (c) 2026 Byapak Sigdel
 
 ## Contact
 
 For questions, suggestions, or collaboration opportunities:
-
-- GitHub Issues: [github.com/byapak/tithi-miti/issues](https://github.com/byapak/tithi-miti/issues)
-- Email: [your-email@example.com]
+- Email: [sigdelmb123@gmail.com]
 
 ---
 
 Built with care for the Nepali-speaking community worldwide.
 
 
-```bash
-npm run reset-project
-```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
