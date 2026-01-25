@@ -11,6 +11,7 @@ import { clearHoroscopeCache, getHoroscopeForZodiac } from '../src/services/horo
 // import { updateDateWidget, updateGoldSilverWidget, updateHoroscopeWidget } from '../src/services/widget/widgetService';
 import { useAppState } from '../src/state/appState';
 import { NothingText } from '../src/ui/core/NothingText';
+import WidgetPreviewButton from '../widgets/native-code/react/WidgetPreviewButton';
 
 const ZODIACS = ['Mesh', 'Vrishabha', 'Mithuna', 'Karka', 'Simha', 'Kanya', 'Tula', 'Vrishchika', 'Dhanu', 'Makara', 'Kumbha', 'Meen'];
 const ART_API_SEARCH = 'https://collectionapi.metmuseum.org/public/collection/v1/search?q=astrology|star|sky&hasImages=true&medium=Paintings';
@@ -314,6 +315,9 @@ export default function ConverterScreen() {
               <NothingText style={{ fontSize: 14 }}>{result}</NothingText>
             </Animated.View>
           )}
+
+          {/* Debug: open widget preview (dev only) */}
+          <WidgetPreviewButton />
         </View>
 
         {/* Daily Horoscope Section */}
