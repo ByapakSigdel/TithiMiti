@@ -56,6 +56,15 @@ const withAndroidWidgetFiles = (config) => {
           path.join(widgetSourceDir, 'WidgetUpdatePackage.kt'),
           path.join(javaDir, 'WidgetUpdatePackage.kt')
         );
+        // Copy preview activity so developer preview is available
+        try {
+          fs.copyFileSync(
+            path.join(widgetSourceDir, 'WidgetPreviewActivity.kt'),
+            path.join(javaDir, 'WidgetPreviewActivity.kt')
+          );
+        } catch (e) {
+          // ignore if not present
+        }
       } catch (e) {
         console.error("Error copying native module files:", e);
       }
@@ -77,6 +86,19 @@ const withAndroidWidgetFiles = (config) => {
             path.join(widgetSourceDir, 'res', 'xml', `${layoutName}_info.xml`),
             path.join(resDir, 'xml', `${layoutName}_info.xml`)
           );
+        }
+        // Copy preview layout and strings if present
+        try {
+          fs.copyFileSync(
+            path.join(widgetSourceDir, 'res', 'layout', 'widget_preview_activity.xml'),
+            path.join(resDir, 'layout', 'widget_preview_activity.xml')
+          );
+          fs.copyFileSync(
+            path.join(widgetSourceDir, 'res', 'values', 'strings_preview.xml'),
+            path.join(resDir, 'values', 'strings_preview.xml')
+          );
+        } catch (e) {
+          // ignore if preview files not present
         }
       } catch (e) {
         console.error("Error copying widget files:", e);
@@ -136,6 +158,20 @@ const withAndroidWidgetManifest = (config) => {
           ],
         });
       }
+    }
+
+    // Add debug preview activity entry
+    const activityExists = mainApplication.activity && mainApplication.activity.some(
+      (a) => a.$ && a.$['android:name'] === '.widgets.WidgetPreviewActivity'
+    );
+    if (!activityExists) {
+      mainApplication.activity = mainApplication.activity || [];
+      mainApplication.activity.push({
+        $: {
+          'android:name': '.widgets.WidgetPreviewActivity',
+          'android:exported': 'false'
+        }
+      });
     }
 
     return config;
