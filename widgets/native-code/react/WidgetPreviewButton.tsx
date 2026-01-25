@@ -22,18 +22,13 @@ export default function WidgetPreviewButton() {
       sunset: '05:30 PM'
     })
 
-    // Open preview activity via intent
-    const packageName = 'com.byapak.tithimiti'
-    const intent = `intent:#Intent;component=${packageName}/.widgets.WidgetPreviewActivity;end;`
+    // Open preview activity via native module (reliable)
     try {
-      // Linking can open intents, but on Android we can use Intent url
-      // React Native Linking may not accept this pattern across all versions; instead, use a deep link that native Activity handles
-      // We'll attempt to open via Linking first
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const { Linking } = require('react-native')
-      Linking.openURL(`intent://widgets_preview#Intent;component=${packageName}/.widgets.WidgetPreviewActivity;end`)
+      await WidgetData.openPreview((res: any, err: any) => {
+        if (err) console.warn('openPreview failed', err)
+      })
     } catch (e) {
-      console.warn('Failed to open preview via Linking', e)
+      console.warn('openPreview exception', e)
     }
   }
 

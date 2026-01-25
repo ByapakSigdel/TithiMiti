@@ -54,6 +54,19 @@ class WidgetUpdateModule(reactContext: ReactApplicationContext) : ReactContextBa
         
         callback.invoke("Success")
     }
+
+    @ReactMethod
+    fun openPreview(callback: Callback) {
+        try {
+            val context: Context = reactApplicationContext
+            val intent = Intent(context, WidgetPreviewActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(intent)
+            callback.invoke("Opened")
+        } catch (e: Exception) {
+            callback.invoke(null, e.message)
+        }
+    }
     
     @ReactMethod
     fun getData(key: String, callback: Callback) {
