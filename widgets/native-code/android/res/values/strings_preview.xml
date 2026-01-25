@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_preview_locked">Widget preview locked. Enter BS date 2060/03/24 in Date Converter to unlock.</string>
+</resources>

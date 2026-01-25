@@ -23,3 +23,8 @@ To use these native widgets, you need to run `npx expo prebuild` to generate the
 Important notes:
 - The widgets look for SharedPreferences named exactly `WIDGET_DATA` (uppercase). If you're using a different name (like `widget_data`) update the widgets or write to both names.
 - Ensure `WidgetUpdatePackage` is registered in your app's `MainApplication` so `NativeModules.WidgetData` is available.
+
+6. Debug preview activity
+ - I added a debug `WidgetPreviewActivity` that renders the TodayDate widget inside the app for fast iteration. The activity is defined at `widgets/native-code/android/WidgetPreviewActivity.kt` and layout at `res/layout/widget_preview_activity.xml`.
+ - For safety, the preview is locked unless the `date_converter_widget` SharedPreferences key contains `bsDate` equal to `2060/03/24`. This ensures you only enter the preview after entering that exact BS date in your Date Converter screen.
+ - Use the RN helper `WidgetHelper.setTodayWidgetData(...)` to seed `today_widget` data for the preview.
