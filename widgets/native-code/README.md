@@ -18,4 +18,8 @@ To use these native widgets, you need to run `npx expo prebuild` to generate the
 </receiver>
 ```
 
-5. In your React Native code, use a library like `react-native-shared-group-preferences` or `expo-file-system` to write data to SharedPreferences named "widget_data" with key "events_data".
+5. In your React Native code, use the provided native module `WidgetData` (registered by `WidgetUpdatePackage`) to write data to SharedPreferences named `WIDGET_DATA` using keys like `today_widget`, `user_events_widget`, etc. Example helper: `widgets/native-code/react/WidgetHelper.js`.
+
+Important notes:
+- The widgets look for SharedPreferences named exactly `WIDGET_DATA` (uppercase). If you're using a different name (like `widget_data`) update the widgets or write to both names.
+- Ensure `WidgetUpdatePackage` is registered in your app's `MainApplication` so `NativeModules.WidgetData` is available.

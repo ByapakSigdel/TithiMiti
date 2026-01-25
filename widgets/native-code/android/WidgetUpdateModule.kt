@@ -18,10 +18,19 @@ class WidgetUpdateModule(reactContext: ReactApplicationContext) : ReactContextBa
     @ReactMethod
     fun setData(key: String, data: String, callback: Callback) {
         val context: Context = reactApplicationContext
+        // Write to both names to be resilient to casing mismatch (WIDGET_DATA vs widget_data)
         val sharedPref = context.getSharedPreferences("WIDGET_DATA", Context.MODE_PRIVATE)
+        val altPref = context.getSharedPreferences("widget_data", Context.MODE_PRIVATE)
         val editor = sharedPref.edit()
         editor.putString(key, data)
         editor.apply()
+        try {
+            val altEditor = altPref.edit()
+            altEditor.putString(key, data)
+            altEditor.apply()
+        } catch (e: Exception) {
+            // ignore
+        }
         
         // Trigger widget updates
         val appWidgetManager = AppWidgetManager.getInstance(context)
@@ -49,8 +58,17 @@ class WidgetUpdateModule(reactContext: ReactApplicationContext) : ReactContextBa
     @ReactMethod
     fun getData(key: String, callback: Callback) {
         val context: Context = reactApplicationContext
-        val sharedPref = context.getSharedPreferences("WIDGET_DATA", Context.MODE_PRIVATE)
-        val data = sharedPref.getString(key, "")
+        var data: String? = ""
+        try {
+            val sharedPref = context.getSharedPreferences("WIDGET_DATA", Context.MODE_PRIVATE)
+            data = sharedPref.getString(key, "")
+            if (data.isNullOrEmpty()) {
+                val altPref = context.getSharedPreferences("widget_data", Context.MODE_PRIVATE)
+                data = altPref.getString(key, "")
+            }
+        } catch (e: Exception) {
+            data = ""
+        }
         callback.invoke(data)
     }
 }

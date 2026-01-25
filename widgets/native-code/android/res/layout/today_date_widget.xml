@@ -3,9 +3,9 @@
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
+    android:background="@drawable/today_widget_bg"
     android:orientation="vertical"
-    android:padding="20dp">
+    android:padding="16dp">
 
     <!-- Header -->
     <TextView
@@ -23,8 +23,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="2082/9/24"
-        android:textSize="36sp"
-        android:textColor="#000000"
+        android:textSize="34sp"
+        android:textColor="#0F1724"
         android:textStyle="bold"
         android:layout_marginBottom="4dp" />
 
@@ -34,9 +34,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="पौष २४, २०८२"
-        android:textSize="14sp"
-        android:textColor="#666666"
-        android:layout_marginBottom="16dp" />
+        android:textSize="13sp"
+        android:textColor="#475569"
+        android:layout_marginBottom="12dp" />
 
     <!-- AD Date -->
     <LinearLayout
@@ -59,7 +59,7 @@
             android:layout_weight="1"
             android:text="January 08, 2026"
             android:textSize="13sp"
-            android:textColor="#333333" />
+            android:textColor="#0B1220" />
     </LinearLayout>
 
     <!-- Tithi -->
@@ -83,7 +83,7 @@
             android:layout_weight="1"
             android:text="शुक्ल पक्ष अष्टमी"
             android:textSize="13sp"
-            android:textColor="#333333"
+            android:textColor="#0B1220"
             android:textStyle="italic" />
     </LinearLayout>
 
@@ -144,7 +144,7 @@
                 android:layout_height="wrap_content"
                 android:text="05:30 PM"
                 android:textSize="16sp"
-                android:textColor="#4A4A4A"
+                android:textColor="#0B1220"
                 android:textStyle="bold" />
         </LinearLayout>
 
