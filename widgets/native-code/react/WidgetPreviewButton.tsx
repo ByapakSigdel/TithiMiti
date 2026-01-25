@@ -4,8 +4,20 @@ import WidgetHelper from './WidgetHelper'
 
 const { WidgetData } = NativeModules
 
+// Debug: log module presence at load time
+try {
+  // eslint-disable-next-line no-console
+  console.log('WidgetPreviewButton init - NativeModules.WidgetData ->', WidgetData)
+} catch (e) {
+  /* ignore */
+}
+
 export default function WidgetPreviewButton() {
   const seedAndOpen = async () => {
+    // Debug: log module state when button pressed
+    // eslint-disable-next-line no-console
+    console.log('seedAndOpen - WidgetData =', WidgetData, 'setData type =', WidgetData?.setData ? typeof WidgetData.setData : 'undefined')
+
     // If native module is not available (Expo Go), show a helpful message and avoid errors
     if (!WidgetData || typeof WidgetData.setData !== 'function') {
       Alert.alert(

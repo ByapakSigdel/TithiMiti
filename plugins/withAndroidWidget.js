@@ -131,11 +131,13 @@ const withAndroidWidgetManifest = (config) => {
         (r) => r.$['android:name'] === `.widgets.${widget.name}`
       );
 
-      if (!receiverExists) {
+        if (!receiverExists) {
+        // App widget receivers must be exported so the system launcher can
+        // send broadcasts (APPWIDGET_UPDATE, etc.). Set exported to true.
         mainApplication.receiver.push({
           $: {
             'android:name': `.widgets.${widget.name}`,
-            'android:exported': 'false',
+            'android:exported': 'true',
           },
           'intent-filter': [
             {
