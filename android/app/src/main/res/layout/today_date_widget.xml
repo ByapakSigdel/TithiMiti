@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/today_widget_bg"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Header -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TODAY"
+        android:textSize="12sp"
+        android:textAllCaps="true"
+        android:textColor="#6B7280"
+        android:letterSpacing="0.18"
+        android:layout_marginBottom="12dp" />
+
+    <!-- BS Date (Large) -->
+    <TextView
+        android:id="@+id/bs_date_large"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="2082/9/24"
+        android:textSize="36sp"
+        android:textColor="#0B1220"
+        android:textStyle="bold"
+        android:layout_marginBottom="6dp" />
+
+    <!-- BS Date (Nepali/Descriptive) -->
+    <TextView
+        android:id="@+id/bs_date_nepali"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="पौष २४, २०८२"
+        android:textSize="14sp"
+        android:textColor="#475569"
+        android:layout_marginBottom="8dp" />
+
+    <!-- AD Date -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="8dp">
+        
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="AD: "
+            android:textSize="13sp"
+            android:textColor="#999999" />
+        
+        <TextView
+            android:id="@+id/ad_date_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="January 08, 2026"
+            android:textSize="14sp"
+            android:textColor="#0B1220" />
+    </LinearLayout>
+
+    <!-- Tithi -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="8dp">
+        
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tithi: "
+            android:textSize="13sp"
+            android:textColor="#999999" />
+        
+        <TextView
+            android:id="@+id/tithi_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="शुक्ल पक्ष अष्टमी"
+            android:textSize="14sp"
+            android:textColor="#0B1220"
+            android:textStyle="italic" />
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#E0E0E0"
+        android:contentDescription="@null"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp" />
+
+    <!-- Sunrise/Sunset compact row with icons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="6dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_sunrise"
+                android:contentDescription="Sunrise"
+                android:tint="#FF6B00"
+                android:layout_marginEnd="8dp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sunrise"
+                    android:textSize="11sp"
+                    android:textColor="#999999"
+                    android:layout_marginBottom="2dp" />
+
+                <TextView
+                    android:id="@+id/sunrise_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="06:45 AM"
+                    android:textSize="16sp"
+                    android:textColor="#FF6B00"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center_vertical|end">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="end">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sunset"
+                    android:textSize="11sp"
+                    android:textColor="#999999"
+                    android:layout_marginBottom="2dp" />
+
+                <TextView
+                    android:id="@+id/sunset_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="05:30 PM"
+                    android:textSize="16sp"
+                    android:textColor="#0B1220"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_sunset"
+                android:contentDescription="Sunset"
+                android:tint="#0B1220"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

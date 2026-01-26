@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- simple sunrise icon: semi-circle sun with rays -->
+    <path
+        android:fillColor="#FF6B00"
+        android:pathData="M12,6a6,6 0 0,0 -6,6h2a4,4 0 0,1 8,0h2a6,6 0 0,0 -6,-6zM2,13h3v2H2v-2zM19,13h3v2h-3v-2zM11,2h2v3h-2V2zM4.2,4.2l1.4,1.4L5,7L3.6,5.6 4.2,4.2zM19.8,4.2l0.6,1.4L18.6,7l-0.6-1.4L19.8,4.2z" />
+</vector>
