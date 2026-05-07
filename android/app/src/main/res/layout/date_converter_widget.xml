@@ -3,23 +3,90 @@
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/widget_bg_light_card"
     android:orientation="vertical"
-    android:padding="12dp">
+    android:padding="18dp">
 
-    <TextView
-        android:id="@+id/bs_date"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="2082/9/24"
-        android:textSize="20sp"
-        android:textColor="#0B1220" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="12dp">
 
-    <TextView
-        android:id="@+id/ad_date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="January 08, 2026"
-        android:textSize="14sp"
-        android:textColor="#475569" />
+        <ImageView
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:src="@drawable/widget_accent_dot"
+            android:contentDescription="@null"
+            android:layout_marginEnd="8dp" />
+
+        <TextView
+            android:id="@+id/widget_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DATE CONVERTER"
+            android:textSize="10sp"
+            android:textColor="#6B7280"
+            android:textStyle="bold"
+            android:textAllCaps="true"
+            android:letterSpacing="0.22" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center_vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="AD"
+                android:textSize="10sp"
+                android:textColor="#9CA3AF"
+                android:letterSpacing="0.18"
+                android:layout_marginBottom="2dp" />
+
+            <TextView
+                android:id="@+id/ad_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="—"
+                android:textSize="20sp"
+                android:textColor="#0B1220" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="BS"
+                android:textSize="10sp"
+                android:textColor="#9CA3AF"
+                android:letterSpacing="0.18"
+                android:layout_marginBottom="2dp" />
+
+            <TextView
+                android:id="@+id/bs_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="—"
+                android:textSize="22sp"
+                android:textColor="#FF0000"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
 
 </LinearLayout>

@@ -1,47 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#0F0F0F" />
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg_metals"
+    android:orientation="vertical"
+    android:padding="20dp">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="14dp">
+
+        <ImageView
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:src="@drawable/widget_accent_dot"
+            android:contentDescription="@null"
+            android:layout_marginEnd="8dp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="METAL PRICES · NEPAL"
+            android:textSize="10sp"
+            android:textColor="#9CA3AF"
+            android:textStyle="bold"
+            android:textAllCaps="true"
+            android:letterSpacing="0.2" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="GOLD per Tola"
+            android:textSize="10sp"
+            android:textColor="#FFD700"
+            android:letterSpacing="0.18"
+            android:alpha="0.7"
+            android:layout_marginBottom="2dp" />
 
         <TextView
             android:id="@+id/gold_price"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="₨265,700"
-            android:textSize="32sp"
+            android:text="—"
+            android:textSize="26sp"
             android:textColor="#FFD700"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:layout_marginBottom="14dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SILVER per Tola"
+            android:textSize="10sp"
+            android:textColor="#C0C0C0"
+            android:letterSpacing="0.18"
+            android:alpha="0.7"
+            android:layout_marginBottom="2dp" />
 
         <TextView
             android:id="@+id/silver_price"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="₨4,835"
-            android:textSize="32sp"
+            android:text="—"
+            android:textSize="26sp"
             android:textColor="#C0C0C0"
             android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/updated_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Updated today"
-            android:textSize="10sp"
-            android:textColor="#666666"
-            android:layout_gravity="end" />
-
     </LinearLayout>
 
-</FrameLayout>
+    <TextView
+        android:id="@+id/updated_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="9sp"
+        android:textColor="#666666"
+        android:layout_gravity="end"
+        android:layout_marginTop="8dp" />
+
+</LinearLayout>

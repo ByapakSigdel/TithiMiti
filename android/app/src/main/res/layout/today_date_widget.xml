@@ -3,87 +3,101 @@
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/today_widget_bg"
+    android:background="@drawable/widget_bg_light_card"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="20dp">
 
-    <!-- Header -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="TODAY"
-        android:textSize="12sp"
-        android:textAllCaps="true"
-        android:textColor="#6B7280"
-        android:letterSpacing="0.18"
-        android:layout_marginBottom="12dp" />
-
-    <!-- BS Date (Large) -->
-    <TextView
-        android:id="@+id/bs_date_large"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="2082/9/24"
-        android:textSize="36sp"
-        android:textColor="#0B1220"
-        android:textStyle="bold"
-        android:layout_marginBottom="6dp" />
-
-    <!-- BS Date (Nepali/Descriptive) -->
-    <TextView
-        android:id="@+id/bs_date_nepali"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="पौष २४, २०८२"
-        android:textSize="14sp"
-        android:textColor="#475569"
-        android:layout_marginBottom="8dp" />
-
-    <!-- AD Date -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="8dp">
-        
+        android:gravity="center_vertical"
+        android:layout_marginBottom="14dp">
+
+        <ImageView
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:src="@drawable/widget_accent_dot"
+            android:contentDescription="@null"
+            android:layout_marginEnd="8dp" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="AD: "
-            android:textSize="13sp"
-            android:textColor="#999999" />
-        
+            android:text="TODAY"
+            android:textSize="11sp"
+            android:textAllCaps="true"
+            android:textColor="#6B7280"
+            android:letterSpacing="0.22"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/bs_date_large"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="—"
+        android:textSize="38sp"
+        android:textColor="#0B1220"
+        android:textStyle="bold"
+        android:layout_marginBottom="2dp" />
+
+    <TextView
+        android:id="@+id/bs_date_nepali"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="13sp"
+        android:textColor="#475569"
+        android:layout_marginBottom="10dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="6dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="AD  "
+            android:textSize="11sp"
+            android:textColor="#9CA3AF"
+            android:textAllCaps="true"
+            android:letterSpacing="0.15" />
+
         <TextView
             android:id="@+id/ad_date_text"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="January 08, 2026"
-            android:textSize="14sp"
+            android:text="—"
+            android:textSize="13sp"
             android:textColor="#0B1220" />
     </LinearLayout>
 
-    <!-- Tithi -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="8dp">
-        
+        android:layout_marginBottom="6dp">
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tithi: "
-            android:textSize="13sp"
-            android:textColor="#999999" />
-        
+            android:text="TITHI  "
+            android:textSize="11sp"
+            android:textColor="#9CA3AF"
+            android:textAllCaps="true"
+            android:letterSpacing="0.15" />
+
         <TextView
             android:id="@+id/tithi_text"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="शुक्ल पक्ष अष्टमी"
-            android:textSize="14sp"
+            android:text="—"
+            android:textSize="13sp"
             android:textColor="#0B1220"
             android:textStyle="italic" />
     </LinearLayout>
@@ -91,18 +105,16 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#E0E0E0"
+        android:background="#1A000000"
         android:contentDescription="@null"
         android:layout_marginTop="12dp"
         android:layout_marginBottom="12dp" />
 
-    <!-- Sunrise/Sunset compact row with icons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginTop="6dp">
+        android:gravity="center_vertical">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -112,8 +124,8 @@
             android:gravity="center_vertical">
 
             <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
                 android:src="@drawable/ic_sunrise"
                 android:contentDescription="Sunrise"
                 android:tint="#FF6B00"
@@ -127,17 +139,18 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Sunrise"
-                    android:textSize="11sp"
-                    android:textColor="#999999"
-                    android:layout_marginBottom="2dp" />
+                    android:text="SUNRISE"
+                    android:textSize="9sp"
+                    android:textColor="#9CA3AF"
+                    android:letterSpacing="0.15"
+                    android:layout_marginBottom="1dp" />
 
                 <TextView
                     android:id="@+id/sunrise_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="06:45 AM"
-                    android:textSize="16sp"
+                    android:text="--:--"
+                    android:textSize="15sp"
                     android:textColor="#FF6B00"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -148,7 +161,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="horizontal"
-            android:gravity="center_vertical|end">
+            android:gravity="end|center_vertical">
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -159,24 +172,25 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Sunset"
-                    android:textSize="11sp"
-                    android:textColor="#999999"
-                    android:layout_marginBottom="2dp" />
+                    android:text="SUNSET"
+                    android:textSize="9sp"
+                    android:textColor="#9CA3AF"
+                    android:letterSpacing="0.15"
+                    android:layout_marginBottom="1dp" />
 
                 <TextView
                     android:id="@+id/sunset_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="05:30 PM"
-                    android:textSize="16sp"
+                    android:text="--:--"
+                    android:textSize="15sp"
                     android:textColor="#0B1220"
                     android:textStyle="bold" />
             </LinearLayout>
 
             <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
                 android:src="@drawable/ic_sunset"
                 android:contentDescription="Sunset"
                 android:tint="#0B1220"

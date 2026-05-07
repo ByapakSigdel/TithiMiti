@@ -64,9 +64,9 @@ internal fun updateTodayDateWidget(
             Log.w(TAG, "Error reading shared prefs: ${e.message}")
         }
 
-        var bsDate = "2082/9/24"
+        var bsDate = "Loading..."
         var bsDateNepali = ""
-        var tithi = "N/A"
+        var tithi = "Open app to load"
         var sunrise = "--:--"
         var sunset = "--:--"
 

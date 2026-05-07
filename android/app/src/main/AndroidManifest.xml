@@ -38,7 +38,37 @@
       <meta-data android:name="android.appwidget.provider" android:resource="@xml/today_date_widget_info" />
     </receiver>
 
-    <!-- Other widgets temporarily disabled; only TodayDateWidget remains for focused debugging -->
+    <!-- DateConverterWidget -->
+    <receiver android:name="com.byapak.tithimiti.widgets.DateConverterWidget" android:exported="true">
+      <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+      </intent-filter>
+      <meta-data android:name="android.appwidget.provider" android:resource="@xml/date_converter_widget_info" />
+    </receiver>
+
+    <!-- EventsWidget -->
+    <receiver android:name="com.byapak.tithimiti.widgets.EventsWidget" android:exported="true">
+      <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+      </intent-filter>
+      <meta-data android:name="android.appwidget.provider" android:resource="@xml/events_widget_info" />
+    </receiver>
+
+    <!-- GoldSilverWidget -->
+    <receiver android:name="com.byapak.tithimiti.widgets.GoldSilverWidget" android:exported="true">
+      <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+      </intent-filter>
+      <meta-data android:name="android.appwidget.provider" android:resource="@xml/gold_silver_widget_info" />
+    </receiver>
+
+    <!-- HoroscopeWidget -->
+    <receiver android:name="com.byapak.tithimiti.widgets.HoroscopeWidget" android:exported="true">
+      <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+      </intent-filter>
+      <meta-data android:name="android.appwidget.provider" android:resource="@xml/horoscope_widget_info" />
+    </receiver>
   </application>
   <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 </manifest>

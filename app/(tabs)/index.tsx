@@ -4,9 +4,9 @@ import { AddEventModal } from '@/src/components/events/AddEventModal';
 import { convertAdToBs } from '@/src/domain/calendar/converter';
 import { getBsMonthName } from '@/src/domain/calendar/labels';
 import { BsDay } from '@/src/domain/calendar/types';
+import { getBsMonth } from '@/src/services/api/bsCalendarApi';
 import { initNotifications } from '@/src/services/notifications';
-// Widget imports disabled for future iteration
-// import { initializeAllWidgets, updateDateWidget, updateTodayWidget } from '@/src/services/widget/widgetService';
+import { updateDateWidget, updateTodayWidget } from '@/src/services/widget/widgetService';
 import { useAppState } from '@/src/state/appState';
 import { NothingButton } from '@/src/ui/core/NothingButton';
 import { NothingText } from '@/src/ui/core/NothingText';
@@ -87,34 +87,30 @@ export default function CalendarScreen() {
 
   useEffect(() => {
     initNotifications();
-    
-    // Widgets disabled for future iteration
-    // Will be re-enabled after proper testing and debugging
-    
-    // initializeAllWidgets();
-    // const updateAllWidgets = async () => {
-    //   try {
-    //     const todayISO = getTodayISO();
-    //     const result = await convertAdToBs(todayISO);
-    //     if (result.bs) {
-    //       const bsDate = `${result.bs.bsYear}/${result.bs.bsMonth}/${result.bs.bsDay}`;
-    //       await updateDateWidget(bsDate);
-    //       const monthData = await getBsMonth(result.bs.bsYear, result.bs.bsMonth);
-    //       const todayData = monthData.days.find(d => d.adDateISO === todayISO);
-    //       if (todayData) {
-    //         await updateTodayWidget(
-    //           bsDate,
-    //           todayData.tithiRom || 'N/A',
-    //           todayData.extraDetails?.sunrise || '06:45',
-    //           todayData.extraDetails?.sunset || '17:30'
-    //         );
-    //       }
-    //     }
-    //   } catch (e) {
-    //     console.error('Failed to update widgets:', e);
-    //   }
-    // };
-    // updateAllWidgets();
+
+    const updateAllWidgets = async () => {
+      try {
+        const todayISO = getTodayISO();
+        const result = await convertAdToBs(todayISO);
+        if (result.bs) {
+          const bsDate = `${result.bs.bsYear}/${result.bs.bsMonth}/${result.bs.bsDay}`;
+          await updateDateWidget(bsDate);
+          const monthData = await getBsMonth(result.bs.bsYear, result.bs.bsMonth);
+          const todayData = monthData.days.find(d => d.adDateISO === todayISO);
+          if (todayData) {
+            await updateTodayWidget(
+              bsDate,
+              todayData.tithiRom || 'N/A',
+              todayData.extraDetails?.sunrise || '06:45',
+              todayData.extraDetails?.sunset || '17:30'
+            );
+          }
+        }
+      } catch (e) {
+        console.error('Failed to update widgets:', e);
+      }
+    };
+    updateAllWidgets();
   }, []);
 
   // Handle Android Back Button

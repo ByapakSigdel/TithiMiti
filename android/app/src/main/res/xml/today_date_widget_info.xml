@@ -2,9 +2,12 @@
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:minWidth="250dp"
     android:minHeight="180dp"
+    android:targetCellWidth="3"
+    android:targetCellHeight="3"
     android:updatePeriodMillis="3600000"
     android:initialLayout="@layout/today_date_widget"
+    android:previewImage="@drawable/ic_widget_today"
+    android:previewLayout="@layout/today_date_widget"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"
-    android:description="@string/today_date_widget_description"
-    android:previewImage="@android:drawable/ic_menu_day" />
+    android:description="@string/today_date_widget_description" />

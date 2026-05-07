@@ -7,8 +7,7 @@ import Animated, { ZoomIn } from 'react-native-reanimated';
 import { convertAdToBs, convertBsToAd } from '../src/domain/calendar/converter';
 import { getGoldSilverPrices, GoldSilverPrices } from '../src/services/api/goldSilverService';
 import { clearHoroscopeCache, getHoroscopeForZodiac } from '../src/services/horoscope/horoscopeService';
-// Widget imports disabled for future iteration
-// import { updateDateWidget, updateGoldSilverWidget, updateHoroscopeWidget } from '../src/services/widget/widgetService';
+import { updateDateWidget, updateGoldSilverWidget, updateHoroscopeWidget } from '../src/services/widget/widgetService';
 import { useAppState } from '../src/state/appState';
 import { NothingText } from '../src/ui/core/NothingText';
 import WidgetPreviewButton from '../widgets/native-code/react/WidgetPreviewButton';
@@ -44,8 +43,7 @@ export default function ConverterScreen() {
       const prices = await getGoldSilverPrices(forceRefresh);
       if (prices) {
         setGoldSilverPrices(prices);
-        // Widget update disabled
-        // await updateGoldSilverWidget(prices);
+        await updateGoldSilverWidget(prices);
       } else {
         setPricesError('Failed to fetch prices. Please try again.');
       }
@@ -145,10 +143,9 @@ export default function ConverterScreen() {
       
       // Fetch background image
       const imagePath = await fetchArtImage();
-      
-      // Widget update disabled
-      // await updateHoroscopeWidget(selectedZodiac, horoscope, imagePath);
-      
+
+      await updateHoroscopeWidget(selectedZodiac, horoscope, imagePath);
+
     } catch (error) {
       console.error('Failed to generate horoscope:', error);
       setDailyHoroscope('Unable to load your horoscope. Please try again.');
@@ -160,10 +157,9 @@ export default function ConverterScreen() {
       const r = await convertAdToBs(inputDate);
       const bsDate = r.bs ? `${r.bs.bsYear}/${r.bs.bsMonth}/${r.bs.bsDay}` : 'Invalid date';
       setResult(bsDate);
-      // Widget update disabled
-      // if (r.bs) {
-      //   await updateDateWidget(bsDate);
-      // }
+      if (r.bs) {
+        await updateDateWidget(bsDate);
+      }
     } else {
       const parts = inputDate.split('/');
       if (parts.length === 3) {

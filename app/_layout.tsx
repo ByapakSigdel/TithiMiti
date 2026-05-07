@@ -8,6 +8,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { initializeAllWidgets } from '@/src/services/widget/widgetService';
 import { AppStateProvider } from '@/src/state/appState';
 
 // Keep the splash screen visible while we fetch resources
@@ -32,6 +33,11 @@ export default function RootLayout() {
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded, fontError]);
+
+  // Seed all widgets at app startup (best-effort; runs regardless of starting tab)
+  useEffect(() => {
+    initializeAllWidgets();
+  }, []);
 
   if (!fontsLoaded && !fontError) {
     return null;

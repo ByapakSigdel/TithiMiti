@@ -9,39 +9,76 @@ import { NativeModules, Platform } from 'react-native';
 const WidgetData = NativeModules.WidgetData;
 
 /**
- * Initialize all widgets with default data
- * Call this on app startup to ensure widgets always have data
+ * Initialize all widgets at app startup. Computes today's real BS date
+ * (best-effort; falls back to placeholder text if conversion fails).
+ * Call once at root layout mount so it runs regardless of which tab opens first.
  */
 export async function initializeAllWidgets(): Promise<void> {
   if (Platform.OS !== 'android' || !WidgetData) return;
-  
+
   try {
-    console.log('[Widget] Initializing all widgets with default data');
-    
-    // Set default data for all widgets to prevent "can't load widget" errors
-    const today = new Date();
-    const adDate = today.toISOString().split('T')[0];
-    
-    // Default date converter widget
-    await updateDateWidget('2082/9/24');
-    
-    // Default today widget
-    await updateTodayWidget('2082/9/24', 'Purnima', '06:45', '17:30');
-    
-    // Default gold/silver widget
-    await updateGoldSilverWidget({
-      goldHallmarkTola: 'Loading...',
-      silverTola: 'Loading...',
-      date: 'Open app to update'
-    });
-    
-    // Default horoscope widget
-    await updateHoroscopeWidget('Mesh', 'Open app to see your daily horoscope', '');
-    
-    // Default events widget
+    console.log('[Widget] Initializing all widgets');
+
+    // Compute today's real BS date so widgets show meaningful data immediately
+    const todayISO = new Date().toISOString().slice(0, 10);
+    let bsDate = 'Loading...';
+    let tithi = 'Open app to load';
+    let sunrise = '--:--';
+    let sunset = '--:--';
+
+    try {
+      const { convertAdToBs } = await import('@/src/domain/calendar/converter');
+      const { getBsMonth } = await import('@/src/services/api/bsCalendarApi');
+      const result = await convertAdToBs(todayISO);
+      if (result.bs) {
+        bsDate = `${result.bs.bsYear}/${result.bs.bsMonth}/${result.bs.bsDay}`;
+        try {
+          const monthData = await getBsMonth(result.bs.bsYear, result.bs.bsMonth);
+          const todayData = monthData.days.find(d => d.adDateISO === todayISO);
+          if (todayData) {
+            tithi = todayData.tithiRom || tithi;
+            sunrise = todayData.extraDetails?.sunrise || sunrise;
+            sunset = todayData.extraDetails?.sunset || sunset;
+          }
+        } catch (e) {
+          console.warn('[Widget] BS month fetch failed, using partial data:', e);
+        }
+      }
+    } catch (e) {
+      console.warn('[Widget] Date computation failed, using placeholders:', e);
+    }
+
+    await updateDateWidget(bsDate);
+    await updateTodayWidget(bsDate, tithi, sunrise, sunset);
     await updateUserEventsWidget([]);
-    
-    console.log('[Widget] All widgets initialized with default data');
+
+    // Best-effort metals fetch so the widget shows real prices on first install
+    try {
+      const { getGoldSilverPrices } = await import('@/src/services/api/goldSilverService');
+      const prices = await getGoldSilverPrices(false);
+      if (prices) {
+        await updateGoldSilverWidget(prices);
+      } else {
+        await updateGoldSilverWidget({ goldHallmarkTola: '', silverTola: '', date: '' });
+      }
+    } catch (e) {
+      console.warn('[Widget] Metals init failed:', e);
+      await updateGoldSilverWidget({ goldHallmarkTola: '', silverTola: '', date: '' });
+    }
+
+    // Best-effort horoscope seed using saved zodiac
+    try {
+      const AsyncStorage = (await import('@react-native-async-storage/async-storage')).default;
+      const savedZodiac = (await AsyncStorage.getItem('selected-zodiac')) || 'Mesh';
+      const { getHoroscopeForZodiac } = await import('@/src/services/horoscope/horoscopeService');
+      const horoscope = await getHoroscopeForZodiac(savedZodiac, null);
+      await updateHoroscopeWidget(savedZodiac, horoscope || 'Open Tools to load horoscope', '');
+    } catch (e) {
+      console.warn('[Widget] Horoscope init failed:', e);
+      await updateHoroscopeWidget('Mesh', 'Open Tools to load horoscope', '');
+    }
+
+    console.log('[Widget] Init complete; bsDate=', bsDate);
   } catch (error) {
     console.error('[Widget] Failed to initialize widgets:', error);
   }
