@@ -10,11 +10,32 @@ import { clearHoroscopeCache, getHoroscopeForZodiac } from '../src/services/horo
 import { updateDateWidget, updateGoldSilverWidget, updateHoroscopeWidget } from '../src/services/widget/widgetService';
 import { useAppState } from '../src/state/appState';
 import { NothingText } from '../src/ui/core/NothingText';
-import WidgetPreviewButton from '../widgets/native-code/react/WidgetPreviewButton';
 
 const ZODIACS = ['Mesh', 'Vrishabha', 'Mithuna', 'Karka', 'Simha', 'Kanya', 'Tula', 'Vrishchika', 'Dhanu', 'Makara', 'Kumbha', 'Meen'];
-const ART_API_SEARCH = 'https://collectionapi.metmuseum.org/public/collection/v1/search?q=astrology|star|sky&hasImages=true&medium=Paintings';
 const ART_API_OBJECT = 'https://collectionapi.metmuseum.org/public/collection/v1/objects/';
+
+// Zodiac-themed painting queries (Met Museum search). Each picks
+// classical paintings that visually match the sign's archetype.
+const ZODIAC_PAINTING_QUERIES: Record<string, string> = {
+  Mesh: 'ram',
+  Vrishabha: 'bull pasture',
+  Mithuna: 'twins portrait',
+  Karka: 'moon water',
+  Simha: 'lion',
+  Kanya: 'maiden harvest',
+  Tula: 'balance scales',
+  Vrishchika: 'night dark',
+  Dhanu: 'archer hunt',
+  Makara: 'mountain winter',
+  Kumbha: 'water sky',
+  Meen: 'fish sea',
+};
+
+function buildArtSearchUrl(zodiac: string): string {
+  const term = ZODIAC_PAINTING_QUERIES[zodiac] || 'celestial';
+  const encoded = encodeURIComponent(term);
+  return `https://collectionapi.metmuseum.org/public/collection/v1/search?q=${encoded}&hasImages=true&medium=Paintings`;
+}
 
 export default function ConverterScreen() {
   const { colors } = useAppState();
@@ -96,34 +117,40 @@ export default function ConverterScreen() {
     }
   };
 
-  const fetchArtImage = async () => {
+  const fetchArtImage = async (zodiac: string) => {
     try {
-      // Check if we already have an image for today
+      // One painting per zodiac per day so the widget feels themed
       const today = new Date().toISOString().split('T')[0];
-      const savedDate = await AsyncStorage.getItem('art-image-date');
-      const savedPath = await AsyncStorage.getItem('art-image-path');
-      
+      const cacheKey = `art-image-${zodiac}`;
+      const dateKey = `art-image-date-${zodiac}`;
+      const savedDate = await AsyncStorage.getItem(dateKey);
+      const savedPath = await AsyncStorage.getItem(cacheKey);
+
       if (savedDate === today && savedPath) {
         return savedPath;
       }
 
-      // Fetch new image
-      const searchRes = await fetch(ART_API_SEARCH);
+      const searchRes = await fetch(buildArtSearchUrl(zodiac));
       const searchData = await searchRes.json();
-      
+
       if (searchData.objectIDs && searchData.objectIDs.length > 0) {
-        // Pick random object from results
-        const randomId = searchData.objectIDs[Math.floor(Math.random() * Math.min(20, searchData.objectIDs.length))];
-        const objRes = await fetch(`${ART_API_OBJECT}${randomId}`);
-        const objData = await objRes.json();
-        
-        if (objData.primaryImageSmall) {
-          const downloadDest = FileSystem.documentDirectory + 'horoscope_bg.jpg';
-          await FileSystem.downloadAsync(objData.primaryImageSmall, downloadDest);
-          
-          await AsyncStorage.setItem('art-image-date', today);
-          await AsyncStorage.setItem('art-image-path', downloadDest);
-          return downloadDest;
+        // Try a few random IDs in case primaryImageSmall is missing
+        const candidates = searchData.objectIDs.slice(0, 30);
+        for (let i = 0; i < 5; i++) {
+          const randomId = candidates[Math.floor(Math.random() * candidates.length)];
+          try {
+            const objRes = await fetch(`${ART_API_OBJECT}${randomId}`);
+            const objData = await objRes.json();
+            if (objData.primaryImageSmall) {
+              const downloadDest = FileSystem.documentDirectory + `horoscope_bg_${zodiac}.jpg`;
+              await FileSystem.downloadAsync(objData.primaryImageSmall, downloadDest);
+              await AsyncStorage.setItem(dateKey, today);
+              await AsyncStorage.setItem(cacheKey, downloadDest);
+              return downloadDest;
+            }
+          } catch (innerErr) {
+            console.warn('Failed to fetch art object', randomId, innerErr);
+          }
         }
       }
     } catch (e) {
@@ -141,8 +168,8 @@ export default function ConverterScreen() {
       const horoscope = await getHoroscopeForZodiac(selectedZodiac, null);
       setDailyHoroscope(horoscope);
       
-      // Fetch background image
-      const imagePath = await fetchArtImage();
+      // Fetch background painting tied to the chosen zodiac
+      const imagePath = await fetchArtImage(selectedZodiac);
 
       await updateHoroscopeWidget(selectedZodiac, horoscope, imagePath);
 
@@ -304,16 +331,13 @@ export default function ConverterScreen() {
 
           {/* Result Display */}
           {result && (
-            <Animated.View 
+            <Animated.View
               entering={ZoomIn.duration(200)}
               style={[styles.resultCard, { borderColor: colors.border }]}
             >
               <NothingText style={{ fontSize: 14 }}>{result}</NothingText>
             </Animated.View>
           )}
-
-          {/* Debug: open widget preview (dev only) */}
-          <WidgetPreviewButton />
         </View>
 
         {/* Daily Horoscope Section */}

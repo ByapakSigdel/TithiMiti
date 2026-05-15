@@ -4,17 +4,21 @@
     "slug": "tithi-miti",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/tmmonochrome.png",
+    "icon": "./assets/images/TithiMiti_LogoLight.png",
     "scheme": "tithimiti",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "icon": {
+        "light": "./assets/images/TithiMiti_LogoLight.png",
+        "dark": "./assets/images/TithiMiti_LogoDark.png"
+      }
     },
+    "newArchEnabled": true,
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#ffffff",
-        "foregroundImage": "./assets/images/tmlogo1.png",
+        "foregroundImage": "./assets/images/TithiMiti_LogoLight.png",
         "monochromeImage": "./assets/images/tmmonochrome.png"
       },
       "edgeToEdgeEnabled": true,
@@ -23,17 +27,21 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/TithiMiti_LogoLight.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/tmlogo1.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "image": "./assets/images/TithiMiti_SplashScreen.png",
+          "resizeMode": "cover",
+          "backgroundColor": "#000000",
+          "dark": {
+            "image": "./assets/images/TithiMiti_SplashScreen.png",
+            "resizeMode": "cover",
+            "backgroundColor": "#000000"
+          }
         }
       ],
       "expo-notifications"
