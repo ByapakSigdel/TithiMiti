@@ -3,41 +3,55 @@
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/widget_bg_light_card"
+    android:background="@drawable/widget_bg_today"
     android:orientation="vertical"
-    android:padding="20dp">
+    android:padding="18dp">
 
+    <!-- Top row: day-of-week pill + AD date -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layout_marginBottom="14dp">
-
-        <ImageView
-            android:layout_width="6dp"
-            android:layout_height="6dp"
-            android:src="@drawable/widget_accent_dot"
-            android:contentDescription="@null"
-            android:layout_marginEnd="8dp" />
+        android:layout_marginBottom="10dp">
 
         <TextView
+            android:id="@+id/weekday_pill"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="TODAY"
-            android:textSize="11sp"
+            android:textSize="9sp"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
             android:textAllCaps="true"
-            android:textColor="#6B7280"
             android:letterSpacing="0.22"
-            android:textStyle="bold" />
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="3dp"
+            android:paddingBottom="3dp"
+            android:background="@drawable/widget_pill_bg" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/ad_date_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="—"
+            android:textSize="11sp"
+            android:textColor="#475569" />
     </LinearLayout>
 
+    <!-- Hero BS Date -->
     <TextView
         android:id="@+id/bs_date_large"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="—"
-        android:textSize="38sp"
+        android:textSize="34sp"
         android:textColor="#0B1220"
         android:textStyle="bold"
         android:layout_marginBottom="2dp" />
@@ -47,69 +61,89 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text=""
-        android:textSize="13sp"
-        android:textColor="#475569"
-        android:layout_marginBottom="10dp" />
+        android:textSize="12sp"
+        android:textColor="#64748B" />
 
+    <!-- Tithi chip -->
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="6dp">
+        android:gravity="center_vertical"
+        android:background="@drawable/widget_chip_bg"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:layout_marginTop="8dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="AD  "
-            android:textSize="11sp"
-            android:textColor="#9CA3AF"
-            android:textAllCaps="true"
-            android:letterSpacing="0.15" />
-
-        <TextView
-            android:id="@+id/ad_date_text"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="—"
-            android:textSize="13sp"
-            android:textColor="#0B1220" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="6dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="TITHI  "
-            android:textSize="11sp"
-            android:textColor="#9CA3AF"
-            android:textAllCaps="true"
-            android:letterSpacing="0.15" />
+        <ImageView
+            android:layout_width="5dp"
+            android:layout_height="5dp"
+            android:src="@drawable/widget_accent_dot"
+            android:contentDescription="@null"
+            android:layout_marginEnd="6dp" />
 
         <TextView
             android:id="@+id/tithi_text"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="—"
-            android:textSize="13sp"
+            android:textSize="11sp"
             android:textColor="#0B1220"
             android:textStyle="italic" />
     </LinearLayout>
 
-    <ImageView
+    <!-- Today's event row -->
+    <LinearLayout
+        android:id="@+id/event_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="10dp">
+
+        <View
+            android:layout_width="3dp"
+            android:layout_height="20dp"
+            android:background="#FF0000"
+            android:layout_marginEnd="8dp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TODAY"
+                android:textSize="8sp"
+                android:textColor="#9CA3AF"
+                android:letterSpacing="0.22" />
+
+            <TextView
+                android:id="@+id/today_event_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No event"
+                android:textSize="12sp"
+                android:textColor="#0B1220"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="#1A000000"
-        android:contentDescription="@null"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="12dp" />
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp" />
 
+    <!-- Sunrise / Sunset -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -121,14 +155,15 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:background="@drawable/widget_sun_card_bg"
+            android:padding="10dp">
 
             <ImageView
-                android:layout_width="18dp"
-                android:layout_height="18dp"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
                 android:src="@drawable/ic_sunrise"
                 android:contentDescription="Sunrise"
-                android:tint="#FF6B00"
                 android:layout_marginEnd="8dp" />
 
             <LinearLayout
@@ -140,61 +175,63 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="SUNRISE"
-                    android:textSize="9sp"
+                    android:textSize="8sp"
                     android:textColor="#9CA3AF"
-                    android:letterSpacing="0.15"
-                    android:layout_marginBottom="1dp" />
+                    android:letterSpacing="0.18" />
 
                 <TextView
                     android:id="@+id/sunrise_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="--:--"
-                    android:textSize="15sp"
+                    android:textSize="14sp"
                     android:textColor="#FF6B00"
                     android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
+
+        <View
+            android:layout_width="8dp"
+            android:layout_height="1dp" />
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="horizontal"
-            android:gravity="end|center_vertical">
+            android:gravity="center_vertical"
+            android:background="@drawable/widget_moon_card_bg"
+            android:padding="10dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_sunset"
+                android:contentDescription="Sunset"
+                android:layout_marginEnd="8dp" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="end">
+                android:orientation="vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="SUNSET"
-                    android:textSize="9sp"
+                    android:textSize="8sp"
                     android:textColor="#9CA3AF"
-                    android:letterSpacing="0.15"
-                    android:layout_marginBottom="1dp" />
+                    android:letterSpacing="0.18" />
 
                 <TextView
                     android:id="@+id/sunset_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="--:--"
-                    android:textSize="15sp"
-                    android:textColor="#0B1220"
+                    android:textSize="14sp"
+                    android:textColor="#1E3A8A"
                     android:textStyle="bold" />
             </LinearLayout>
-
-            <ImageView
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:src="@drawable/ic_sunset"
-                android:contentDescription="Sunset"
-                android:tint="#0B1220"
-                android:layout_marginStart="8dp" />
         </LinearLayout>
     </LinearLayout>
 

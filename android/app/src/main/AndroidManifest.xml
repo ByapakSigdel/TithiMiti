@@ -42,6 +42,9 @@
     <receiver android:name="com.byapak.tithimiti.widgets.DateConverterWidget" android:exported="true">
       <intent-filter>
         <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+        <action android:name="com.byapak.tithimiti.action.DATE_PREV" />
+        <action android:name="com.byapak.tithimiti.action.DATE_NEXT" />
+        <action android:name="com.byapak.tithimiti.action.DATE_TODAY" />
       </intent-filter>
       <meta-data android:name="android.appwidget.provider" android:resource="@xml/date_converter_widget_info" />
     </receiver>

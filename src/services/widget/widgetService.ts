@@ -25,6 +25,7 @@ export async function initializeAllWidgets(): Promise<void> {
     let tithi = 'Open app to load';
     let sunrise = '--:--';
     let sunset = '--:--';
+    let todayEvent = '';
 
     try {
       const { convertAdToBs } = await import('@/src/domain/calendar/converter');
@@ -39,6 +40,11 @@ export async function initializeAllWidgets(): Promise<void> {
             tithi = todayData.tithiRom || tithi;
             sunrise = todayData.extraDetails?.sunrise || sunrise;
             sunset = todayData.extraDetails?.sunset || sunset;
+            if (todayData.holidayNameRom) {
+              todayEvent = todayData.holidayNameRom;
+            } else if (todayData.events && todayData.events.length > 0) {
+              todayEvent = todayData.events[0];
+            }
           }
         } catch (e) {
           console.warn('[Widget] BS month fetch failed, using partial data:', e);
@@ -49,8 +55,13 @@ export async function initializeAllWidgets(): Promise<void> {
     }
 
     await updateDateWidget(bsDate);
-    await updateTodayWidget(bsDate, tithi, sunrise, sunset);
+    await updateTodayWidget(bsDate, tithi, sunrise, sunset, todayEvent);
     await updateUserEventsWidget([]);
+
+    // Populate AD->BS map for the date-converter widget stepper
+    populateDateConverterMap().catch((e) =>
+      console.warn('[Widget] populateDateConverterMap failed:', e),
+    );
 
     // Best-effort metals fetch so the widget shows real prices on first install
     try {
@@ -126,7 +137,7 @@ export async function updateHoroscopeWidget(zodiac: string, horoscope: string, i
  */
 export async function updateDateWidget(bsDate: string): Promise<void> {
   if (Platform.OS !== 'android' || !WidgetData) return;
-  
+
   try {
     const data = JSON.stringify({ bsDate });
     WidgetData.setData('date_converter_widget', data, () => {
@@ -134,6 +145,45 @@ export async function updateDateWidget(bsDate: string): Promise<void> {
     });
   } catch (error) {
     console.error('[Widget] Failed to update date converter widget:', error);
+  }
+}
+
+/**
+ * Populate AD->BS map covering ±60 days from today so the widget's
+ * prev/next stepper can resolve a BS date for any picked AD date offline.
+ */
+export async function populateDateConverterMap(): Promise<void> {
+  if (Platform.OS !== 'android' || !WidgetData) return;
+  try {
+    const { getAdMonth } = await import('@/src/services/api/bsCalendarApi');
+    const map: Record<string, string> = {};
+
+    const today = new Date();
+    const months = new Set<string>();
+    for (let delta = -2; delta <= 2; delta++) {
+      const d = new Date(today.getFullYear(), today.getMonth() + delta, 1);
+      months.add(`${d.getFullYear()}-${d.getMonth() + 1}`);
+    }
+
+    for (const ym of months) {
+      const [yStr, mStr] = ym.split('-');
+      try {
+        const monthData = await getAdMonth(parseInt(yStr, 10), parseInt(mStr, 10));
+        for (const day of monthData.days) {
+          if (day.adDateISO) {
+            map[day.adDateISO] = `${day.bsYear}/${day.bsMonth}/${day.bsDay}`;
+          }
+        }
+      } catch (e) {
+        console.warn('[Widget] populateDateConverterMap: month fetch failed', ym, e);
+      }
+    }
+
+    WidgetData.setData('date_converter_map', JSON.stringify(map), () => {
+      console.log('[Widget] Populated date_converter_map with', Object.keys(map).length, 'entries');
+    });
+  } catch (error) {
+    console.error('[Widget] Failed to populate date converter map:', error);
   }
 }
 
@@ -154,22 +204,24 @@ export async function updateEventsWidget(events: string[]): Promise<void> {
 }
 
 /**
- * Update today widget (BS date, tithi, sunrise, sunset)
+ * Update today widget (BS date, tithi, sunrise, sunset, today's event)
  */
 export async function updateTodayWidget(
   bsDate: string,
   tithi: string,
   sunrise: string,
-  sunset: string
+  sunset: string,
+  todayEvent: string = ''
 ): Promise<void> {
   if (Platform.OS !== 'android' || !WidgetData) return;
-  
+
   try {
     const data = JSON.stringify({
       bsDate,
       tithi,
       sunrise,
-      sunset
+      sunset,
+      todayEvent,
     });
     WidgetData.setData('today_widget', data, () => {
       console.log('[Widget] Updated today widget');
