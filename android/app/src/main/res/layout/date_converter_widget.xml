@@ -5,14 +5,14 @@
     android:layout_height="match_parent"
     android:background="@drawable/widget_bg_light_card"
     android:orientation="vertical"
-    android:padding="18dp">
+    android:padding="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layout_marginBottom="12dp">
+        android:layout_marginBottom="10dp">
 
         <ImageView
             android:layout_width="6dp"
@@ -22,71 +22,138 @@
             android:layout_marginEnd="8dp" />
 
         <TextView
-            android:id="@+id/widget_title"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="DATE CONVERTER"
             android:textSize="10sp"
             android:textColor="#6B7280"
             android:textStyle="bold"
             android:textAllCaps="true"
             android:letterSpacing="0.22" />
+
+        <TextView
+            android:id="@+id/today_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TODAY"
+            android:textSize="9sp"
+            android:textColor="#FF0000"
+            android:textStyle="bold"
+            android:letterSpacing="0.22"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="3dp"
+            android:paddingBottom="3dp"
+            android:background="@drawable/widget_button_bg" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:gravity="center_vertical">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="6dp">
+
+        <TextView
+            android:id="@+id/prev_button"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:text="‹"
+            android:textSize="22sp"
+            android:textColor="#0B1220"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:background="@drawable/widget_step_button_bg" />
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:orientation="vertical"
-            android:layout_marginBottom="12dp">
+            android:gravity="center"
+            android:paddingLeft="6dp"
+            android:paddingRight="6dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="AD"
-                android:textSize="10sp"
+                android:textSize="9sp"
                 android:textColor="#9CA3AF"
-                android:letterSpacing="0.18"
-                android:layout_marginBottom="2dp" />
+                android:letterSpacing="0.18" />
 
             <TextView
                 android:id="@+id/ad_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="—"
-                android:textSize="20sp"
-                android:textColor="#0B1220" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="BS"
-                android:textSize="10sp"
-                android:textColor="#9CA3AF"
-                android:letterSpacing="0.18"
-                android:layout_marginBottom="2dp" />
-
-            <TextView
-                android:id="@+id/bs_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="—"
-                android:textSize="22sp"
-                android:textColor="#FF0000"
+                android:textSize="16sp"
+                android:textColor="#0B1220"
                 android:textStyle="bold" />
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/next_button"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:text="›"
+            android:textSize="22sp"
+            android:textColor="#0B1220"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:background="@drawable/widget_step_button_bg" />
     </LinearLayout>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#1A000000"
+        android:contentDescription="@null"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingLeft="6dp"
+        android:paddingRight="6dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="BS"
+            android:textSize="9sp"
+            android:textColor="#9CA3AF"
+            android:letterSpacing="0.18"
+            android:layout_marginEnd="8dp" />
+
+        <TextView
+            android:id="@+id/bs_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="—"
+            android:textSize="18sp"
+            android:textColor="#FF0000"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/open_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="OPEN CONVERTER"
+        android:textSize="9sp"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        android:letterSpacing="0.22"
+        android:gravity="center"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/widget_primary_button_bg" />
 
 </LinearLayout>

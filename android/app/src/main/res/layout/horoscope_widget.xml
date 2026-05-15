@@ -3,7 +3,8 @@
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/widget_bg_horoscope">
+    android:background="@drawable/widget_bg_horoscope"
+    android:clipToOutline="true">
 
     <ImageView
         android:id="@+id/widget_bg_image"
@@ -11,7 +12,14 @@
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
         android:contentDescription="@null"
-        android:alpha="0.35" />
+        android:alpha="0.85" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/widget_horoscope_scrim"
+        android:scaleType="fitXY"
+        android:contentDescription="@null" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -19,31 +27,12 @@
         android:orientation="vertical"
         android:padding="20dp">
 
+        <!-- Top: zodiac chip + label -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
-
-            <ImageView
-                android:layout_width="14dp"
-                android:layout_height="14dp"
-                android:src="@drawable/ic_widget_horoscope"
-                android:tint="#FFD700"
-                android:contentDescription="@null"
-                android:layout_marginEnd="8dp" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="DAILY HOROSCOPE"
-                android:textColor="#FFD700"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.2"
-                android:textAllCaps="true" />
+            android:gravity="center_vertical">
 
             <TextView
                 android:id="@+id/zodiac_name"
@@ -54,23 +43,57 @@
                 android:textSize="11sp"
                 android:textStyle="bold"
                 android:textAllCaps="true"
-                android:letterSpacing="0.18"
-                android:alpha="0.9" />
+                android:letterSpacing="0.22"
+                android:fontFamily="serif"
+                android:background="@drawable/widget_horoscope_chip_bg"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="✦  DAILY  ✦"
+                android:textColor="#F4E4BC"
+                android:textSize="9sp"
+                android:letterSpacing="0.32"
+                android:fontFamily="serif" />
         </LinearLayout>
 
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <!-- Bottom: horoscope serif body -->
         <TextView
             android:id="@+id/horoscope_text"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
             android:text="Open Tools to load your horoscope"
-            android:textColor="#FFFFFF"
+            android:textColor="#FFF8E7"
             android:textSize="14sp"
+            android:fontFamily="serif"
             android:textStyle="italic"
-            android:gravity="start|center_vertical"
             android:lineSpacingExtra="3dp"
             android:maxLines="6"
-            android:ellipsize="end" />
+            android:ellipsize="end"
+            android:shadowColor="#CC000000"
+            android:shadowDx="0"
+            android:shadowDy="1"
+            android:shadowRadius="3" />
+
+        <View
+            android:layout_width="40dp"
+            android:layout_height="1dp"
+            android:background="#88F4E4BC"
+            android:layout_marginTop="10dp" />
 
     </LinearLayout>
 </FrameLayout>

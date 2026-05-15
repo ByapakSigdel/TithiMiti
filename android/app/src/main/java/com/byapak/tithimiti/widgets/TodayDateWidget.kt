@@ -69,6 +69,7 @@ internal fun updateTodayDateWidget(
         var tithi = "Open app to load"
         var sunrise = "--:--"
         var sunset = "--:--"
+        var todayEvent = ""
 
         if (!dataString.isNullOrEmpty()) {
             try {
@@ -78,6 +79,7 @@ internal fun updateTodayDateWidget(
                 tithi = todayData.optString("tithi", tithi)
                 sunrise = todayData.optString("sunrise", sunrise)
                 sunset = todayData.optString("sunset", sunset)
+                todayEvent = todayData.optString("todayEvent", "")
                 Log.d(TAG, "Loaded today_widget data=$dataString")
             } catch (e: Exception) {
                 Log.e(TAG, "Malformed today_widget JSON: ${e.message}")
@@ -85,6 +87,11 @@ internal fun updateTodayDateWidget(
         } else {
             Log.d(TAG, "No cached today_widget data found, using defaults")
         }
+
+        // Weekday pill: e.g. "MON · TODAY"
+        val weekdayFormat = SimpleDateFormat("EEE", Locale.US)
+        val weekday = weekdayFormat.format(today).uppercase(Locale.US)
+        views.setTextViewText(R.id.weekday_pill, "$weekday · TODAY")
 
         views.setTextViewText(R.id.bs_date_large, bsDate)
         if (bsDateNepali.isNotEmpty()) {
@@ -94,6 +101,10 @@ internal fun updateTodayDateWidget(
         views.setTextViewText(R.id.tithi_text, tithi)
         views.setTextViewText(R.id.sunrise_time, sunrise)
         views.setTextViewText(R.id.sunset_time, sunset)
+        views.setTextViewText(
+            R.id.today_event_text,
+            if (todayEvent.isNotEmpty()) todayEvent else "No event today"
+        )
 
         appWidgetManager.updateAppWidget(appWidgetId, views)
         Log.d(TAG, "TodayDate widget updated successfully")
