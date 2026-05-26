@@ -2,13 +2,18 @@ import { BsDay } from '@/src/domain/calendar/types';
 import { useAppState } from '@/src/state/appState';
 import { NothingText } from '@/src/ui/core/NothingText';
 import React, { useState } from 'react';
-import { Dimensions, Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { Dimensions, ScrollView, StyleSheet, View } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Animated, { Easing, runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-const PEEK_HEIGHT = 100;
-const CLOSED_POSITION = SCREEN_HEIGHT - PEEK_HEIGHT;
-const OPEN_POSITION = 80;
+// The sheet is anchored to the bottom of the screen (above the tab bar). It's
+// translated DOWN by translateY: 0 = fully open, CLOSED_POSITION leaves only the
+// peek (handle + a sliver) visible above the tab bar so it can be grabbed.
+const SHEET_HEIGHT = Math.round(SCREEN_HEIGHT * 0.85);
+const PEEK_HEIGHT = 90;
+const OPEN_POSITION = 0;
+const CLOSED_POSITION = SHEET_HEIGHT - PEEK_HEIGHT;
 
 interface DayDetailSheetProps {
   day: BsDay | null;
@@ -17,23 +22,42 @@ interface DayDetailSheetProps {
 export function DayDetailSheet({ day }: DayDetailSheetProps) {
   const { colors } = useAppState();
   const translateY = useSharedValue(CLOSED_POSITION);
+  const dragStartY = useSharedValue(CLOSED_POSITION);
   const [isOpen, setIsOpen] = useState(false);
 
-  const toggleSheet = () => {
-    if (isOpen) {
-      translateY.value = withTiming(CLOSED_POSITION, {
-        duration: 300,
-        easing: Easing.out(Easing.cubic),
-      });
-      setIsOpen(false);
-    } else {
-      translateY.value = withTiming(OPEN_POSITION, {
-        duration: 300,
-        easing: Easing.out(Easing.cubic),
-      });
-      setIsOpen(true);
-    }
+  // Snap the sheet to the open or closed (peek) position.
+  const snapTo = (open: boolean) => {
+    'worklet';
+    translateY.value = withTiming(open ? OPEN_POSITION : CLOSED_POSITION, {
+      duration: 300,
+      easing: Easing.out(Easing.cubic),
+    });
+    runOnJS(setIsOpen)(open);
   };
+
+  // Drag the handle to pull the sheet up / push it down. On release, snap to the
+  // nearer position (a fast flick wins over distance).
+  const panGesture = Gesture.Pan()
+    .onStart(() => {
+      dragStartY.value = translateY.value;
+    })
+    .onUpdate((e) => {
+      const next = dragStartY.value + e.translationY;
+      translateY.value = Math.min(Math.max(next, OPEN_POSITION), CLOSED_POSITION);
+    })
+    .onEnd((e) => {
+      const midpoint = (OPEN_POSITION + CLOSED_POSITION) / 2;
+      const shouldOpen =
+        e.velocityY < -500 ? true : e.velocityY > 500 ? false : translateY.value < midpoint;
+      snapTo(shouldOpen);
+    });
+
+  // Tap the handle still toggles, as a convenience.
+  const tapGesture = Gesture.Tap().onEnd(() => {
+    snapTo(translateY.value > OPEN_POSITION + 10);
+  });
+
+  const handleGesture = Gesture.Race(panGesture, tapGesture);
 
   const rBottomSheetStyle = useAnimatedStyle(() => {
     return {
@@ -48,40 +72,44 @@ export function DayDetailSheet({ day }: DayDetailSheetProps) {
   const sakSambatYear = day.sakSambat;
 
   return (
-    <Animated.View style={[styles.bottomSheetContainer, rBottomSheetStyle, { backgroundColor: colors.card, borderColor: colors.border }]}>      
-      <Pressable onPress={toggleSheet} style={styles.lineWrapper}>
-        <View style={[styles.line, { backgroundColor: colors.textSecondary }]} />
-      </Pressable>
-      <ScrollView 
-        style={styles.content} 
+    <Animated.View style={[styles.bottomSheetContainer, rBottomSheetStyle, { backgroundColor: colors.card, borderColor: colors.border }]}>
+      {/* Grab area: handle + date header. The whole peek is draggable (pull up
+          to expand, push down to minimise); a tap still toggles. */}
+      <GestureDetector gesture={handleGesture}>
+        <View style={styles.dragRegion}>
+          <View style={styles.lineWrapper}>
+            <View style={[styles.line, { backgroundColor: colors.textSecondary }]} />
+          </View>
+          <View style={styles.header}>
+            <NothingText variant="h1" style={{ fontSize: 28 }}>
+              {day.bsDay}
+            </NothingText>
+            <View style={{ flex: 1, marginLeft: 16 }}>
+              <NothingText variant="h2" style={{ marginBottom: 4 }}>
+                {day.bsYear} / {day.bsMonth}
+              </NothingText>
+              <NothingText style={{ color: colors.textSecondary, fontSize: 12 }}>
+                {new Date(day.adDateISO).toDateString()}
+              </NothingText>
+              <NothingText style={{ color: colors.textSecondary, fontSize: 12, marginTop: 2 }}>
+                Nepal Sambat: {nepalSambatYear}
+              </NothingText>
+              {sakSambatYear && (
+                <NothingText style={{ color: colors.textSecondary, fontSize: 12 }}>
+                  Sak Sambat: {sakSambatYear}
+                </NothingText>
+              )}
+            </View>
+          </View>
+        </View>
+      </GestureDetector>
+      <ScrollView
+        style={styles.content}
         contentContainerStyle={{ paddingBottom: 120 }}
         showsVerticalScrollIndicator={true}
         scrollEnabled={isOpen}
         nestedScrollEnabled={true}
       >
-        {/* Header with Dates */}
-        <View style={styles.header}>
-          <NothingText variant="h1" style={{ fontSize: 28 }}>
-            {day.bsDay}
-          </NothingText>
-          <View style={{ flex: 1, marginLeft: 16 }}>
-            <NothingText variant="h2" style={{ marginBottom: 4 }}>
-              {day.bsYear} / {day.bsMonth}
-            </NothingText>
-            <NothingText style={{ color: colors.textSecondary, fontSize: 12 }}>
-              {new Date(day.adDateISO).toDateString()}
-            </NothingText>
-            <NothingText style={{ color: colors.textSecondary, fontSize: 12, marginTop: 2 }}>
-              Nepal Sambat: {nepalSambatYear}
-            </NothingText>
-            {sakSambatYear && (
-              <NothingText style={{ color: colors.textSecondary, fontSize: 12 }}>
-                Sak Sambat: {sakSambatYear}
-              </NothingText>
-            )}
-          </View>
-        </View>
-
         {/* Tithi */}
         {day.tithiRom && (
             <View style={[styles.infoCard, { backgroundColor: colors.background }]}>
@@ -245,10 +273,10 @@ export function DayDetailSheet({ day }: DayDetailSheetProps) {
 
 const styles = StyleSheet.create({
   bottomSheetContainer: {
-    height: SCREEN_HEIGHT,
+    height: SHEET_HEIGHT,
     width: '100%',
     position: 'absolute',
-    top: 0,
+    bottom: 0,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     borderWidth: 0,
@@ -258,10 +286,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 12,
   },
+  dragRegion: {
+    paddingHorizontal: 20,
+  },
   lineWrapper: {
     width: '100%',
     alignItems: 'center',
-    paddingVertical: 16,
+    paddingTop: 16,
+    paddingBottom: 12,
   },
   line: {
     width: 60,

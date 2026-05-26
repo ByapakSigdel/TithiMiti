@@ -3,151 +3,151 @@
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/today_widget_bg"
+    android:background="@drawable/widget_bg_card"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="12dp">
 
-    <!-- Header -->
-    <TextView
-        android:layout_width="wrap_content"
+    <!-- Top row: weekday pill + AD date -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="TODAY"
-        android:textSize="11sp"
-        android:textColor="#888888"
-        android:letterSpacing="0.2"
-        android:layout_marginBottom="16dp" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
-    <!-- BS Date (Large) -->
+        <TextView
+            android:id="@+id/weekday_pill"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TODAY"
+            android:textSize="9sp"
+            android:textColor="#FFFFFFFF"
+            android:textStyle="bold"
+            android:textAllCaps="true"
+            android:paddingLeft="7dp"
+            android:paddingRight="7dp"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:background="@drawable/widget_pill_red" />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:contentDescription="@null" />
+
+        <TextView
+            android:id="@+id/ad_date_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="—"
+            android:textSize="11sp"
+            android:textColor="#FF808080" />
+    </LinearLayout>
+
+    <!-- Hero BS Date -->
     <TextView
         android:id="@+id/bs_date_large"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="2082/9/24"
-        android:textSize="34sp"
-        android:textColor="#0F1724"
+        android:text="—"
+        android:textSize="24sp"
+        android:textColor="#FF000000"
         android:textStyle="bold"
-        android:layout_marginBottom="4dp" />
+        android:layout_marginTop="6dp" />
 
-    <!-- BS Date (Nepali/Descriptive) -->
     <TextView
         android:id="@+id/bs_date_nepali"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="पौष २४, २०८२"
-        android:textSize="13sp"
-        android:textColor="#475569"
-        android:layout_marginBottom="12dp" />
-
-    <!-- AD Date -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="8dp">
-        
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="AD: "
-            android:textSize="13sp"
-            android:textColor="#999999" />
-        
-        <TextView
-            android:id="@+id/ad_date_text"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="January 08, 2026"
-            android:textSize="13sp"
-            android:textColor="#0B1220" />
-    </LinearLayout>
+        android:text=""
+        android:textSize="11sp"
+        android:textColor="#FF808080" />
 
     <!-- Tithi -->
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="8dp">
-        
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Tithi: "
-            android:textSize="13sp"
-            android:textColor="#999999" />
-        
+        android:gravity="center_vertical"
+        android:layout_marginTop="6dp">
+
+        <ImageView
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:src="@drawable/widget_accent_dot"
+            android:contentDescription="@null"
+            android:layout_marginEnd="6dp" />
+
         <TextView
             android:id="@+id/tithi_text"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="शुक्ल पक्ष अष्टमी"
-            android:textSize="13sp"
-            android:textColor="#0B1220"
-            android:textStyle="italic" />
+            android:text="—"
+            android:textSize="12sp"
+            android:textColor="#FF000000" />
     </LinearLayout>
 
-    <View
+    <ImageView
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#E0E0E0"
-        android:layout_marginVertical="12dp" />
+        android:background="#FFE0E0E0"
+        android:contentDescription="@null"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp" />
 
-    <!-- Sunrise/Sunset -->
+    <!-- Sunrise / Sunset compact row -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
-        <LinearLayout
+        <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical">
-            
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Sunrise"
-                android:textSize="11sp"
-                android:textColor="#999999"
-                android:layout_marginBottom="2dp" />
-            
-            <TextView
-                android:id="@+id/sunrise_time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="06:45 AM"
-                android:textSize="16sp"
-                android:textColor="#FF6B00"
-                android:textStyle="bold" />
-        </LinearLayout>
+            android:text="SUNRISE"
+            android:textSize="9sp"
+            android:textColor="#FF808080" />
 
-        <LinearLayout
-            android:layout_width="0dp"
+        <TextView
+            android:id="@+id/sunrise_time"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="end">
-            
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Sunset"
-                android:textSize="11sp"
-                android:textColor="#999999"
-                android:layout_marginBottom="2dp" />
-            
-            <TextView
-                android:id="@+id/sunset_time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="05:30 PM"
-                android:textSize="16sp"
-                android:textColor="#0B1220"
-                android:textStyle="bold" />
-        </LinearLayout>
+            android:text="--:--"
+            android:textSize="12sp"
+            android:textColor="#FF000000"
+            android:textStyle="bold"
+            android:layout_marginEnd="14dp" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SUNSET"
+            android:textSize="9sp"
+            android:textColor="#FF808080"
+            android:layout_marginEnd="6dp" />
+
+        <TextView
+            android:id="@+id/sunset_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="--:--"
+            android:textSize="12sp"
+            android:textColor="#FF000000"
+            android:textStyle="bold" />
     </LinearLayout>
+
+    <!-- Today's event (single line) -->
+    <TextView
+        android:id="@+id/today_event_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="No event today"
+        android:textSize="11sp"
+        android:textColor="#FF808080"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:layout_marginTop="6dp" />
 
 </LinearLayout>

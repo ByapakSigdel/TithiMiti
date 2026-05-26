@@ -3,9 +3,9 @@
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/widget_bg_metals"
+    android:background="@drawable/widget_bg_card"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="12dp">
 
     <!-- Header -->
     <LinearLayout
@@ -13,13 +13,14 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layout_marginBottom="12dp">
+        android:layout_marginBottom="10dp">
 
-        <View
-            android:layout_width="3dp"
-            android:layout_height="14dp"
-            android:background="#FFD700"
-            android:layout_marginEnd="8dp" />
+        <ImageView
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:src="@drawable/widget_accent_dot"
+            android:contentDescription="@null"
+            android:layout_marginEnd="6dp" />
 
         <TextView
             android:layout_width="0dp"
@@ -27,10 +28,9 @@
             android:layout_weight="1"
             android:text="METAL PRICES"
             android:textSize="10sp"
-            android:textColor="#F5E6A8"
+            android:textColor="#FF808080"
             android:textStyle="bold"
-            android:textAllCaps="true"
-            android:letterSpacing="0.28" />
+            android:textAllCaps="true" />
 
         <TextView
             android:id="@+id/updated_date"
@@ -38,113 +38,67 @@
             android:layout_height="wrap_content"
             android:text=""
             android:textSize="9sp"
-            android:textColor="#9A8E5A"
-            android:letterSpacing="0.1" />
+            android:textColor="#FF808080" />
     </LinearLayout>
 
-    <!-- Gold card -->
+    <!-- Gold row -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:padding="14dp"
-        android:background="@drawable/widget_metal_gold_card"
-        android:layout_marginBottom="8dp">
+        android:baselineAligned="false">
 
-        <LinearLayout
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:gravity="center"
-            android:background="@drawable/widget_metal_coin_gold">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Au"
-                android:textColor="#3D2E00"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:fontFamily="serif" />
-        </LinearLayout>
-
-        <LinearLayout
+        <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_marginStart="12dp">
+            android:text="GOLD · per Tola"
+            android:textSize="11sp"
+            android:textColor="#FF808080" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="GOLD · per Tola"
-                android:textSize="9sp"
-                android:textColor="#C8B872"
-                android:letterSpacing="0.22" />
-
-            <TextView
-                android:id="@+id/gold_price"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="—"
-                android:textSize="20sp"
-                android:textColor="#FFD700"
-                android:textStyle="bold"
-                android:fontFamily="serif" />
-        </LinearLayout>
+        <TextView
+            android:id="@+id/gold_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="—"
+            android:textSize="16sp"
+            android:textColor="#FF000000"
+            android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- Silver card -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#FFE0E0E0"
+        android:contentDescription="@null"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Silver row -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:padding="14dp"
-        android:background="@drawable/widget_metal_silver_card">
+        android:baselineAligned="false">
 
-        <LinearLayout
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:gravity="center"
-            android:background="@drawable/widget_metal_coin_silver">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Ag"
-                android:textColor="#1F1F26"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:fontFamily="serif" />
-        </LinearLayout>
-
-        <LinearLayout
+        <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_marginStart="12dp">
+            android:text="SILVER · per Tola"
+            android:textSize="11sp"
+            android:textColor="#FF808080" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="SILVER · per Tola"
-                android:textSize="9sp"
-                android:textColor="#9CA0AD"
-                android:letterSpacing="0.22" />
-
-            <TextView
-                android:id="@+id/silver_price"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="—"
-                android:textSize="20sp"
-                android:textColor="#E5E7EB"
-                android:textStyle="bold"
-                android:fontFamily="serif" />
-        </LinearLayout>
+        <TextView
+            android:id="@+id/silver_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="—"
+            android:textSize="16sp"
+            android:textColor="#FF000000"
+            android:textStyle="bold" />
     </LinearLayout>
 
 </LinearLayout>

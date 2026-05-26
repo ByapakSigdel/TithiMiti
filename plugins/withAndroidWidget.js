@@ -21,6 +21,7 @@ const withAndroidWidgetFiles = (config) => {
       if (!fs.existsSync(path.join(resDir, 'layout'))) fs.mkdirSync(path.join(resDir, 'layout'), { recursive: true });
       if (!fs.existsSync(path.join(resDir, 'xml'))) fs.mkdirSync(path.join(resDir, 'xml'), { recursive: true });
       if (!fs.existsSync(path.join(resDir, 'values'))) fs.mkdirSync(path.join(resDir, 'values'), { recursive: true });
+      if (!fs.existsSync(path.join(resDir, 'drawable'))) fs.mkdirSync(path.join(resDir, 'drawable'), { recursive: true });
       if (!fs.existsSync(javaDir)) fs.mkdirSync(javaDir, { recursive: true });
 
       // Copy strings.xml
@@ -99,6 +100,38 @@ const withAndroidWidgetFiles = (config) => {
           );
         } catch (e) {
           // ignore if preview files not present
+        }
+
+        // Scrollable horoscope widget extras: the ListView row layouts and the
+        // mood-painting / card drawables. These aren't per-widget files so they
+        // need to be copied explicitly (otherwise a clean prebuild drops them).
+        const extraLayouts = [
+          'horoscope_item_header',
+          'horoscope_item_text',
+          'horoscope_item_spacer',
+        ];
+        for (const layout of extraLayouts) {
+          fs.copyFileSync(
+            path.join(widgetSourceDir, 'res', 'layout', `${layout}.xml`),
+            path.join(resDir, 'layout', `${layout}.xml`)
+          );
+        }
+        const extraDrawables = [
+          'horoscope_art_fiery',
+          'horoscope_art_earthy',
+          'horoscope_art_airy',
+          'horoscope_art_watery',
+          'horoscope_art_stormy',
+          'horoscope_art_radiant',
+          'horoscope_text_card',
+          'horoscope_zodiac_chip',
+          'horoscope_scrim',
+        ];
+        for (const drawable of extraDrawables) {
+          fs.copyFileSync(
+            path.join(widgetSourceDir, 'res', 'drawable', `${drawable}.xml`),
+            path.join(resDir, 'drawable', `${drawable}.xml`)
+          );
         }
       } catch (e) {
         console.error("Error copying widget files:", e);

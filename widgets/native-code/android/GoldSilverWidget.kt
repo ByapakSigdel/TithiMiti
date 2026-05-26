@@ -43,30 +43,42 @@ internal fun updateGoldSilverWidget(
 
     // Read from SharedPreferences
     val sharedPref = context.getSharedPreferences("WIDGET_DATA", Context.MODE_PRIVATE)
-    val dataString = sharedPref.getString("gold_silver_widget", "")
-    var goldTola = "N/A"
-    var silverTola = "N/A"
+    var dataString = sharedPref.getString("gold_silver_widget", "")
+    if (dataString.isNullOrEmpty()) {
+        val altPref = context.getSharedPreferences("widget_data", Context.MODE_PRIVATE)
+        dataString = altPref.getString("gold_silver_widget", "")
+    }
+    var goldTola = ""
+    var silverTola = ""
     var date = ""
-    
+
     if (!dataString.isNullOrEmpty()) {
         try {
             val prices = JSONObject(dataString)
-            goldTola = prices.optString("goldHallmarkTola", "N/A")
-            silverTola = prices.optString("silverTola", "N/A")
+            goldTola = prices.optString("goldHallmarkTola", "")
+            silverTola = prices.optString("silverTola", "")
             date = prices.optString("date", "")
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
-    if (goldTola != "N/A") {
-        views.setTextViewText(R.id.gold_price, "₨$goldTola")
-        views.setTextViewText(R.id.silver_price, "₨$silverTola")
-        views.setTextViewText(R.id.updated_date, date)
+    // A real price is a non-empty numeric string greater than 0 (allowing commas/dots)
+    fun isRealPrice(s: String): Boolean {
+        if (s.isEmpty()) return false
+        val digits = s.replace(",", "").replace(".", "")
+        if (digits.isEmpty() || !digits.all { it.isDigit() }) return false
+        return (digits.toLongOrNull() ?: 0L) > 0L
+    }
+
+    if (isRealPrice(goldTola) && isRealPrice(silverTola)) {
+        views.setTextViewText(R.id.gold_price, "Rs. $goldTola")
+        views.setTextViewText(R.id.silver_price, "Rs. $silverTola")
+        views.setTextViewText(R.id.updated_date, if (date.isNotEmpty()) date else "Updated")
     } else {
-        views.setTextViewText(R.id.gold_price, "Loading...")
-        views.setTextViewText(R.id.silver_price, "Loading...")
-        views.setTextViewText(R.id.updated_date, "Open app to sync")
+        views.setTextViewText(R.id.gold_price, "—")
+        views.setTextViewText(R.id.silver_price, "—")
+        views.setTextViewText(R.id.updated_date, "Open Tools to sync")
     }
     
         appWidgetManager.updateAppWidget(appWidgetId, views)

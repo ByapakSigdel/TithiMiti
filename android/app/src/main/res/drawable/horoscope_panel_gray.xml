@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Solid gray panel the horoscope is written on once you scroll past the
+     painting. Opaque so the art doesn't show through behind the text. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="#FF2B2D31" />
+    <corners android:radius="16dp" />
+</shape>

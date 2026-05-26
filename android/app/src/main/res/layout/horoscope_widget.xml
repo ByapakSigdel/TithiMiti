@@ -1,99 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Static horoscope card. The painting (or mood gradient) fills the widget as a
+     backdrop; a top->bottom scrim keeps text legible; the zodiac sits in a red
+     chip at the top, and the daily reading rests on a translucent card at the
+     bottom. Everything is visible at a glance (no scrolling). Tapping anywhere
+     opens the Tools screen. -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/widget_bg_horoscope"
-    android:clipToOutline="true">
+    android:background="#FF0E0E12">
 
+    <!-- Backdrop painting (Met download) or the bundled mood gradient. -->
     <ImageView
-        android:id="@+id/widget_bg_image"
+        android:id="@+id/art_row"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
         android:contentDescription="@null"
-        android:alpha="0.85" />
+        android:src="@drawable/horoscope_art_airy" />
 
+    <!-- Darkens the top and bottom edges so labels and reading stay legible
+         over any painting. -->
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/widget_horoscope_scrim"
         android:scaleType="fitXY"
-        android:contentDescription="@null" />
+        android:contentDescription="@null"
+        android:src="@drawable/horoscope_scrim" />
 
+    <!-- Top row: zodiac chip + DAILY caption. -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="20dp">
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="14dp">
 
-        <!-- Top: zodiac chip + label -->
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/zodiac_name"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:text="Mesh"
+            android:textColor="#FFFFFFFF"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:textAllCaps="true"
+            android:letterSpacing="0.08"
+            android:background="@drawable/horoscope_zodiac_chip"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp" />
 
-            <TextView
-                android:id="@+id/zodiac_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Mesh"
-                android:textColor="#FFFFFF"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:textAllCaps="true"
-                android:letterSpacing="0.22"
-                android:fontFamily="serif"
-                android:background="@drawable/widget_horoscope_chip_bg"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:paddingTop="3dp"
-                android:paddingBottom="3dp" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="✦  DAILY  ✦"
-                android:textColor="#F4E4BC"
-                android:textSize="9sp"
-                android:letterSpacing="0.32"
-                android:fontFamily="serif" />
-        </LinearLayout>
-
-        <View
+        <ImageView
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:contentDescription="@null" />
 
-        <!-- Bottom: horoscope serif body -->
         <TextView
-            android:id="@+id/horoscope_text"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Open Tools to load your horoscope"
-            android:textColor="#FFF8E7"
-            android:textSize="14sp"
-            android:fontFamily="serif"
-            android:textStyle="italic"
-            android:lineSpacingExtra="3dp"
-            android:maxLines="6"
-            android:ellipsize="end"
+            android:text="DAILY"
+            android:textColor="#FFFFFFFF"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:textAllCaps="true"
+            android:letterSpacing="0.18"
             android:shadowColor="#CC000000"
             android:shadowDx="0"
             android:shadowDy="1"
             android:shadowRadius="3" />
-
-        <View
-            android:layout_width="40dp"
-            android:layout_height="1dp"
-            android:background="#88F4E4BC"
-            android:layout_marginTop="10dp" />
-
     </LinearLayout>
+
+    <!-- Daily reading on a translucent card, anchored to the bottom. -->
+    <TextView
+        android:id="@+id/horoscope_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_margin="12dp"
+        android:background="@drawable/horoscope_text_card"
+        android:paddingLeft="14dp"
+        android:paddingRight="14dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:text="Open Tools to load your horoscope"
+        android:textColor="#FFF4F4F4"
+        android:textSize="13sp"
+        android:fontFamily="sans-serif-light"
+        android:lineSpacingExtra="3dp"
+        android:maxLines="4"
+        android:ellipsize="end" />
+
 </FrameLayout>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Earthy mood: forest greens & clay with a soft amber glow (earth signs / grounded) -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="135"
+                android:startColor="#FF14260F"
+                android:centerColor="#FF38491F"
+                android:endColor="#FF6E5A33" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:centerX="0.7"
+                android:centerY="0.25"
+                android:gradientRadius="80%"
+                android:startColor="#66E8D08A"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+</layer-list>

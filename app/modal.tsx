@@ -67,6 +67,7 @@ const styles = StyleSheet.create({
   input: {
     borderBottomWidth: 1,
     paddingVertical: 8,
+    fontFamily: 'Inter_400Regular',
   },
   button: {
     padding: 12,

@@ -30,8 +30,11 @@ export const NothingColors = {
 export type ThemeColors = typeof NothingColors.light;
 
 export const NothingFont = {
-  dotMatrix: 'Courier New', // Fallback for dot matrix feel if custom font not loaded
-  primary: 'System',
+  dotMatrix: 'Courier New', // Monospace accent (calendar day numbers, etc.)
+  primary: 'Inter_400Regular',
+  medium: 'Inter_500Medium',
+  semibold: 'Inter_600SemiBold',
+  bold: 'Inter_700Bold',
   weight: {
     regular: '400',
     medium: '500',

@@ -3,9 +3,10 @@
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/widget_bg_dark_card"
+    android:background="@drawable/widget_bg_card"
     android:orientation="horizontal"
     android:padding="12dp"
+    android:baselineAligned="false"
     android:gravity="center_vertical">
 
     <LinearLayout
@@ -22,8 +23,8 @@
             android:layout_marginBottom="4dp">
 
             <ImageView
-                android:layout_width="5dp"
-                android:layout_height="5dp"
+                android:layout_width="6dp"
+                android:layout_height="6dp"
                 android:src="@drawable/widget_accent_dot"
                 android:contentDescription="@null"
                 android:layout_marginEnd="6dp" />
@@ -33,12 +34,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="MY EVENTS"
-                android:textColor="#FFFFFF"
-                android:textSize="9sp"
+                android:textColor="#FF808080"
+                android:textSize="10sp"
                 android:textStyle="bold"
-                android:textAllCaps="true"
-                android:letterSpacing="0.22"
-                android:alpha="0.7" />
+                android:textAllCaps="true" />
         </LinearLayout>
 
         <TextView
@@ -46,7 +45,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="No upcoming events"
-            android:textColor="#FFFFFF"
+            android:textColor="#FF000000"
             android:textSize="13sp"
             android:textStyle="bold"
             android:maxLines="1"
@@ -57,9 +56,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=""
-            android:textColor="#9CA3AF"
-            android:textSize="10sp"
-            android:layout_marginTop="2dp" />
+            android:textColor="#FF808080"
+            android:textSize="11sp"
+            android:layout_marginTop="1dp" />
     </LinearLayout>
 
     <LinearLayout
@@ -67,11 +66,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center"
-        android:background="@drawable/widget_count_badge"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp"
         android:layout_marginStart="8dp">
 
         <TextView
@@ -79,8 +73,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="0"
-            android:textColor="#FF0000"
-            android:textSize="18sp"
+            android:textColor="#FFD71921"
+            android:textSize="22sp"
             android:textStyle="bold"
             android:gravity="center" />
 
@@ -88,9 +82,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="UPCOMING"
-            android:textColor="#9CA3AF"
-            android:textSize="7sp"
-            android:letterSpacing="0.18"
+            android:textColor="#FF808080"
+            android:textSize="8sp"
             android:gravity="center" />
     </LinearLayout>
 

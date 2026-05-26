@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Watery mood: teal to indigo to navy with a moonlit glow (water signs / emotional) -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="135"
+                android:startColor="#FF0A2A33"
+                android:centerColor="#FF15324F"
+                android:endColor="#FF1E2A52" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:centerX="0.72"
+                android:centerY="0.2"
+                android:gradientRadius="70%"
+                android:startColor="#80A9D8E8"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+</layer-list>
