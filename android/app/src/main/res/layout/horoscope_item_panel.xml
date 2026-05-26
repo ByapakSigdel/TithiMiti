@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Horoscope "page": clean, minimal Nothing-style. Edge-to-edge black with a
+     red-dot + uppercase zodiac label, DAILY caption, and the reading in a light
+     sans-serif. Revealed once the painting scrolls up. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/panel_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#FF000000"
+    android:paddingLeft="18dp"
+    android:paddingRight="18dp"
+    android:paddingTop="18dp"
+    android:paddingBottom="18dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingBottom="16dp">
+
+        <ImageView
+            android:layout_width="7dp"
+            android:layout_height="7dp"
+            android:layout_marginEnd="8dp"
+            android:src="@drawable/widget_accent_dot"
+            android:contentDescription="@null" />
+
+        <TextView
+            android:id="@+id/zodiac_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mesh"
+            android:textColor="#FFFFFFFF"
+            android:textSize="12sp"
+            android:fontFamily="sans-serif-medium"
+            android:textAllCaps="true"
+            android:letterSpacing="0.06" />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:contentDescription="@null" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DAILY"
+            android:textColor="#FF808080"
+            android:textSize="10sp"
+            android:fontFamily="sans-serif"
+            android:textAllCaps="true"
+            android:letterSpacing="0.18" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/horoscope_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textColor="#FFF2F2F2"
+        android:textSize="16sp"
+        android:fontFamily="sans-serif-light"
+        android:lineSpacingExtra="5dp" />
+</LinearLayout>

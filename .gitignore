@@ -43,4 +43,13 @@ app-example
  /android
 
 # Local APK outputs from scripts/build-apk.sh
- /apks
+apks/
+
+.claude/
+
+# JVM crash dumps (Gradle/Kotlin daemon OOM)
+hs_err_pid*.log
+replay_pid*.log
+
+# stray file from a bad PowerShell redirect (use $null, not "> $null")
+$null

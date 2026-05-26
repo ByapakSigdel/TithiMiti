@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
   },
   primaryText: {
     fontSize: 16,
-    fontFamily: NothingTheme.font.dotMatrix,
+    fontFamily: 'Inter_500Medium',
   },
   dot: {
     width: 4,

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Picker thumbnail: a painterly background with the gray horoscope panel
+     (red zodiac chip + mono text lines) peeking up from the bottom — a glance
+     of the real widget: art on top, horoscope on a gray panel when scrolled. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Painting placeholder (stormy mood gradient) -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="135"
+                android:startColor="#FF14161C"
+                android:centerColor="#FF2A2E3C"
+                android:endColor="#FF3A2A4A" />
+            <corners android:radius="18dp" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:centerX="0.5"
+                android:centerY="0.2"
+                android:gradientRadius="70%"
+                android:startColor="#598E9BC4"
+                android:endColor="#00000000" />
+            <corners android:radius="18dp" />
+        </shape>
+    </item>
+
+    <!-- Gray horoscope panel rising from the bottom -->
+    <item android:top="84dp" android:left="8dp" android:right="8dp" android:bottom="8dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#FF2B2D31" />
+            <corners android:radius="14dp" />
+        </shape>
+    </item>
+
+    <!-- Red zodiac chip -->
+    <item android:top="94dp" android:left="18dp" android:right="104dp" android:bottom="52dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#FFD71921" />
+            <corners android:radius="4dp" />
+        </shape>
+    </item>
+
+    <!-- Mono text lines -->
+    <item android:top="118dp" android:left="18dp" android:right="24dp" android:bottom="34dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#FF8A8E96" />
+            <corners android:radius="2dp" />
+        </shape>
+    </item>
+    <item android:top="132dp" android:left="18dp" android:right="56dp" android:bottom="20dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#FF8A8E96" />
+            <corners android:radius="2dp" />
+        </shape>
+    </item>
+
+</layer-list>

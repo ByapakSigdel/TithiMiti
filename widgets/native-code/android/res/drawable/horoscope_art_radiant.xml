@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Radiant mood: gold, amber & rose, hopeful (encouraging-tone horoscopes) -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="135"
+                android:startColor="#FF7A3410"
+                android:centerColor="#FFC9772A"
+                android:endColor="#FFE3A86A" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:centerX="0.5"
+                android:centerY="0.15"
+                android:gradientRadius="85%"
+                android:startColor="#99FFE7B0"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+</layer-list>

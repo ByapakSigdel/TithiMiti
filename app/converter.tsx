@@ -1,41 +1,18 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as FileSystem from 'expo-file-system/legacy';
 import { useFocusEffect } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import Animated, { ZoomIn } from 'react-native-reanimated';
 import { convertAdToBs, convertBsToAd } from '../src/domain/calendar/converter';
+import { ForexData, getForexRates } from '../src/services/api/forexService';
 import { getGoldSilverPrices, GoldSilverPrices } from '../src/services/api/goldSilverService';
-import { clearHoroscopeCache, getHoroscopeForZodiac } from '../src/services/horoscope/horoscopeService';
+import { fetchArtImage } from '../src/services/horoscope/artService';
+import { clearHoroscopeCache, getRichHoroscopeForZodiac } from '../src/services/horoscope/horoscopeService';
 import { updateDateWidget, updateGoldSilverWidget, updateHoroscopeWidget } from '../src/services/widget/widgetService';
 import { useAppState } from '../src/state/appState';
 import { NothingText } from '../src/ui/core/NothingText';
 
 const ZODIACS = ['Mesh', 'Vrishabha', 'Mithuna', 'Karka', 'Simha', 'Kanya', 'Tula', 'Vrishchika', 'Dhanu', 'Makara', 'Kumbha', 'Meen'];
-const ART_API_OBJECT = 'https://collectionapi.metmuseum.org/public/collection/v1/objects/';
-
-// Zodiac-themed painting queries (Met Museum search). Each picks
-// classical paintings that visually match the sign's archetype.
-const ZODIAC_PAINTING_QUERIES: Record<string, string> = {
-  Mesh: 'ram',
-  Vrishabha: 'bull pasture',
-  Mithuna: 'twins portrait',
-  Karka: 'moon water',
-  Simha: 'lion',
-  Kanya: 'maiden harvest',
-  Tula: 'balance scales',
-  Vrishchika: 'night dark',
-  Dhanu: 'archer hunt',
-  Makara: 'mountain winter',
-  Kumbha: 'water sky',
-  Meen: 'fish sea',
-};
-
-function buildArtSearchUrl(zodiac: string): string {
-  const term = ZODIAC_PAINTING_QUERIES[zodiac] || 'celestial';
-  const encoded = encodeURIComponent(term);
-  return `https://collectionapi.metmuseum.org/public/collection/v1/search?q=${encoded}&hasImages=true&medium=Paintings`;
-}
 
 export default function ConverterScreen() {
   const { colors } = useAppState();
@@ -53,6 +30,87 @@ export default function ConverterScreen() {
   const [selectedZodiac, setSelectedZodiac] = useState<string>('Mesh');
   const [dailyHoroscope, setDailyHoroscope] = useState<string>('Loading your horoscope...');
   const [dropdownVisible, setDropdownVisible] = useState(false);
+
+  // Currency exchange (forex) state
+  const [forex, setForex] = useState<ForexData | null>(null);
+  const [forexLoading, setForexLoading] = useState(false);
+  const [forexError, setForexError] = useState<string | null>(null);
+  const [forexCurrency, setForexCurrency] = useState<string>('USD');
+  const [foreignAmount, setForeignAmount] = useState<string>('1');
+  const [nprAmount, setNprAmount] = useState<string>('');
+  const [forexDropdownOpen, setForexDropdownOpen] = useState(false);
+
+  const selectedRate = forex?.rates.find((r) => r.code === forexCurrency) ?? null;
+
+  // Mirror the live currency/amount into refs so a focus-triggered reload (whose
+  // closure captured the initial state) recomputes against the current selection
+  // instead of a stale one.
+  const forexCurrencyRef = useRef(forexCurrency);
+  const foreignAmountRef = useRef(foreignAmount);
+  useEffect(() => { forexCurrencyRef.current = forexCurrency; }, [forexCurrency]);
+  useEffect(() => { foreignAmountRef.current = foreignAmount; }, [foreignAmount]);
+
+  // Format a number for the converter fields: 2 decimals max, trailing zeros
+  // stripped, thousands separators added.
+  const fmtAmount = (n: number): string => {
+    if (!isFinite(n)) return '';
+    let s = (Math.round(n * 100) / 100).toFixed(2).replace(/\.?0+$/, '');
+    const [int, dec] = s.split('.');
+    const withCommas = int.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return dec ? `${withCommas}.${dec}` : withCommas;
+  };
+
+  const parseAmount = (v: string): number => parseFloat(v.replace(/,/g, ''));
+
+  // Two-way binding: editing either field recomputes the other from the rate.
+  const onForeignChange = (v: string) => {
+    setForeignAmount(v);
+    const num = parseAmount(v);
+    if (v === '') setNprAmount('');
+    else if (selectedRate && isFinite(num)) setNprAmount(fmtAmount(num * selectedRate.nprPerUnit));
+  };
+
+  const onNprChange = (v: string) => {
+    setNprAmount(v);
+    const num = parseAmount(v);
+    if (v === '') setForeignAmount('');
+    else if (selectedRate && isFinite(num)) setForeignAmount(fmtAmount(num / selectedRate.nprPerUnit));
+  };
+
+  const onCurrencyChange = (code: string) => {
+    setForexCurrency(code);
+    setForexDropdownOpen(false);
+    const rate = forex?.rates.find((r) => r.code === code);
+    const num = parseAmount(foreignAmount);
+    if (rate && isFinite(num)) setNprAmount(fmtAmount(num * rate.nprPerUnit));
+  };
+
+  const loadForex = async (forceRefresh = false) => {
+    try {
+      setForexLoading(true);
+      setForexError(null);
+      const data = await getForexRates(forceRefresh);
+      if (data) {
+        setForex(data);
+        // Recompute against the *current* selection (via refs), so a background
+        // reload keeps the displayed currency and NPR amount in sync.
+        const cur = forexCurrencyRef.current;
+        const rate = data.rates.find((r) => r.code === cur) ?? data.rates[0];
+        if (rate) {
+          if (!data.rates.find((r) => r.code === cur)) setForexCurrency(rate.code);
+          const num = parseAmount(foreignAmountRef.current);
+          if (isFinite(num)) setNprAmount(fmtAmount(num * rate.nprPerUnit));
+        }
+      } else {
+        setForexError('Failed to fetch exchange rates. Please try again.');
+      }
+    } catch (error) {
+      setForexError('Failed to load exchange rates');
+      console.error('Forex error:', error);
+    } finally {
+      setForexLoading(false);
+    }
+  };
 
   // Load gold/silver prices from HamroPatro
   const loadMetalPrices = async (forceRefresh = false) => {
@@ -81,6 +139,7 @@ export default function ConverterScreen() {
   useEffect(() => {
     loadSavedZodiac();
     loadMetalPrices();
+    loadForex();
     // Clear any corrupted cache on first load
     clearHoroscopeCache();
   }, []);
@@ -93,6 +152,7 @@ export default function ConverterScreen() {
   useFocusEffect(
     React.useCallback(() => {
       loadMetalPrices();
+      loadForex();
     }, [])
   );
 
@@ -117,61 +177,20 @@ export default function ConverterScreen() {
     }
   };
 
-  const fetchArtImage = async (zodiac: string) => {
-    try {
-      // One painting per zodiac per day so the widget feels themed
-      const today = new Date().toISOString().split('T')[0];
-      const cacheKey = `art-image-${zodiac}`;
-      const dateKey = `art-image-date-${zodiac}`;
-      const savedDate = await AsyncStorage.getItem(dateKey);
-      const savedPath = await AsyncStorage.getItem(cacheKey);
-
-      if (savedDate === today && savedPath) {
-        return savedPath;
-      }
-
-      const searchRes = await fetch(buildArtSearchUrl(zodiac));
-      const searchData = await searchRes.json();
-
-      if (searchData.objectIDs && searchData.objectIDs.length > 0) {
-        // Try a few random IDs in case primaryImageSmall is missing
-        const candidates = searchData.objectIDs.slice(0, 30);
-        for (let i = 0; i < 5; i++) {
-          const randomId = candidates[Math.floor(Math.random() * candidates.length)];
-          try {
-            const objRes = await fetch(`${ART_API_OBJECT}${randomId}`);
-            const objData = await objRes.json();
-            if (objData.primaryImageSmall) {
-              const downloadDest = FileSystem.documentDirectory + `horoscope_bg_${zodiac}.jpg`;
-              await FileSystem.downloadAsync(objData.primaryImageSmall, downloadDest);
-              await AsyncStorage.setItem(dateKey, today);
-              await AsyncStorage.setItem(cacheKey, downloadDest);
-              return downloadDest;
-            }
-          } catch (innerErr) {
-            console.warn('Failed to fetch art object', randomId, innerErr);
-          }
-        }
-      }
-    } catch (e) {
-      console.error('Failed to fetch art image:', e);
-    }
-    return '';
-  };
-
   const generateDailyHoroscope = async () => {
     try {
       // Clear any old cached horoscopes
       await clearHoroscopeCache();
       
       // Generate horoscope using Vedic algorithm (no API needed!)
-      const horoscope = await getHoroscopeForZodiac(selectedZodiac, null);
-      setDailyHoroscope(horoscope);
-      
-      // Fetch background painting tied to the chosen zodiac
-      const imagePath = await fetchArtImage(selectedZodiac);
+      const rich = await getRichHoroscopeForZodiac(selectedZodiac, null);
+      setDailyHoroscope(rich.message);
 
-      await updateHoroscopeWidget(selectedZodiac, horoscope, imagePath);
+      // Fetch a painting whose vibe matches the horoscope's mood (overlaid on
+      // the bundled mood art when the download succeeds).
+      const imagePath = await fetchArtImage(selectedZodiac, rich.mood);
+
+      await updateHoroscopeWidget(selectedZodiac, rich.message, imagePath, rich.mood);
 
     } catch (error) {
       console.error('Failed to generate horoscope:', error);
@@ -204,6 +223,7 @@ export default function ConverterScreen() {
   const handleRefresh = () => {
     setRefreshing(true);
     loadMetalPrices(true);
+    loadForex(true);
   };
 
   return (
@@ -259,6 +279,88 @@ export default function ConverterScreen() {
               
               <NothingText style={{ fontSize: 11, color: colors.textSecondary, marginTop: 12 }}>
                 {goldSilverPrices.date || 'Updated today'}
+              </NothingText>
+            </>
+          ) : null}
+        </View>
+
+        {/* Currency Exchange Section */}
+        <View style={{ marginTop: 32 }}>
+          <NothingText variant="h3" style={styles.sectionTitle}>Currency Exchange</NothingText>
+
+          {forexLoading && !forex ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="small" color={colors.text} />
+            </View>
+          ) : forexError && !forex ? (
+            <View style={styles.errorContainer}>
+              <NothingText style={{ color: colors.textSecondary, fontSize: 14 }}>{forexError}</NothingText>
+              <Pressable style={[styles.retryButton, { backgroundColor: colors.text }]} onPress={() => loadForex(true)}>
+                <NothingText style={{ color: colors.background, fontSize: 12 }}>Retry</NothingText>
+              </Pressable>
+            </View>
+          ) : forex && selectedRate ? (
+            <>
+              {/* Currency picker */}
+              <Pressable
+                style={[styles.dropdownButton, { borderColor: colors.border }]}
+                onPress={() => setForexDropdownOpen(!forexDropdownOpen)}
+              >
+                <NothingText style={{ fontSize: 14 }}>{selectedRate.code} · {selectedRate.name}</NothingText>
+                <NothingText style={{ fontSize: 12, color: colors.textSecondary }}>{forexDropdownOpen ? '▲' : '▼'}</NothingText>
+              </Pressable>
+
+              {forexDropdownOpen && (
+                <View style={styles.zodiacGrid}>
+                  {forex.rates.map((r) => (
+                    <Pressable
+                      key={r.code}
+                      style={[
+                        styles.zodiacGridButton,
+                        { borderColor: colors.border },
+                        forexCurrency === r.code && { backgroundColor: '#FF0000', borderColor: '#FF0000' },
+                      ]}
+                      onPress={() => onCurrencyChange(r.code)}
+                    >
+                      <NothingText style={{ fontSize: 11, color: forexCurrency === r.code ? colors.background : colors.text }}>
+                        {r.code}
+                      </NothingText>
+                    </Pressable>
+                  ))}
+                </View>
+              )}
+
+              {/* Two-way amount inputs */}
+              <View style={styles.forexRow}>
+                <View style={[styles.forexField, { borderColor: colors.border }]}>
+                  <NothingText style={{ fontSize: 11, color: colors.textSecondary, marginBottom: 4 }}>{selectedRate.code}</NothingText>
+                  <TextInput
+                    keyboardType="numeric"
+                    style={[styles.forexInput, { color: colors.text }]}
+                    value={foreignAmount}
+                    onChangeText={onForeignChange}
+                    placeholder="0"
+                    placeholderTextColor={colors.textSecondary}
+                  />
+                </View>
+
+                <NothingText style={{ fontSize: 18, color: colors.textSecondary, paddingHorizontal: 4 }}>⇄</NothingText>
+
+                <View style={[styles.forexField, { borderColor: colors.border }]}>
+                  <NothingText style={{ fontSize: 11, color: colors.textSecondary, marginBottom: 4 }}>NPR</NothingText>
+                  <TextInput
+                    keyboardType="numeric"
+                    style={[styles.forexInput, { color: colors.text }]}
+                    value={nprAmount}
+                    onChangeText={onNprChange}
+                    placeholder="0"
+                    placeholderTextColor={colors.textSecondary}
+                  />
+                </View>
+              </View>
+
+              <NothingText style={{ fontSize: 11, color: colors.textSecondary, marginTop: 12 }}>
+                1 {selectedRate.code} = ₨{fmtAmount(selectedRate.nprPerUnit)} · {forex.source} · {forex.date}
               </NothingText>
             </>
           ) : null}
@@ -483,6 +585,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 4,
     fontSize: 13,
+    fontFamily: 'Inter_400Regular',
   },
   convertBtn: {
     paddingHorizontal: 16,
@@ -496,5 +599,22 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 4,
     alignItems: 'center',
+  },
+  forexRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  forexField: {
+    flex: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderRadius: 8,
+  },
+  forexInput: {
+    fontSize: 18,
+    padding: 0,
+    fontFamily: 'Inter_500Medium',
   },
 });

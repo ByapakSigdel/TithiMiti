@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: NothingTheme.radius.sm,
     paddingHorizontal: 16,
-    fontFamily: 'SpaceMono', // Fallback if DotMatrix isn't readable for input
+    fontFamily: 'Inter_400Regular',
     fontSize: 16,
   },
   errorText: {

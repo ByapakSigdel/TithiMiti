@@ -5,13 +5,14 @@
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { generateAllHoroscopes, generateVedicHoroscope } from './vedicHoroscopeGenerator';
+import { generateAllRichHoroscopes, generateRichHoroscope, RichHoroscope } from './vedicHoroscopeGenerator';
 
-const CACHE_KEY_PREFIX = 'daily_horoscope_';
-const CACHE_DATE_KEY = 'horoscope_cache_date';
+// Bumped to v2 when the cache shape changed from string to RichHoroscope.
+const CACHE_KEY_PREFIX = 'daily_horoscope_v2_';
+const CACHE_DATE_KEY = 'horoscope_cache_date_v2';
 
 export interface DailyHoroscopes {
-  [zodiac: string]: string;
+  [zodiac: string]: RichHoroscope;
 }
 
 /**
@@ -33,30 +34,37 @@ export async function getDailyHoroscopes(tithi: number | null = null): Promise<D
     
     // Generate new horoscopes using Vedic algorithm
     console.log('[Horoscope] Generating new horoscopes for', today, 'with tithi', tithi);
-    const horoscopes = generateAllHoroscopes(new Date(), tithi);
-    
+    const horoscopes = generateAllRichHoroscopes(new Date(), tithi);
+
     // Cache them
     await AsyncStorage.setItem(CACHE_KEY_PREFIX + today, JSON.stringify(horoscopes));
     await AsyncStorage.setItem(CACHE_DATE_KEY, today);
-    
+
     // Clean up old cached horoscopes (keep only last 3 days)
     cleanupOldCache(today);
-    
+
     return horoscopes;
   } catch (error) {
     console.error('[Horoscope] Failed to get daily horoscopes:', error);
-    
+
     // Generate fresh ones as fallback
-    return generateAllHoroscopes(new Date(), tithi);
+    return generateAllRichHoroscopes(new Date(), tithi);
   }
 }
 
 /**
- * Get horoscope for a specific zodiac sign
+ * Get the rich horoscope (message + painting mood) for a zodiac sign.
+ */
+export async function getRichHoroscopeForZodiac(zodiac: string, tithi: number | null = null): Promise<RichHoroscope> {
+  const horoscopes = await getDailyHoroscopes(tithi);
+  return horoscopes[zodiac] || generateRichHoroscope(zodiac, new Date(), tithi);
+}
+
+/**
+ * Get horoscope message string for a specific zodiac sign.
  */
 export async function getHoroscopeForZodiac(zodiac: string, tithi: number | null = null): Promise<string> {
-  const horoscopes = await getDailyHoroscopes(tithi);
-  return horoscopes[zodiac] || generateVedicHoroscope(zodiac, new Date(), tithi);
+  return (await getRichHoroscopeForZodiac(zodiac, tithi)).message;
 }
 
 /**

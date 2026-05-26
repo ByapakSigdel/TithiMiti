@@ -4,15 +4,23 @@ import React from 'react';
 import { HapticTab } from '@/components/haptic-tab';
 import { SvgIcon } from '@/components/svg-icon';
 import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useAppState } from '@/src/state/appState';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  // Use the app's resolved theme (which honours the in-app dark toggle), not the
+  // raw system scheme, so the tab bar matches the rest of the app.
+  const { colors, activeTheme } = useAppState();
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: Colors[activeTheme].tint,
+        tabBarInactiveTintColor: colors.textSecondary,
+        tabBarStyle: {
+          backgroundColor: colors.background,
+          borderTopColor: colors.border,
+        },
+        sceneStyle: { backgroundColor: colors.background },
         headerShown: false,
         tabBarButton: HapticTab,
       }}>

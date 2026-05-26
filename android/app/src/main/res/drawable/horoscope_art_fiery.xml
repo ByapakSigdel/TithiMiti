@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fiery mood: ember reds & oranges with a warm glow (fire signs / bold) -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="135"
+                android:startColor="#FF4A0E07"
+                android:centerColor="#FFA8270D"
+                android:endColor="#FFE8631C" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:centerX="0.28"
+                android:centerY="0.22"
+                android:gradientRadius="75%"
+                android:startColor="#80FFD27A"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+</layer-list>

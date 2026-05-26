@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Airy mood: pale sky, lavender & soft gold with a light glow (air signs / social) -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="135"
+                android:startColor="#FF3A4C73"
+                android:centerColor="#FF7E78A8"
+                android:endColor="#FFD9C28E" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:centerX="0.35"
+                android:centerY="0.2"
+                android:gradientRadius="85%"
+                android:startColor="#80FFFFFF"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+</layer-list>

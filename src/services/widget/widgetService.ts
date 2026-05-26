@@ -19,6 +19,10 @@ export async function initializeAllWidgets(): Promise<void> {
   try {
     console.log('[Widget] Initializing all widgets');
 
+    // Seed the horoscope widget first so its painting appears regardless of
+    // which tab opens — and so a slow/stalled date API below can't starve it.
+    await seedHoroscopeWidget();
+
     // Compute today's real BS date so widgets show meaningful data immediately
     const todayISO = new Date().toISOString().slice(0, 10);
     let bsDate = 'Loading...';
@@ -77,21 +81,45 @@ export async function initializeAllWidgets(): Promise<void> {
       await updateGoldSilverWidget({ goldHallmarkTola: '', silverTola: '', date: '' });
     }
 
-    // Best-effort horoscope seed using saved zodiac
-    try {
-      const AsyncStorage = (await import('@react-native-async-storage/async-storage')).default;
-      const savedZodiac = (await AsyncStorage.getItem('selected-zodiac')) || 'Mesh';
-      const { getHoroscopeForZodiac } = await import('@/src/services/horoscope/horoscopeService');
-      const horoscope = await getHoroscopeForZodiac(savedZodiac, null);
-      await updateHoroscopeWidget(savedZodiac, horoscope || 'Open Tools to load horoscope', '');
-    } catch (e) {
-      console.warn('[Widget] Horoscope init failed:', e);
-      await updateHoroscopeWidget('Mesh', 'Open Tools to load horoscope', '');
-    }
-
     console.log('[Widget] Init complete; bsDate=', bsDate);
   } catch (error) {
     console.error('[Widget] Failed to initialize widgets:', error);
+  }
+}
+
+/**
+ * Seed the horoscope widget from the saved zodiac. Seeds the text + any cached
+ * mood-matched painting immediately, then downloads a fresh painting in the
+ * background (when none is cached) and refreshes the widget once it lands.
+ * Independent of the date/metals network calls so it always runs at startup.
+ */
+export async function seedHoroscopeWidget(): Promise<void> {
+  if (Platform.OS !== 'android' || !WidgetData) return;
+  try {
+    const AsyncStorage = (await import('@react-native-async-storage/async-storage')).default;
+    const savedZodiac = (await AsyncStorage.getItem('selected-zodiac')) || 'Mesh';
+    const { getRichHoroscopeForZodiac } = await import('@/src/services/horoscope/horoscopeService');
+    const { fetchArtImage, getCachedArtImage } = await import('@/src/services/horoscope/artService');
+    const rich = await getRichHoroscopeForZodiac(savedZodiac, null);
+    const message = rich.message || 'Open Tools to load horoscope';
+
+    // Seed immediately with any already-downloaded, mood-matched painting so
+    // the widget has art right away (and we don't clobber it with '').
+    const cachedArt = await getCachedArtImage(savedZodiac, rich.mood);
+    await updateHoroscopeWidget(savedZodiac, message, cachedArt, rich.mood);
+
+    // No current painting yet: download one in the background and refresh the
+    // widget when it lands. Don't block startup on the Met network call.
+    if (!cachedArt) {
+      fetchArtImage(savedZodiac, rich.mood)
+        .then((path) => {
+          if (path) updateHoroscopeWidget(savedZodiac, message, path, rich.mood);
+        })
+        .catch((e) => console.warn('[Widget] Art download failed:', e));
+    }
+  } catch (e) {
+    console.warn('[Widget] Horoscope init failed:', e);
+    await updateHoroscopeWidget('Mesh', 'Open Tools to load horoscope', '', 'airy');
   }
 }
 
@@ -114,14 +142,15 @@ export async function updateGoldSilverWidget(prices: any): Promise<void> {
 /**
  * Update horoscope widget
  */
-export async function updateHoroscopeWidget(zodiac: string, horoscope: string, imagePath: string = ''): Promise<void> {
+export async function updateHoroscopeWidget(zodiac: string, horoscope: string, imagePath: string = '', theme: string = ''): Promise<void> {
   if (Platform.OS !== 'android' || !WidgetData) return;
-  
+
   try {
     const data = JSON.stringify({
       zodiac,
       message: horoscope,
-      imagePath
+      imagePath,
+      theme
     });
     console.log('[Widget] Updating horoscope widget:', zodiac, horoscope.substring(0, 50));
     WidgetData.setData('horoscope_widget', data, () => {

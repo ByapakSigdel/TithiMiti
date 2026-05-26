@@ -8,7 +8,32 @@
       "PowerShell(Get-Content *)",
       "PowerShell(Test-Path *)",
       "PowerShell(Tee-Object *)",
-      "PowerShell(Get-Item *)"
+      "PowerShell(Get-Item *)",
+      "Bash(git *)",
+      "Bash(SKIP_NPM_CI=1 ./scripts/build-apk.sh)",
+      "Bash(echo \"BUILD EXIT: $?\")",
+      "Bash(adb install *)",
+      "PowerShell(adb shell *)",
+      "PowerShell(adb exec-out *)",
+      "Bash(adb -s emulator-5554 emu kill)",
+      "Bash(./gradlew assembleRelease -x lint --no-daemon --console=plain)",
+      "Bash(echo \"EXIT $?\")",
+      "Read(//c/Users/user/Documents/apks/**)",
+      "Bash(adb shell *)",
+      "Bash(adb exec-out *)",
+      "Bash(cp android/app/src/main/res/layout/horoscope_widget.xml widgets/native-code/android/res/layout/horoscope_widget.xml)",
+      "Bash(cp android/app/src/main/res/layout/horoscope_item_art.xml widgets/native-code/android/res/layout/horoscope_item_art.xml)",
+      "Bash(cp android/app/src/main/res/layout/horoscope_item_panel.xml widgets/native-code/android/res/layout/horoscope_item_panel.xml)",
+      "Bash(cp android/app/src/main/java/com/byapak/tithimiti/widgets/HoroscopeWidget.kt widgets/native-code/android/HoroscopeWidget.kt)",
+      "Bash(cp android/app/src/main/java/com/byapak/tithimiti/widgets/HoroscopeWidgetService.kt widgets/native-code/android/HoroscopeWidgetService.kt)",
+      "Bash(emulator -avd Pixel_API35 -gpu host -no-snapshot-load)",
+      "Bash(echo \"launching pid $!\")",
+      "Bash(adb devices *)",
+      "PowerShell(Get-Process *)",
+      "PowerShell(Stop-Process *)",
+      "Bash(curl -s --max-time 25 \"https://www.nrb.org.np/api/forex/v1/rates?page=1&per_page=5&from=2026-05-26&to=2026-05-26\")",
+      "Bash(curl -s --max-time 25 \"https://open.er-api.com/v6/latest/USD\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('result:',d.get\\('result'\\)\\); print\\('NPR:',d.get\\('rates',{}\\).get\\('NPR'\\)\\); print\\('updated:',d.get\\('time_last_update_utc'\\)\\)\")"
     ]
   }
 }
