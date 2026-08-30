@@ -3,7 +3,8 @@ import { MonthGrid } from '@/src/components/calendar/MonthGrid';
 import { AddEventModal } from '@/src/components/events/AddEventModal';
 import { convertAdToBs } from '@/src/domain/calendar/converter';
 import { formatBsDateNepali, getBsMonthName } from '@/src/domain/calendar/labels';
-import { BsDay } from '@/src/domain/calendar/types';
+import { localAdToBs } from '@/src/domain/calendar/localBsCalendar';
+import { BsDay, BsMonth } from '@/src/domain/calendar/types';
 import { getAdMonth, getBsMonth } from '@/src/services/api/bsCalendarApi';
 import { initNotifications } from '@/src/services/notifications';
 import { updateTodayWidget } from '@/src/services/widget/widgetService';
@@ -23,9 +24,19 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function CalendarScreen() {
   const { mode, setMode, selectedDateISO, setSelectedDateISO, events, setThemeMode, activeTheme, colors } = useAppState();
 
-  // Local state for the *viewed* month (distinct from selected date)
-  const [viewYear, setViewYear] = useState(new Date().getFullYear());
-  const [viewMonth, setViewMonth] = useState(new Date().getMonth() + 1); // 1-12
+  // Local state for the *viewed* month (distinct from selected date).
+  // Seed with the correct BS month for today (the default mode is BS): seeding
+  // AD values here made the first MonthGrid mount fetch a nonexistent BS month
+  // (e.g. "2026/8"), burning retries and a scrape fallback before the real
+  // month could even start loading.
+  const [viewYear, setViewYear] = useState(() => {
+    const bs = mode === 'BS' ? localAdToBs(getTodayISO()) : null;
+    return bs?.bsYear ?? new Date().getFullYear();
+  });
+  const [viewMonth, setViewMonth] = useState(() => {
+    const bs = mode === 'BS' ? localAdToBs(getTodayISO()) : null;
+    return bs?.bsMonth ?? new Date().getMonth() + 1;
+  }); // 1-12
   const [isAddEventVisible, setIsAddEventVisible] = useState(false);
   const [selectedDay, setSelectedDay] = useState<BsDay | null>(null);
 
@@ -216,6 +227,17 @@ export default function CalendarScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // The grid paints instantly from the bundled table, so a selected day picked
+  // up before the detailed month arrived has no tithi/events yet — swap in the
+  // full day object once the fetch lands.
+  const handleMonthData = useCallback((monthData: BsMonth) => {
+    setSelectedDay(prev => {
+      if (!prev) return prev;
+      const updated = monthData.days.find(d => areDatesEqual(d.adDateISO, prev.adDateISO));
+      return updated ?? prev;
+    });
+  }, []);
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
@@ -293,6 +315,7 @@ export default function CalendarScreen() {
                 month={viewMonth}
                 mode={mode}
                 onSelectDay={handleSelectDay}
+                onMonthData={handleMonthData}
             />
             </Animated.View>
 

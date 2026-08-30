@@ -1,11 +1,12 @@
+import { getLocalAdMonthSkeleton, getLocalBsMonthSkeleton } from '@/src/domain/calendar/localBsCalendar';
 import { BsDay, BsMonth, CalendarMode } from '@/src/domain/calendar/types';
 import { getAdMonth, getBsMonth } from '@/src/services/api/bsCalendarApi';
 import { useAppState } from '@/src/state/appState';
 import { NothingText } from '@/src/ui/core/NothingText';
 import { HundredTheme } from '@/src/ui/theme/hundred';
 import { areDatesEqual, getTodayISO, normalizeDateISO } from '@/src/utils/dateUtils';
-import React, { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { DayCell } from './DayCell';
 
 interface MonthGridProps {
@@ -13,14 +14,28 @@ interface MonthGridProps {
   month: number;
   mode: CalendarMode;
   onSelectDay: (day: BsDay) => void;
+  // Fired when the detailed (network) month lands, so the parent can refresh
+  // any day object it captured from the instant skeleton.
+  onMonthData?: (month: BsMonth) => void;
 }
 
-export function MonthGrid({ year, month, mode, onSelectDay }: MonthGridProps) {
+export function MonthGrid({ year, month, mode, onSelectDay, onMonthData }: MonthGridProps) {
   const { selectedDateISO, events, colors } = useAppState();
-  const [data, setData] = useState<BsMonth | null>(null);
+  // Instant, offline grid: correct dates/weekdays from the bundled table.
+  // Tithi/events hydrate into it when the fetch below resolves. The parent
+  // remounts this component per (year, month, mode) via a key, so per-mount
+  // initial state is safe.
+  const skeleton = useMemo(
+    () => (mode === 'BS' ? getLocalBsMonthSkeleton(year, month) : getLocalAdMonthSkeleton(year, month)),
+    [year, month, mode],
+  );
+  const [full, setFull] = useState<BsMonth | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
   const todayISO = getTodayISO();
+
+  const data = full ?? skeleton;
 
   // One pass over the events instead of a filter per cell per render.
   const eventDates = useMemo(
@@ -37,7 +52,10 @@ export function MonthGrid({ year, month, mode, onSelectDay }: MonthGridProps) {
 
     fetchFn(year, month)
       .then(res => {
-        if (mounted) setData(res);
+        if (mounted) {
+          setFull(res);
+          onMonthData?.(res);
+        }
       })
       .catch(err => {
         console.error(`[MonthGrid] Error:`, err);
@@ -48,7 +66,10 @@ export function MonthGrid({ year, month, mode, onSelectDay }: MonthGridProps) {
       });
 
     return () => { mounted = false; };
-  }, [year, month, mode]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [year, month, mode, attempt]);
+
+  const retry = useCallback(() => setAttempt(a => a + 1), []);
 
   if (loading && !data) {
     return (
@@ -58,7 +79,7 @@ export function MonthGrid({ year, month, mode, onSelectDay }: MonthGridProps) {
     );
   }
 
-  if (error) {
+  if (error && !data) {
     return (
       <View style={styles.center}>
         <View style={[styles.errorCard, { backgroundColor: colors.accentSoft }]}>
@@ -66,6 +87,14 @@ export function MonthGrid({ year, month, mode, onSelectDay }: MonthGridProps) {
           <NothingText variant="caption" style={{ marginTop: 6, textTransform: 'none', letterSpacing: 0 }}>
             {error} — check your connection and try again.
           </NothingText>
+          <Pressable
+            onPress={retry}
+            style={[styles.retryBtn, { backgroundColor: colors.accent }]}
+            accessibilityRole="button"
+            accessibilityLabel="Retry loading this month"
+          >
+            <NothingText variant="dot" style={{ fontSize: 11 }} color={colors.onAccent}>RETRY</NothingText>
+          </Pressable>
         </View>
       </View>
     );
@@ -82,6 +111,22 @@ export function MonthGrid({ year, month, mode, onSelectDay }: MonthGridProps) {
 
   return (
     <View style={styles.container}>
+      {/* Dates render instantly from the bundled table; if the details fetch
+          failed, the grid stays usable and only the event/tithi layer is
+          missing — say so inline instead of blanking the month. */}
+      {error && !full && (
+        <Pressable
+          onPress={retry}
+          style={[styles.noticeBar, { backgroundColor: colors.accentSoft }]}
+          accessibilityRole="button"
+          accessibilityLabel="Events did not load. Tap to retry"
+        >
+          <NothingText variant="caption" style={{ textTransform: 'none', letterSpacing: 0 }} color={colors.accent}>
+            Events didn&apos;t load — tap to retry
+          </NothingText>
+        </Pressable>
+      )}
+
       {/* Weekday Header */}
       <View style={[styles.headerRow, { borderColor: colors.border }]}>
         {weekDays.map((d, i) => (
@@ -139,6 +184,19 @@ const styles = StyleSheet.create({
     borderRadius: HundredTheme.radius.lg,
     padding: 20,
     marginHorizontal: 12,
+    alignItems: 'center',
+  },
+  retryBtn: {
+    marginTop: 14,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    borderRadius: HundredTheme.radius.round,
+  },
+  noticeBar: {
+    borderRadius: HundredTheme.radius.md,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    marginBottom: 10,
     alignItems: 'center',
   },
   headerRow: {
