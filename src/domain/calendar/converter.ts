@@ -1,4 +1,5 @@
 import { findBsDayByAd } from '@/src/domain/calendar/bsCalendar';
+import { localAdToBs, localBsToAdISO } from '@/src/domain/calendar/localBsCalendar';
 import { AdDay, BsDay, BsMonth, ConverterResult } from '@/src/domain/calendar/types';
 import { getBsMonth } from '@/src/services/api/bsCalendarApi';
 
@@ -38,19 +39,29 @@ async function fetchSurroundingBsMonths(adISO: string): Promise<BsMonth[]> {
   return results.filter((r: BsMonth | null): r is BsMonth => r !== null);
 }
 
+function adDayFromISO(adISO: string): AdDay {
+  return {
+    dateISO: adISO,
+    day: parseInt(adISO.slice(8, 10), 10),
+    month: parseInt(adISO.slice(5, 7), 10),
+    year: parseInt(adISO.slice(0, 4), 10),
+    weekday: new Date(adISO + 'T00:00:00').getDay(),
+  };
+}
+
 export async function convertAdToBs(adISO: string): Promise<ConverterResult> {
+  // Bundled table first: synchronous and offline. The network path below only
+  // serves dates outside the bundled range.
+  const localBs = localAdToBs(adISO);
+  if (localBs) {
+    return { mode: 'BS', bs: localBs, ad: adDayFromISO(adISO) };
+  }
+
   const months = await fetchSurroundingBsMonths(adISO);
   for (const m of months) {
     const bs = findBsDayByAd(m, adISO);
     if (bs) {
-      const ad: AdDay = {
-        dateISO: adISO,
-        day: parseInt(adISO.slice(8, 10), 10),
-        month: parseInt(adISO.slice(5, 7), 10),
-        year: parseInt(adISO.slice(0, 4), 10),
-        weekday: new Date(adISO + 'T00:00:00').getDay(),
-      };
-      return { mode: 'BS', bs, ad };
+      return { mode: 'BS', bs, ad: adDayFromISO(adISO) };
     }
   }
   // Fallback if not found (shouldn't happen if API works)
@@ -58,20 +69,21 @@ export async function convertAdToBs(adISO: string): Promise<ConverterResult> {
 }
 
 export async function convertBsToAd(bsYear: number, bsMonth: number, bsDay: number): Promise<ConverterResult> {
+  // Bundled table first: synchronous and offline.
+  const localISO = localBsToAdISO(bsYear, bsMonth, bsDay);
+  if (localISO) {
+    const bs = localAdToBs(localISO);
+    if (bs) {
+      return { mode: 'AD', bs, ad: adDayFromISO(localISO) };
+    }
+  }
+
   try {
     const monthData = await getBsMonth(bsYear, bsMonth);
     const dayData = monthData.days.find((d: BsDay) => d.bsDay === bsDay);
-    
+
     if (dayData) {
-      const adISO = dayData.adDateISO;
-      const ad: AdDay = {
-        dateISO: adISO,
-        day: parseInt(adISO.slice(8, 10), 10),
-        month: parseInt(adISO.slice(5, 7), 10),
-        year: parseInt(adISO.slice(0, 4), 10),
-        weekday: new Date(adISO + 'T00:00:00').getDay(),
-      };
-      return { mode: 'AD', bs: dayData, ad };
+      return { mode: 'AD', bs: dayData, ad: adDayFromISO(dayData.adDateISO) };
     }
   } catch (e) {
     console.error(e);
