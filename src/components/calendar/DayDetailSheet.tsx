@@ -1,7 +1,8 @@
 import { BsDay } from '@/src/domain/calendar/types';
 import { useAppState } from '@/src/state/appState';
 import { NothingText } from '@/src/ui/core/NothingText';
-import React, { useState } from 'react';
+import { HundredTheme } from '@/src/ui/theme/hundred';
+import React, { useEffect, useRef, useState } from 'react';
 import { Dimensions, ScrollView, StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { Easing, runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
@@ -24,6 +25,18 @@ export function DayDetailSheet({ day }: DayDetailSheetProps) {
   const translateY = useSharedValue(CLOSED_POSITION);
   const dragStartY = useSharedValue(CLOSED_POSITION);
   const [isOpen, setIsOpen] = useState(false);
+  const contentScrollRef = useRef<ScrollView>(null);
+
+  // The sheet stays mounted across dismissals (it renders null while day is
+  // null), so shared values survive. Reset to the peek position whenever the
+  // shown day changes — otherwise a sheet dismissed while fully open reappears
+  // fully expanded (with the old scroll offset) on the next day tap.
+  useEffect(() => {
+    translateY.value = CLOSED_POSITION;
+    setIsOpen(false);
+    contentScrollRef.current?.scrollTo({ y: 0, animated: false });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [day?.adDateISO]);
 
   // Snap the sheet to the open or closed (peek) position.
   const snapTo = (open: boolean) => {
@@ -72,18 +85,20 @@ export function DayDetailSheet({ day }: DayDetailSheetProps) {
   const sakSambatYear = day.sakSambat;
 
   return (
-    <Animated.View style={[styles.bottomSheetContainer, rBottomSheetStyle, { backgroundColor: colors.card, borderColor: colors.border }]}>
+    <Animated.View style={[styles.bottomSheetContainer, rBottomSheetStyle, { backgroundColor: colors.card, shadowColor: '#000' }]}>
       {/* Grab area: handle + date header. The whole peek is draggable (pull up
           to expand, push down to minimise); a tap still toggles. */}
       <GestureDetector gesture={handleGesture}>
         <View style={styles.dragRegion}>
           <View style={styles.lineWrapper}>
-            <View style={[styles.line, { backgroundColor: colors.textSecondary }]} />
+            <View style={[styles.line, { backgroundColor: colors.border }]} />
           </View>
-          <View style={styles.header}>
-            <NothingText variant="h1" style={{ fontSize: 28 }}>
-              {day.bsDay}
-            </NothingText>
+          <View style={[styles.header, { borderBottomColor: colors.border }]}>
+            <View style={[styles.dayBadge, { backgroundColor: colors.accentSoft }]}>
+              <NothingText variant="h1" style={{ fontSize: 26 }} color={colors.accent}>
+                {day.bsDay}
+              </NothingText>
+            </View>
             <View style={{ flex: 1, marginLeft: 16 }}>
               <NothingText variant="h2" style={{ marginBottom: 4 }}>
                 {day.bsYear} / {day.bsMonth}
@@ -104,6 +119,7 @@ export function DayDetailSheet({ day }: DayDetailSheetProps) {
         </View>
       </GestureDetector>
       <ScrollView
+        ref={contentScrollRef}
         style={styles.content}
         contentContainerStyle={{ paddingBottom: 120 }}
         showsVerticalScrollIndicator={true}
@@ -112,10 +128,10 @@ export function DayDetailSheet({ day }: DayDetailSheetProps) {
       >
         {/* Tithi */}
         {day.tithiRom && (
-            <View style={[styles.infoCard, { backgroundColor: colors.background }]}>
-              <NothingText style={styles.infoLabel}>Tithi</NothingText>
+            <View style={[styles.infoCard, { backgroundColor: colors.accentSoft }]}>
+              <NothingText style={styles.infoLabel} color={colors.accent}>Tithi</NothingText>
               <View style={{ alignItems: 'flex-end' }}>
-                <NothingText style={styles.infoValue}>{day.tithiRom}</NothingText>
+                <NothingText style={styles.infoValue} color={colors.accent}>{day.tithiRom}</NothingText>
                 {day.extraDetails?.tithiEndDisplay && (
                   <NothingText style={{ fontSize: 11, color: colors.textSecondary, marginTop: 2 }}>
                     {day.extraDetails.tithiEndDisplay}
@@ -133,26 +149,26 @@ export function DayDetailSheet({ day }: DayDetailSheetProps) {
                 <NothingText variant="h3" style={{ marginBottom: 12 }}>Sun & Moon Times</NothingText>
                 <View style={styles.detailsGrid}>
                   {day.extraDetails.sunrise && (
-                    <View style={[styles.detailCard, { backgroundColor: colors.background }]}>
-                      <NothingText style={styles.detailLabel}>Sunrise</NothingText>
+                    <View style={[styles.detailCard, { backgroundColor: colors.surface }]}>
+                      <NothingText style={styles.detailLabel} color={colors.marigold}>Sunrise</NothingText>
                       <NothingText style={styles.detailValue}>{day.extraDetails.sunrise}</NothingText>
                     </View>
                   )}
                   {day.extraDetails.sunset && (
-                    <View style={[styles.detailCard, { backgroundColor: colors.background }]}>
-                      <NothingText style={styles.detailLabel}>Sunset</NothingText>
+                    <View style={[styles.detailCard, { backgroundColor: colors.surface }]}>
+                      <NothingText style={styles.detailLabel} color={colors.marigold}>Sunset</NothingText>
                       <NothingText style={styles.detailValue}>{day.extraDetails.sunset}</NothingText>
                     </View>
                   )}
                   {day.extraDetails.moonrise && (
-                    <View style={[styles.detailCard, { backgroundColor: colors.background }]}>
-                      <NothingText style={styles.detailLabel}>Moonrise</NothingText>
+                    <View style={[styles.detailCard, { backgroundColor: colors.surface }]}>
+                      <NothingText style={styles.detailLabel} color={colors.iris}>Moonrise</NothingText>
                       <NothingText style={styles.detailValue}>{day.extraDetails.moonrise}</NothingText>
                     </View>
                   )}
                   {day.extraDetails.moonset && (
-                    <View style={[styles.detailCard, { backgroundColor: colors.background }]}>
-                      <NothingText style={styles.detailLabel}>Moonset</NothingText>
+                    <View style={[styles.detailCard, { backgroundColor: colors.surface }]}>
+                      <NothingText style={styles.detailLabel} color={colors.iris}>Moonset</NothingText>
                       <NothingText style={styles.detailValue}>{day.extraDetails.moonset}</NothingText>
                     </View>
                   )}
@@ -164,14 +180,14 @@ export function DayDetailSheet({ day }: DayDetailSheetProps) {
                 <NothingText variant="h3" style={{ marginBottom: 12 }}>Panchanga</NothingText>
                 <View style={styles.detailsGrid}>
                   {day.extraDetails.pakshya && (
-                    <View style={[styles.detailCard, { backgroundColor: colors.background, width: '100%' }]}>
-                      <NothingText style={styles.detailLabel}>Pakshya</NothingText>
+                    <View style={[styles.detailCard, { backgroundColor: colors.surface, width: '100%' }]}>
+                      <NothingText style={styles.detailLabel} color={colors.textSecondary}>Pakshya</NothingText>
                       <NothingText style={styles.detailValue}>{day.extraDetails.pakshya}</NothingText>
                     </View>
                   )}
                   {day.extraDetails.nakshatra && (
-                    <View style={[styles.detailCard, { backgroundColor: colors.background }]}>
-                      <NothingText style={styles.detailLabel}>Nakshatra</NothingText>
+                    <View style={[styles.detailCard, { backgroundColor: colors.surface }]}>
+                      <NothingText style={styles.detailLabel} color={colors.textSecondary}>Nakshatra</NothingText>
                       <NothingText style={styles.detailValue}>{day.extraDetails.nakshatra}</NothingText>
                       {day.extraDetails.nakshatraEnd && (
                         <NothingText style={{ fontSize: 10, color: colors.textSecondary, marginTop: 2 }}>
@@ -181,8 +197,8 @@ export function DayDetailSheet({ day }: DayDetailSheetProps) {
                     </View>
                   )}
                   {day.extraDetails.yog && (
-                    <View style={[styles.detailCard, { backgroundColor: colors.background }]}>
-                      <NothingText style={styles.detailLabel}>Yog</NothingText>
+                    <View style={[styles.detailCard, { backgroundColor: colors.surface }]}>
+                      <NothingText style={styles.detailLabel} color={colors.textSecondary}>Yog</NothingText>
                       <NothingText style={styles.detailValue}>{day.extraDetails.yog}</NothingText>
                       {day.extraDetails.yogEnd && (
                         <NothingText style={{ fontSize: 10, color: colors.textSecondary, marginTop: 2 }}>
@@ -192,14 +208,14 @@ export function DayDetailSheet({ day }: DayDetailSheetProps) {
                     </View>
                   )}
                   {day.extraDetails.karan && (
-                    <View style={[styles.detailCard, { backgroundColor: colors.background }]}>
-                      <NothingText style={styles.detailLabel}>Karan (1st Half)</NothingText>
+                    <View style={[styles.detailCard, { backgroundColor: colors.surface }]}>
+                      <NothingText style={styles.detailLabel} color={colors.textSecondary}>Karan (1st Half)</NothingText>
                       <NothingText style={styles.detailValue}>{day.extraDetails.karan}</NothingText>
                     </View>
                   )}
                   {day.extraDetails.karanSecond && (
-                    <View style={[styles.detailCard, { backgroundColor: colors.background }]}>
-                      <NothingText style={styles.detailLabel}>Karan (2nd Half)</NothingText>
+                    <View style={[styles.detailCard, { backgroundColor: colors.surface }]}>
+                      <NothingText style={styles.detailLabel} color={colors.textSecondary}>Karan (2nd Half)</NothingText>
                       <NothingText style={styles.detailValue}>{day.extraDetails.karanSecond}</NothingText>
                     </View>
                   )}
@@ -212,8 +228,8 @@ export function DayDetailSheet({ day }: DayDetailSheetProps) {
                   <NothingText variant="h3" style={{ marginBottom: 12 }}>Rashi</NothingText>
                   <View style={styles.detailsGrid}>
                     {day.extraDetails.chandraRashi && (
-                      <View style={[styles.detailCard, { backgroundColor: colors.background }]}>
-                        <NothingText style={styles.detailLabel}>Chandra Rashi</NothingText>
+                      <View style={[styles.detailCard, { backgroundColor: colors.irisSoft }]}>
+                        <NothingText style={styles.detailLabel} color={colors.iris}>Chandra Rashi</NothingText>
                         <NothingText style={styles.detailValue}>{day.extraDetails.chandraRashi}</NothingText>
                         {day.extraDetails.chandraRashiEnd && (
                           <NothingText style={{ fontSize: 10, color: colors.textSecondary, marginTop: 2 }}>
@@ -223,8 +239,8 @@ export function DayDetailSheet({ day }: DayDetailSheetProps) {
                       </View>
                     )}
                     {day.extraDetails.suryaRashi && (
-                      <View style={[styles.detailCard, { backgroundColor: colors.background }]}>
-                        <NothingText style={styles.detailLabel}>Surya Rashi</NothingText>
+                      <View style={[styles.detailCard, { backgroundColor: colors.irisSoft }]}>
+                        <NothingText style={styles.detailLabel} color={colors.iris}>Surya Rashi</NothingText>
                         <NothingText style={styles.detailValue}>{day.extraDetails.suryaRashi}</NothingText>
                       </View>
                     )}
@@ -236,9 +252,9 @@ export function DayDetailSheet({ day }: DayDetailSheetProps) {
               {day.extraDetails.ritu && (
                 <View style={{ marginTop: 16 }}>
                   <NothingText variant="h3" style={{ marginBottom: 12 }}>Season</NothingText>
-                  <View style={[styles.infoCard, { backgroundColor: colors.background }]}>
-                    <NothingText style={styles.infoLabel}>Ritu</NothingText>
-                    <NothingText style={styles.infoValue}>{day.extraDetails.ritu}</NothingText>
+                  <View style={[styles.infoCard, { backgroundColor: colors.tealSoft }]}>
+                    <NothingText style={styles.infoLabel} color={colors.teal}>Ritu</NothingText>
+                    <NothingText style={styles.infoValue} color={colors.teal}>{day.extraDetails.ritu}</NothingText>
                   </View>
                 </View>
               )}
@@ -248,9 +264,9 @@ export function DayDetailSheet({ day }: DayDetailSheetProps) {
                 <View style={{ marginTop: 16 }}>
                   <NothingText variant="h3" style={{ marginBottom: 12 }}>Auspicious Moments</NothingText>
                   {day.extraDetails.muhurats.map((muhurat: any, index: number) => (
-                    <View key={index} style={[styles.muhurtCard, { backgroundColor: colors.background }]}>
+                    <View key={index} style={[styles.muhurtCard, { backgroundColor: colors.marigoldSoft }]}>
                       <NothingText style={styles.muhurtName}>{muhurat.name}</NothingText>
-                      <NothingText style={[styles.muhurtTime, { color: colors.accent }]}>{muhurat.time}</NothingText>
+                      <NothingText style={[styles.muhurtTime, { color: colors.marigold }]}>{muhurat.time}</NothingText>
                     </View>
                   ))}
                 </View>
@@ -262,7 +278,10 @@ export function DayDetailSheet({ day }: DayDetailSheetProps) {
               <View style={{ marginTop: 16 }}>
                   <NothingText variant="h3" style={{ marginBottom: 8 }}>Events</NothingText>
                   {day.events.map((e, i) => (
-                      <NothingText key={i} style={{ marginBottom: 4 }}>• {e}</NothingText>
+                      <View key={i} style={styles.eventRow}>
+                        <View style={[styles.eventTick, { backgroundColor: colors.accent }]} />
+                        <NothingText style={{ flex: 1, fontSize: 14.5 }}>{e}</NothingText>
+                      </View>
                   ))}
               </View>
           )}
@@ -277,11 +296,9 @@ const styles = StyleSheet.create({
     width: '100%',
     position: 'absolute',
     bottom: 0,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    borderWidth: 0,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
     elevation: 10,
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.15,
     shadowRadius: 12,
@@ -292,14 +309,13 @@ const styles = StyleSheet.create({
   lineWrapper: {
     width: '100%',
     alignItems: 'center',
-    paddingTop: 16,
+    paddingTop: 14,
     paddingBottom: 12,
   },
   line: {
-    width: 60,
+    width: 48,
     height: 5,
     borderRadius: 3,
-    opacity: 0.4,
   },
   content: {
     paddingHorizontal: 20,
@@ -312,18 +328,24 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(128,128,128,0.2)',
+  },
+  dayBadge: {
+    width: 56,
+    height: 56,
+    borderRadius: HundredTheme.radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   infoCard: {
-    padding: 12,
-    borderRadius: 8,
+    padding: 14,
+    borderRadius: HundredTheme.radius.md,
     marginBottom: 8,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
   infoLabel: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
   },
   infoValue: {
@@ -337,30 +359,25 @@ const styles = StyleSheet.create({
   },
   detailCard: {
     width: '48%',
-    padding: 12,
-    borderRadius: 8,
+    padding: 13,
+    borderRadius: HundredTheme.radius.md,
     marginBottom: 8,
   },
   detailLabel: {
     fontSize: 11,
     fontWeight: '600',
-    opacity: 0.7,
     marginBottom: 4,
   },
   detailValue: {
     fontSize: 14,
     fontWeight: '600',
   },
-  row: {
-    flexDirection: 'row',
-    marginBottom: 8,
-  },
   muhurtCard: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 12,
-    borderRadius: 8,
+    padding: 13,
+    borderRadius: HundredTheme.radius.md,
     marginBottom: 8,
   },
   muhurtName: {
@@ -372,5 +389,16 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
     marginLeft: 12,
+  },
+  eventRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 8,
+  },
+  eventTick: {
+    width: 8,
+    height: 8,
+    borderRadius: 2,
   },
 });

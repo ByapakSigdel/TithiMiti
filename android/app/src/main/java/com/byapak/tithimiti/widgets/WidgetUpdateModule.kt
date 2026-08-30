@@ -36,7 +36,6 @@ class WidgetUpdateModule(reactContext: ReactApplicationContext) : ReactContextBa
         val appWidgetManager = AppWidgetManager.getInstance(context)
         val widgets = listOf(
             TodayDateWidget::class.java,
-            DateConverterWidget::class.java,
             EventsWidget::class.java,
             GoldSilverWidget::class.java,
             HoroscopeWidget::class.java

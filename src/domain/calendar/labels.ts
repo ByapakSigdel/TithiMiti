@@ -27,7 +27,9 @@ export const AD_DAYS = [
 export const TITHI_MAP: Record<string, string> = {
   'प्रतिपदा': 'Pratipada',
   'द्वितीया': 'Dwitiya',
+  'द्वितिया': 'Dwitiya',
   'तृतीया': 'Tritiya',
+  'तृतिया': 'Tritiya',
   'चतुर्थी': 'Chaturthi',
   'पञ्चमी': 'Panchami',
   'षष्ठी': 'Shasthi',
@@ -40,6 +42,9 @@ export const TITHI_MAP: Record<string, string> = {
   'त्रयोदशी': 'Trayodashi',
   'चतुर्दशी': 'Chaturdashi',
   'औँशी': 'Aunsi',
+  'औंसी': 'Aunsi',
+  'औंशी': 'Aunsi',
+  'औँसी': 'Aunsi',
   'पूर्णिमा': 'Purnima',
   'पुर्णिमा': 'Purnima',
 };
@@ -54,6 +59,18 @@ export function romanizeTithi(nepaliTithi: string | null): string {
 
 export function getBsMonthName(monthIndex: number): string {
   return BS_MONTHS_ROMANIZED[monthIndex - 1] || '';
+}
+
+const NEPALI_DIGITS = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+
+export function toNepaliDigits(n: number | string): string {
+  return String(n).replace(/\d/g, (d) => NEPALI_DIGITS[Number(d)]);
+}
+
+/** e.g. "१५ भाद्र २०८३" — used by the Today home-screen widget. */
+export function formatBsDateNepali(bsYear: number, bsMonth: number, bsDay: number): string {
+  const month = BS_MONTHS_NEPALI[bsMonth - 1] || '';
+  return `${toNepaliDigits(bsDay)} ${month} ${toNepaliDigits(bsYear)}`;
 }
 
 export function getBsDayName(dayIndex: number): string {

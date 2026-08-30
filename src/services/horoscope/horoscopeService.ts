@@ -5,6 +5,7 @@
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getTodayISO } from '@/src/utils/dateUtils';
 import { generateAllRichHoroscopes, generateRichHoroscope, RichHoroscope } from './vedicHoroscopeGenerator';
 
 // Bumped to v2 when the cache shape changed from string to RichHoroscope.
@@ -20,7 +21,7 @@ export interface DailyHoroscopes {
  */
 export async function getDailyHoroscopes(tithi: number | null = null): Promise<DailyHoroscopes> {
   try {
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const today = getTodayISO(); // YYYY-MM-DD (local time — UTC would lag Nepal by 5h45m)
     const cachedDate = await AsyncStorage.getItem(CACHE_DATE_KEY);
     
     // Check if we have today's horoscopes cached
@@ -90,7 +91,7 @@ async function cleanupOldCache(currentDate: string) {
  * Force refresh horoscopes (useful for testing)
  */
 export async function refreshHoroscopes(tithi: number | null = null): Promise<DailyHoroscopes> {
-  const today = new Date().toISOString().split('T')[0];
+  const today = getTodayISO();
   await AsyncStorage.removeItem(CACHE_KEY_PREFIX + today);
   await AsyncStorage.removeItem(CACHE_DATE_KEY);
   return getDailyHoroscopes(tithi);

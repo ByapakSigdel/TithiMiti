@@ -2,7 +2,7 @@
   "expo": {
     "name": "TithiMiti",
     "slug": "tithi-miti",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/TithiMiti_LogoLight.png",
     "scheme": "tithimiti",
@@ -18,7 +18,7 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#ffffff",
-        "foregroundImage": "./assets/images/TithiMiti_LogoLight.png",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
         "monochromeImage": "./assets/images/tmmonochrome.png"
       },
       "edgeToEdgeEnabled": true,
@@ -34,12 +34,12 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/TithiMiti_SplashScreen.png",
-          "resizeMode": "cover",
+          "image": "./assets/images/TithiMiti_SplashIcon.png",
+          "resizeMode": "contain",
           "backgroundColor": "#000000",
           "dark": {
-            "image": "./assets/images/TithiMiti_SplashScreen.png",
-            "resizeMode": "cover",
+            "image": "./assets/images/TithiMiti_SplashIcon.png",
+            "resizeMode": "contain",
             "backgroundColor": "#000000"
           }
         }

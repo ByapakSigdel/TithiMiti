@@ -2,9 +2,9 @@ import { BsDay, BsMonth, CalendarMode } from '@/src/domain/calendar/types';
 import { getAdMonth, getBsMonth } from '@/src/services/api/bsCalendarApi';
 import { useAppState } from '@/src/state/appState';
 import { NothingText } from '@/src/ui/core/NothingText';
-import { NothingTheme } from '@/src/ui/theme/nothing';
-import { areDatesEqual, getTodayISO } from '@/src/utils/dateUtils';
-import React, { useEffect, useState } from 'react';
+import { HundredTheme } from '@/src/ui/theme/hundred';
+import { areDatesEqual, getTodayISO, normalizeDateISO } from '@/src/utils/dateUtils';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { DayCell } from './DayCell';
 
@@ -22,18 +22,21 @@ export function MonthGrid({ year, month, mode, onSelectDay }: MonthGridProps) {
   const [error, setError] = useState<string | null>(null);
   const todayISO = getTodayISO();
 
+  // One pass over the events instead of a filter per cell per render.
+  const eventDates = useMemo(
+    () => new Set(events.map((e) => normalizeDateISO(e.adDateISO))),
+    [events],
+  );
+
   useEffect(() => {
     let mounted = true;
     setLoading(true);
     setError(null);
-    
+
     const fetchFn = mode === 'BS' ? getBsMonth : getAdMonth;
-    
-    console.log(`[MonthGrid] Fetching ${mode} ${year}/${month}`);
 
     fetchFn(year, month)
       .then(res => {
-        console.log(`[MonthGrid] Fetched ${res.days.length} days`);
         if (mounted) setData(res);
       })
       .catch(err => {
@@ -50,7 +53,7 @@ export function MonthGrid({ year, month, mode, onSelectDay }: MonthGridProps) {
   if (loading && !data) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator color={NothingTheme.colors.red} />
+        <ActivityIndicator color={colors.accent} />
       </View>
     );
   }
@@ -58,8 +61,12 @@ export function MonthGrid({ year, month, mode, onSelectDay }: MonthGridProps) {
   if (error) {
     return (
       <View style={styles.center}>
-        <NothingText color={NothingTheme.colors.red}>Failed to load calendar</NothingText>
-        <NothingText variant="caption">{error}</NothingText>
+        <View style={[styles.errorCard, { backgroundColor: colors.accentSoft }]}>
+          <NothingText variant="h3" color={colors.accent}>Couldn&apos;t load this month</NothingText>
+          <NothingText variant="caption" style={{ marginTop: 6, textTransform: 'none', letterSpacing: 0 }}>
+            {error} — check your connection and try again.
+          </NothingText>
+        </View>
       </View>
     );
   }
@@ -71,9 +78,7 @@ export function MonthGrid({ year, month, mode, onSelectDay }: MonthGridProps) {
   const startOffset = data.days[0]?.weekday || 0;
   const emptySlots = Array(startOffset).fill(null);
 
-  const weekDays = mode === 'BS' 
-    ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-    : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   return (
     <View style={styles.container}>
@@ -81,7 +86,13 @@ export function MonthGrid({ year, month, mode, onSelectDay }: MonthGridProps) {
       <View style={[styles.headerRow, { borderColor: colors.border }]}>
         {weekDays.map((d, i) => (
           <View key={i} style={styles.headerCell}>
-            <NothingText variant="dot" style={styles.headerText} color={colors.text}>{d}</NothingText>
+            <NothingText
+              variant="dot"
+              style={styles.headerText}
+              color={i === 6 ? colors.accent : colors.textSecondary}
+            >
+              {d}
+            </NothingText>
           </View>
         ))}
       </View>
@@ -94,8 +105,7 @@ export function MonthGrid({ year, month, mode, onSelectDay }: MonthGridProps) {
         {data.days.map((day) => {
           const isSelected = areDatesEqual(day.adDateISO, selectedDateISO);
           const isToday = areDatesEqual(day.adDateISO, todayISO);
-          const dayEvents = events.filter(e => areDatesEqual(e.adDateISO, day.adDateISO));
-          
+
           return (
             <View key={day.adDateISO} style={styles.cellWrapper}>
               <DayCell
@@ -103,8 +113,9 @@ export function MonthGrid({ year, month, mode, onSelectDay }: MonthGridProps) {
                 mode={mode}
                 isSelected={isSelected}
                 isToday={isToday}
-                hasEvents={dayEvents.length > 0 || ((day.events?.length ?? 0) > 0)}
-                onPress={() => onSelectDay(day)}
+                hasEvents={eventDates.has(normalizeDateISO(day.adDateISO)) || ((day.events?.length ?? 0) > 0)}
+                colors={colors}
+                onSelectDay={onSelectDay}
               />
             </View>
           );
@@ -124,11 +135,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     minHeight: 300,
   },
+  errorCard: {
+    borderRadius: HundredTheme.radius.lg,
+    padding: 20,
+    marginHorizontal: 12,
+    alignItems: 'center',
+  },
   headerRow: {
     flexDirection: 'row',
     borderBottomWidth: 1,
-    borderColor: NothingTheme.colors.black,
-    paddingBottom: 8,
+    paddingBottom: 10,
     marginBottom: 8,
   },
   headerCell: {
@@ -136,7 +152,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerText: {
-    fontSize: 12,
+    fontSize: 11,
   },
   grid: {
     flexDirection: 'row',

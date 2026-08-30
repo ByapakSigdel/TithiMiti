@@ -1,7 +1,7 @@
+import { getBsMonthName } from '@/src/domain/calendar/labels';
 import { BsDay, CalendarMode } from '@/src/domain/calendar/types';
-import { useAppState } from '@/src/state/appState';
 import { NothingText } from '@/src/ui/core/NothingText';
-import { NothingTheme } from '@/src/ui/theme/nothing';
+import { ThemeColors } from '@/src/ui/theme/hundred';
 import React, { useEffect } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
@@ -12,21 +12,26 @@ interface DayCellProps {
   isSelected: boolean;
   isToday: boolean;
   hasEvents: boolean;
-  onPress: () => void;
+  colors: ThemeColors;
+  onSelectDay: (day: BsDay) => void;
 }
 
-export function DayCell({ day, mode, isSelected, isToday, hasEvents, onPress }: DayCellProps) {
-  const { colors } = useAppState();
+const CELL_RADIUS = 14;
+
+// Memoized, and takes colors as a prop instead of consuming the app context:
+// consuming context here re-rendered all ~32 cells (plus a spring each) on any
+// state change, which stuttered day selection on low-end devices.
+export const DayCell = React.memo(function DayCell({ day, mode, isSelected, isToday, hasEvents, colors, onSelectDay }: DayCellProps) {
   const isHoliday = !!day.holidayNameRom;
   const hasApiEvents = (day.events && day.events.length > 0);
   const isSaturday = day.weekday === 6; // 0-6, 6 is Saturday
-  
+
   // Animation for selection
   const scale = useSharedValue(isSelected ? 1 : 0);
-  
+
   useEffect(() => {
     scale.value = withSpring(isSelected ? 1 : 0, { damping: 15, stiffness: 150 });
-  }, [isSelected]);
+  }, [isSelected, scale]);
 
   const rStyle = useAnimatedStyle(() => {
     return {
@@ -34,54 +39,62 @@ export function DayCell({ day, mode, isSelected, isToday, hasEvents, onPress }: 
       opacity: scale.value,
     };
   });
-  
+
   // Primary number is based on mode
   const primaryNum = mode === 'BS' ? day.bsDay : new Date(day.adDateISO).getDate();
   const secondaryNum = mode === 'BS' ? new Date(day.adDateISO).getDate() : day.bsDay;
 
   const textColor = (isHoliday || isSaturday) ? colors.accent : colors.text;
-  const primaryColor = isSelected ? colors.background : textColor;
-  const secondaryColor = isSelected ? colors.textSecondary : colors.textSecondary;
+  const primaryColor = isSelected ? colors.onAccent : textColor;
+  const secondaryColor = isSelected ? colors.onAccent : colors.textSecondary;
+  const dotColor = isSelected ? colors.onAccent : colors.teal;
 
-  // Today border color - ensure it's always visible
-  const todayBorderColor = isSelected ? colors.background : colors.text;
+  const a11yLabel = [
+    `${getBsMonthName(day.bsMonth)} ${day.bsDay}, ${day.bsYear}`,
+    isToday ? 'today' : null,
+    isHoliday ? day.holidayNameRom : null,
+    (hasEvents || hasApiEvents) ? 'has events' : null,
+  ].filter(Boolean).join(', ');
 
   return (
-    <Pressable 
-      onPress={onPress} 
+    <Pressable
+      onPress={() => onSelectDay(day)}
+      accessibilityRole="button"
+      accessibilityLabel={a11yLabel}
+      accessibilityState={{ selected: isSelected }}
       style={[
-        styles.container, 
-        // Today indicator - always show when it's today, even when selected
-        isToday && { 
-          borderWidth: 2, 
-          borderColor: todayBorderColor,
-        }
+        styles.container,
+        // Today indicator: marigold ring, always visible (even when selected)
+        isToday && {
+          borderWidth: 2,
+          borderColor: colors.marigold,
+        },
       ]}
     >
       {/* Animated Selection Background */}
-      <Animated.View 
+      <Animated.View
         style={[
-          StyleSheet.absoluteFill, 
-          { backgroundColor: colors.text, borderRadius: NothingTheme.radius.round },
+          StyleSheet.absoluteFill,
+          { backgroundColor: colors.accent, borderRadius: CELL_RADIUS - 2 },
           rStyle
-        ]} 
+        ]}
       />
 
       <View style={styles.content}>
-        <NothingText 
-          style={[styles.primaryText]} 
+        <NothingText
+          style={[styles.primaryText]}
           color={primaryColor}
         >
           {primaryNum}
         </NothingText>
-        
+
         {(hasEvents || hasApiEvents) && (
-          <View style={[styles.dot, { backgroundColor: colors.accent }]} />
+          <View style={[styles.dot, { backgroundColor: dotColor }]} />
         )}
-        
-        <NothingText 
-          variant="caption" 
-          style={{ marginTop: 2, fontSize: 10 }}
+
+        <NothingText
+          variant="caption"
+          style={{ marginTop: 2, fontSize: 9, letterSpacing: 0 }}
           color={secondaryColor}
         >
           {secondaryNum}
@@ -89,7 +102,7 @@ export function DayCell({ day, mode, isSelected, isToday, hasEvents, onPress }: 
       </View>
     </Pressable>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -98,8 +111,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     margin: 2,
-    borderRadius: NothingTheme.radius.round, // Circular selection
-    overflow: 'hidden', // Ensure background doesn't spill
+    borderRadius: CELL_RADIUS,
+    overflow: 'hidden',
   },
   content: {
     alignItems: 'center',
@@ -111,9 +124,9 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter_500Medium',
   },
   dot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    marginTop: 4,
+    width: 5,
+    height: 5,
+    borderRadius: 1.5,
+    marginTop: 3,
   },
 });

@@ -29,8 +29,12 @@ class WidgetPreviewActivity : AppCompatActivity() {
 
         openAppButton.setOnClickListener {
             // Open main app via deep link
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("tithimiti://("))
-            startActivity(intent)
+            try {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("tithimiti://(tabs)"))
+                startActivity(intent)
+            } catch (e: Exception) {
+                Log.w(TAG, "Could not open app: ${e.message}")
+            }
         }
 
         refreshButton.setOnClickListener {

@@ -54,6 +54,18 @@ function ymd(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
+// Bare fetch() can hang indefinitely on flaky mobile networks, leaving the
+// Tools screen's loading spinner stuck forever; cap each call.
+async function fetchWithTimeout(url: string, timeoutMs = 12000): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function fetchNrb(): Promise<ForexData> {
   // Query a small window ending today so weekends/holidays still resolve to the
   // most recently published day.
@@ -62,7 +74,7 @@ async function fetchNrb(): Promise<ForexData> {
   from.setDate(from.getDate() - 6);
   const url = `${NRB_URL}?page=1&per_page=100&from=${ymd(from)}&to=${ymd(to)}`;
 
-  const res = await fetch(url);
+  const res = await fetchWithTimeout(url);
   if (!res.ok) throw new Error(`NRB HTTP ${res.status}`);
   const json = await res.json();
 
@@ -93,7 +105,7 @@ async function fetchNrb(): Promise<ForexData> {
 }
 
 async function fetchFallback(): Promise<ForexData> {
-  const res = await fetch(FALLBACK_URL);
+  const res = await fetchWithTimeout(FALLBACK_URL);
   if (!res.ok) throw new Error(`fallback HTTP ${res.status}`);
   const json = await res.json();
   if (json?.result !== 'success') throw new Error('fallback result not success');

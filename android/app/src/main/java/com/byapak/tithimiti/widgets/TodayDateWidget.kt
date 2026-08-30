@@ -10,6 +10,7 @@ import java.util.*
 import android.app.PendingIntent
 import android.content.Intent
 import android.net.Uri
+import android.view.View
 import org.json.JSONObject
 import android.util.Log
 
@@ -31,20 +32,22 @@ internal fun updateTodayDateWidget(
     appWidgetId: Int
 ) {
     val TAG = "Widget:TodayDate"
-    try {
-        Log.d(TAG, "Updating TodayDate widget id=$appWidgetId")
-        val views = RemoteViews(context.packageName, R.layout.today_date_widget)
-
-        // Deep linking intent (Open Calendar tab)
+    // Deep linking intent (Open Calendar tab). Request code = appWidgetId so
+    // this PendingIntent can never collide with another widget's.
+    fun openAppIntent(): PendingIntent {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse("tithimiti://(tabs)"))
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        val pendingIntent = PendingIntent.getActivity(
+        return PendingIntent.getActivity(
             context,
-            0,
+            appWidgetId,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-        views.setOnClickPendingIntent(R.id.widget_root, pendingIntent)
+    }
+    try {
+        Log.d(TAG, "Updating TodayDate widget id=$appWidgetId")
+        val views = RemoteViews(context.packageName, R.layout.today_date_widget)
+        views.setOnClickPendingIntent(R.id.widget_root, openAppIntent())
 
         // Get current AD date
         val today = Date()
@@ -94,8 +97,13 @@ internal fun updateTodayDateWidget(
         views.setTextViewText(R.id.weekday_pill, "$weekday · TODAY")
 
         views.setTextViewText(R.id.bs_date_large, bsDate)
+        // Collapse the Nepali date line when absent — an empty TextView still
+        // measures a line and pushes the bottom rows past the 2x2 cell height.
         if (bsDateNepali.isNotEmpty()) {
             views.setTextViewText(R.id.bs_date_nepali, bsDateNepali)
+            views.setViewVisibility(R.id.bs_date_nepali, View.VISIBLE)
+        } else {
+            views.setViewVisibility(R.id.bs_date_nepali, View.GONE)
         }
         views.setTextViewText(R.id.ad_date_text, adDate)
         views.setTextViewText(R.id.tithi_text, tithi)
@@ -104,6 +112,11 @@ internal fun updateTodayDateWidget(
         views.setTextViewText(
             R.id.today_event_text,
             if (todayEvent.isNotEmpty()) todayEvent else "No event today"
+        )
+        // Highlight a real event in the brand accent; muted grey when there's none.
+        views.setTextColor(
+            R.id.today_event_text,
+            if (todayEvent.isNotEmpty()) 0xFFE2606C.toInt() else 0xFF9AA0A8.toInt()
         )
 
         appWidgetManager.updateAppWidget(appWidgetId, views)
@@ -115,6 +128,9 @@ internal fun updateTodayDateWidget(
             fallbackViews.setTextViewText(R.id.bs_date_large, "—")
             fallbackViews.setTextViewText(R.id.ad_date_text, "Tap to open app")
             fallbackViews.setTextViewText(R.id.tithi_text, "")
+            // Keep the widget tappable in the error state — it says "Tap to
+            // open app", so it must actually open the app.
+            fallbackViews.setOnClickPendingIntent(R.id.widget_root, openAppIntent())
             appWidgetManager.updateAppWidget(appWidgetId, fallbackViews)
         } catch (ignored: Exception) {
             // Last resort: do nothing

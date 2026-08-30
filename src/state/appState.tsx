@@ -1,10 +1,15 @@
 import { CalendarMode, EventItem, LanguageMode } from '@/src/domain/calendar/types';
 import { getAllEvents } from '@/src/services/events/eventsStore';
-import { NothingColors, ThemeColors } from '@/src/ui/theme/nothing';
+import { HundredColors as NothingColors, ThemeColors } from '@/src/ui/theme/hundred';
+import { getTodayISO } from '@/src/utils/dateUtils';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { useColorScheme } from 'react-native';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
+
+const THEME_MODE_KEY = 'app-theme-mode';
+const CALENDAR_MODE_KEY = 'app-calendar-mode';
 
 type AppState = {
   mode: CalendarMode;
@@ -25,13 +30,43 @@ const StateCtx = createContext<AppState | null>(null);
 
 export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const systemScheme = useColorScheme();
-  const [mode, setMode] = useState<CalendarMode>('BS');
+  const [mode, setModeState] = useState<CalendarMode>('BS');
   const [lang, setLang] = useState<LanguageMode>('np-rom');
-  const [themeMode, setThemeMode] = useState<ThemeMode>('system');
-  const [selectedDateISO, setSelectedDateISO] = useState<string>(
-    new Date().toISOString().slice(0, 10),
-  );
+  const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
+  // Local-time today: toISOString() is UTC and would anchor on yesterday
+  // between 00:00 and 05:45 in Nepal (UTC+5:45).
+  const [selectedDateISO, setSelectedDateISO] = useState<string>(getTodayISO());
   const [events, setEvents] = useState<EventItem[]>([]);
+
+  // Hydrate persisted preferences once at startup
+  useEffect(() => {
+    (async () => {
+      try {
+        const [savedTheme, savedMode] = await Promise.all([
+          AsyncStorage.getItem(THEME_MODE_KEY),
+          AsyncStorage.getItem(CALENDAR_MODE_KEY),
+        ]);
+        if (savedTheme === 'light' || savedTheme === 'dark' || savedTheme === 'system') {
+          setThemeModeState(savedTheme);
+        }
+        if (savedMode === 'BS' || savedMode === 'AD') {
+          setModeState(savedMode);
+        }
+      } catch {
+        // best-effort — fall back to defaults
+      }
+    })();
+  }, []);
+
+  const setThemeMode = (t: ThemeMode) => {
+    setThemeModeState(t);
+    AsyncStorage.setItem(THEME_MODE_KEY, t).catch(() => {});
+  };
+
+  const setMode = (m: CalendarMode) => {
+    setModeState(m);
+    AsyncStorage.setItem(CALENDAR_MODE_KEY, m).catch(() => {});
+  };
 
   // Calculate active theme (resolved from themeMode and system preference)
   const activeTheme: 'light' | 'dark' = useMemo(() => {
@@ -52,15 +87,16 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ 
-      mode, setMode, 
-      lang, setLang, 
+    () => ({
+      mode, setMode,
+      lang, setLang,
       selectedDateISO, setSelectedDateISO,
       events, refreshEvents,
       themeMode, setThemeMode,
       activeTheme,
       colors
     }),
+     
     [mode, lang, selectedDateISO, events, themeMode, activeTheme, colors],
   );
   return <StateCtx.Provider value={value}>{children}</StateCtx.Provider>;

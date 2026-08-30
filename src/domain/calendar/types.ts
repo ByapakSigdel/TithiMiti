@@ -36,7 +36,7 @@ export interface BsDay {
     ritu?: string;
     ayan?: string;
     // Muhurats
-    muhurats?: Array<{ name: string; time: string }>;
+    muhurats?: { name: string; time: string }[];
     [key: string]: any; // Allow dynamic fields
   };
 }

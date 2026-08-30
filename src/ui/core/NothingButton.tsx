@@ -1,5 +1,5 @@
 import { useAppState } from '@/src/state/appState';
-import { NothingTheme } from '@/src/ui/theme/nothing';
+import { HundredTheme } from '@/src/ui/theme/hundred';
 import React from 'react';
 import { Pressable, StyleSheet, ViewStyle } from 'react-native';
 import { NothingText } from './NothingText';
@@ -9,16 +9,20 @@ interface NothingButtonProps {
   onPress: () => void;
   variant?: 'primary' | 'secondary' | 'outline';
   style?: ViewStyle;
+  disabled?: boolean;
 }
 
-export function NothingButton({ title, onPress, variant = 'primary', style }: NothingButtonProps) {
+export function NothingButton({ title, onPress, variant = 'primary', style, disabled = false }: NothingButtonProps) {
   const { colors } = useAppState();
 
-  const getContainerStyle = () => {
+  const getContainerStyle = (): ViewStyle => {
     switch (variant) {
-      case 'secondary': return { backgroundColor: colors.border };
-      case 'outline': return { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.text };
-      default: return { backgroundColor: colors.accent };
+      case 'secondary':
+        return { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border };
+      case 'outline':
+        return { backgroundColor: 'transparent', borderWidth: 1.5, borderColor: colors.border };
+      default:
+        return { backgroundColor: colors.accent };
     }
   };
 
@@ -26,17 +30,21 @@ export function NothingButton({ title, onPress, variant = 'primary', style }: No
     switch (variant) {
       case 'secondary': return colors.text;
       case 'outline': return colors.text;
-      default: return NothingTheme.colors.white;
+      default: return colors.onAccent;
     }
   };
 
   return (
-    <Pressable 
-      onPress={onPress} 
+    <Pressable
+      onPress={onPress}
+      disabled={disabled}
+      accessibilityRole="button"
+      accessibilityState={{ disabled }}
       style={({ pressed }) => [
-        styles.base, 
-        getContainerStyle(), 
+        styles.base,
+        getContainerStyle(),
         pressed && styles.pressed,
+        disabled && styles.disabled,
         style
       ]}
     >
@@ -49,17 +57,20 @@ export function NothingButton({ title, onPress, variant = 'primary', style }: No
 
 const styles = StyleSheet.create({
   base: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: NothingTheme.radius.round,
+    paddingVertical: 13,
+    paddingHorizontal: 22,
+    borderRadius: HundredTheme.radius.round,
     alignItems: 'center',
     justifyContent: 'center',
   },
   pressed: {
-    opacity: 0.8,
+    opacity: 0.85,
     transform: [{ scale: 0.98 }],
   },
+  disabled: {
+    opacity: 0.45,
+  },
   text: {
-    fontWeight: '600',
+    fontSize: 12.5,
   },
 });

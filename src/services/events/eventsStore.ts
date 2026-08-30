@@ -26,11 +26,14 @@ export async function saveEvent(event: EventItem) {
   }
   
   await AsyncStorage.setItem(EVENTS_KEY, JSON.stringify(events));
-  
-  // Handle notification
+
+  // Handle notification: cancel any previously scheduled reminder for this
+  // event first so edits replace instead of stacking duplicates, and so
+  // clearing the reminder on edit actually cancels it.
+  await cancelReminder(event.id);
   if (event.reminderAtISO) {
-    // We use the event ID as the notification identifier
-    await scheduleReminder(event.title, event.description || 'Event Reminder', event.reminderAtISO);
+    // The event ID is the notification identifier, so deleteEvent can cancel it
+    await scheduleReminder(event.id, event.title, event.description || 'Event Reminder', event.reminderAtISO);
   }
 }
 

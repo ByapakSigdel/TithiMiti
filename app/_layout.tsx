@@ -1,10 +1,14 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import {
+  Fraunces_600SemiBold,
+  Fraunces_700Bold,
+} from '@expo-google-fonts/fraunces';
 import {
   Inter_400Regular,
   Inter_500Medium,
   Inter_600SemiBold,
   Inter_700Bold,
 } from '@expo-google-fonts/inter';
+import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -24,16 +28,28 @@ export const unstable_settings = {
 };
 
 // Navigation chrome, themed from the app's resolved theme (honours the in-app
-// dark toggle) so headers, the status bar, and screen backgrounds all match.
+// dark toggle) so headers, the status bar, and screen backgrounds all match
+// the Hundred Studios palette.
 function ThemedNavigation() {
-  const { activeTheme } = useAppState();
+  const { activeTheme, colors } = useAppState();
   const isDark = activeTheme === 'dark';
+  const base = isDark ? DarkTheme : DefaultTheme;
+  const navTheme = {
+    ...base,
+    colors: {
+      ...base.colors,
+      primary: colors.accent,
+      background: colors.background,
+      card: colors.card,
+      text: colors.text,
+      border: colors.border,
+      notification: colors.accent,
+    },
+  };
   return (
-    <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={navTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Add Event' }} />
-        <Stack.Screen name="converter" options={{ title: 'Converter' }} />
       </Stack>
       <StatusBar style={isDark ? 'light' : 'dark'} />
     </ThemeProvider>
@@ -43,7 +59,10 @@ function ThemedNavigation() {
 export default function RootLayout() {
   // Load fonts including icon fonts
   const [fontsLoaded, fontError] = useFonts({
-    // App typeface: Inter (clean modern sans), used across all text via NothingText.
+    // Display serif: Fraunces, used for headlines and large numerals.
+    Fraunces_600SemiBold,
+    Fraunces_700Bold,
+    // UI sans: Inter, used across all body/label text via NothingText.
     Inter_400Regular,
     Inter_500Medium,
     Inter_600SemiBold,
@@ -59,9 +78,14 @@ export default function RootLayout() {
     }
   }, [fontsLoaded, fontError]);
 
-  // Seed all widgets at app startup (best-effort; runs regardless of starting tab)
+  // Seed all widgets at app startup (best-effort; runs regardless of starting
+  // tab). Deferred a few seconds so its network calls (BS month, gold prices,
+  // horoscope art) don't compete with the first calendar paint.
   useEffect(() => {
-    initializeAllWidgets();
+    const timer = setTimeout(() => {
+      initializeAllWidgets();
+    }, 4000);
+    return () => clearTimeout(timer);
   }, []);
 
   if (!fontsLoaded && !fontError) {

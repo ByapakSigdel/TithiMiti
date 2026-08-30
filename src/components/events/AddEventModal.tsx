@@ -1,9 +1,11 @@
+import { getBsMonthName } from '@/src/domain/calendar/labels';
+import { convertAdToBs } from '@/src/domain/calendar/converter';
 import { eventsStore } from '@/src/services/events/eventsStore';
 import { useAppState } from '@/src/state/appState';
 import { NothingButton } from '@/src/ui/core/NothingButton';
 import { NothingText } from '@/src/ui/core/NothingText';
 import { NothingTextInput } from '@/src/ui/core/NothingTextInput';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
 
 interface AddEventModalProps {
@@ -16,18 +18,34 @@ export function AddEventModal({ visible, onClose }: AddEventModalProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [bsLabel, setBsLabel] = useState<string | null>(null);
+
+  // Best-effort BS label for the date badge — this is a BS-first app, so a raw
+  // Gregorian ISO string alone forces users to convert mentally.
+  useEffect(() => {
+    if (!visible) return;
+    let live = true;
+    convertAdToBs(selectedDateISO)
+      .then((r) => {
+        if (live && r.bs) setBsLabel(`${getBsMonthName(r.bs.bsMonth)} ${r.bs.bsDay}, ${r.bs.bsYear}`);
+      })
+      .catch(() => {});
+    return () => { live = false; };
+  }, [visible, selectedDateISO]);
 
   const handleSave = async () => {
-    if (!title.trim()) return;
+    if (!title.trim() || loading) return;
 
     setLoading(true);
+    setSaveError(null);
     try {
-      // Calculate reminder time: 1 day before at 9 AM
-      const eventDate = new Date(selectedDateISO);
-      const reminderDate = new Date(eventDate);
-      reminderDate.setDate(reminderDate.getDate() - 1);
-      reminderDate.setHours(9, 0, 0, 0); // Set to 9 AM
-      
+      // Calculate reminder time: 1 day before at 9 AM local. Parse the ISO
+      // parts as a LOCAL date — new Date('YYYY-MM-DD') is UTC midnight, which
+      // shifts the reminder an extra day back in negative-UTC timezones.
+      const [y, m, d] = selectedDateISO.split('-').map(Number);
+      const reminderDate = new Date(y, m - 1, d - 1, 9, 0, 0, 0);
+
       // Only set reminder if it's in the future
       const reminderISO = reminderDate > new Date() ? reminderDate.toISOString() : undefined;
 
@@ -45,6 +63,7 @@ export function AddEventModal({ visible, onClose }: AddEventModalProps) {
       onClose();
     } catch (error) {
       console.error('Failed to save event', error);
+      setSaveError('Could not save the event. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -65,11 +84,16 @@ export function AddEventModal({ visible, onClose }: AddEventModalProps) {
               style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.border }]}
             >
               <View style={styles.header}>
-                <NothingText variant="h2">NEW EVENT</NothingText>
-                <View style={[styles.dateBadge, { backgroundColor: colors.text }]}>
-                  <NothingText variant="caption" style={{ color: colors.background }}>
-                    {selectedDateISO}
+                <NothingText variant="h2">New Event</NothingText>
+                <View style={[styles.dateBadge, { backgroundColor: colors.accentSoft }]}>
+                  <NothingText variant="caption" style={{ color: colors.accent }}>
+                    {bsLabel ?? selectedDateISO}
                   </NothingText>
+                  {bsLabel && (
+                    <NothingText variant="caption" style={{ color: colors.accent, opacity: 0.7, fontSize: 10 }}>
+                      {selectedDateISO}
+                    </NothingText>
+                  )}
                 </View>
               </View>
 
@@ -90,17 +114,24 @@ export function AddEventModal({ visible, onClose }: AddEventModalProps) {
                 style={{ height: 100, paddingTop: 12 }}
               />
 
+              {saveError && (
+                <NothingText style={{ color: colors.accent, fontSize: 12, marginTop: 4 }}>
+                  {saveError}
+                </NothingText>
+              )}
+
               <View style={styles.actions}>
-                <NothingButton 
-                  title="CANCEL" 
-                  onPress={onClose} 
-                  variant="outline" 
-                  style={{ flex: 1, marginRight: 8 }} 
+                <NothingButton
+                  title="CANCEL"
+                  onPress={onClose}
+                  variant="outline"
+                  style={{ flex: 1, marginRight: 8 }}
                 />
-                <NothingButton 
-                  title={loading ? "SAVING..." : "SAVE"} 
-                  onPress={handleSave} 
-                  variant="primary" 
+                <NothingButton
+                  title={loading ? "SAVING..." : "SAVE"}
+                  onPress={handleSave}
+                  variant="primary"
+                  disabled={loading}
                   style={{ flex: 1, marginLeft: 8 }}
                 />
               </View>
@@ -115,12 +146,12 @@ export function AddEventModal({ visible, onClose }: AddEventModalProps) {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.8)',
+    backgroundColor: 'rgba(23, 14, 8, 0.6)',
     justifyContent: 'flex-end',
   },
   modalContent: {
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
     borderWidth: 1,
     padding: 24,
     paddingBottom: 40,
@@ -132,9 +163,9 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   dateBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
   },
   actions: {
     flexDirection: 'row',

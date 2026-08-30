@@ -8,9 +8,14 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.view.View
 import android.widget.RemoteViews
 import com.byapak.tithimiti.R
 import org.json.JSONObject
+
+private const val ACTION_TOGGLE = "com.byapak.tithimiti.action.HOROSCOPE_TOGGLE"
+private const val STATE_PREFS = "horoscope_widget_ui"
+private fun stateKey(appWidgetId: Int) = "show_text_$appWidgetId"
 
 class HoroscopeWidget : AppWidgetProvider() {
     override fun onUpdate(
@@ -31,9 +36,34 @@ class HoroscopeWidget : AppWidgetProvider() {
     ) {
         updateHoroscopeWidget(context, appWidgetManager, appWidgetId)
     }
+
+    // Tapping the widget sends ACTION_TOGGLE here: flip this widget's page state
+    // and re-render. super.onReceive still dispatches APPWIDGET_UPDATE -> onUpdate.
+    override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action == ACTION_TOGGLE) {
+            val appWidgetId = intent.getIntExtra(
+                AppWidgetManager.EXTRA_APPWIDGET_ID,
+                AppWidgetManager.INVALID_APPWIDGET_ID
+            )
+            if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
+                val prefs = context.getSharedPreferences(STATE_PREFS, Context.MODE_PRIVATE)
+                val showText = prefs.getBoolean(stateKey(appWidgetId), false)
+                prefs.edit().putBoolean(stateKey(appWidgetId), !showText).apply()
+                updateHoroscopeWidget(context, AppWidgetManager.getInstance(context), appWidgetId)
+            }
+        }
+        super.onReceive(context, intent)
+    }
+
+    override fun onDeleted(context: Context, appWidgetIds: IntArray) {
+        val prefs = context.getSharedPreferences(STATE_PREFS, Context.MODE_PRIVATE)
+        val editor = prefs.edit()
+        for (id in appWidgetIds) editor.remove(stateKey(id))
+        editor.apply()
+    }
 }
 
-// Mood -> bundled gradient, used as the backdrop until a real Met painting
+// Mood -> bundled gradient, used as the painting until a real Met painting
 // has downloaded.
 internal fun artResForMood(mood: String): Int = when (mood) {
     "fiery" -> R.drawable.horoscope_art_fiery
@@ -78,26 +108,34 @@ internal fun updateHoroscopeWidget(
             e.printStackTrace()
         }
 
-        views.setTextViewText(R.id.zodiac_name, zodiac)
-        views.setTextViewText(R.id.horoscope_text, message)
-
-        // Backdrop: the downloaded Met painting if present, else the mood gradient.
+        // Fill both pages.
         val painting = decodePainting(imagePath)
         if (painting != null) {
-            views.setImageViewBitmap(R.id.art_row, painting)
+            views.setImageViewBitmap(R.id.painting_image, painting)
         } else {
-            views.setImageViewResource(R.id.art_row, artResForMood(mood))
+            views.setImageViewResource(R.id.painting_image, artResForMood(mood))
         }
+        views.setTextViewText(R.id.zodiac_label, "$zodiac · DAILY")
+        views.setTextViewText(R.id.horoscope_text, message)
 
-        // Tapping the widget opens the Tools/converter screen. Target MainActivity
-        // directly (it handles the tithimiti:// deep link).
-        val clickIntent = Intent(Intent.ACTION_VIEW, Uri.parse("tithimiti://(tabs)/converter"))
-        clickIntent.setClassName(context, "com.byapak.tithimiti.MainActivity")
-        clickIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        val pi = PendingIntent.getActivity(
+        // Show whichever page this widget is currently flipped to.
+        val showText = context
+            .getSharedPreferences(STATE_PREFS, Context.MODE_PRIVATE)
+            .getBoolean(stateKey(appWidgetId), false)
+        views.setViewVisibility(R.id.painting_page, if (showText) View.GONE else View.VISIBLE)
+        views.setViewVisibility(R.id.text_page, if (showText) View.VISIBLE else View.GONE)
+
+        // Tapping anywhere flips the page. Broadcast explicitly back to this
+        // provider; the unique data URI keeps each widget's intent distinct.
+        val toggleIntent = Intent(context, HoroscopeWidget::class.java).apply {
+            action = ACTION_TOGGLE
+            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+            data = Uri.parse("tithimiti://horoscope/$appWidgetId")
+        }
+        val pi = PendingIntent.getBroadcast(
             context,
             appWidgetId,
-            clickIntent,
+            toggleIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         views.setOnClickPendingIntent(R.id.widget_root, pi)
@@ -114,7 +152,6 @@ internal fun updateHoroscopeWidget(
 private fun decodePainting(imagePath: String): Bitmap? {
     if (imagePath.isEmpty()) return null
     return try {
-        // Stored as a file:// URI (expo documentDirectory); File needs a plain path.
         val cleanPath = if (imagePath.startsWith("file://")) {
             Uri.parse(imagePath).path ?: imagePath.removePrefix("file://")
         } else {

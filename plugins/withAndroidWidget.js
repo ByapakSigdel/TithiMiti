@@ -22,6 +22,7 @@ const withAndroidWidgetFiles = (config) => {
       if (!fs.existsSync(path.join(resDir, 'xml'))) fs.mkdirSync(path.join(resDir, 'xml'), { recursive: true });
       if (!fs.existsSync(path.join(resDir, 'values'))) fs.mkdirSync(path.join(resDir, 'values'), { recursive: true });
       if (!fs.existsSync(path.join(resDir, 'drawable'))) fs.mkdirSync(path.join(resDir, 'drawable'), { recursive: true });
+      if (!fs.existsSync(path.join(resDir, 'font'))) fs.mkdirSync(path.join(resDir, 'font'), { recursive: true });
       if (!fs.existsSync(javaDir)) fs.mkdirSync(javaDir, { recursive: true });
 
       // Copy strings.xml
@@ -39,7 +40,6 @@ const withAndroidWidgetFiles = (config) => {
         'EventsWidget',
         'GoldSilverWidget',
         'HoroscopeWidget',
-        'DateConverterWidget',
         'TodayDateWidget'
       ];
 
@@ -102,20 +102,10 @@ const withAndroidWidgetFiles = (config) => {
           // ignore if preview files not present
         }
 
-        // Scrollable horoscope widget extras: the ListView row layouts and the
-        // mood-painting / card drawables. These aren't per-widget files so they
-        // need to be copied explicitly (otherwise a clean prebuild drops them).
-        const extraLayouts = [
-          'horoscope_item_header',
-          'horoscope_item_text',
-          'horoscope_item_spacer',
-        ];
-        for (const layout of extraLayouts) {
-          fs.copyFileSync(
-            path.join(widgetSourceDir, 'res', 'layout', `${layout}.xml`),
-            path.join(resDir, 'layout', `${layout}.xml`)
-          );
-        }
+        // Horoscope widget extras: the mood-painting gradients and the cream
+        // "page" the reading sits on. These aren't per-widget files so they need
+        // to be copied explicitly (otherwise a clean prebuild drops them). The
+        // two pages live inside horoscope_widget.xml, copied by the loop above.
         const extraDrawables = [
           'horoscope_art_fiery',
           'horoscope_art_earthy',
@@ -123,9 +113,7 @@ const withAndroidWidgetFiles = (config) => {
           'horoscope_art_watery',
           'horoscope_art_stormy',
           'horoscope_art_radiant',
-          'horoscope_text_card',
-          'horoscope_zodiac_chip',
-          'horoscope_scrim',
+          'horoscope_page_bg',
         ];
         for (const drawable of extraDrawables) {
           fs.copyFileSync(
@@ -133,6 +121,12 @@ const withAndroidWidgetFiles = (config) => {
             path.join(resDir, 'drawable', `${drawable}.xml`)
           );
         }
+
+        // Custom display font used by the horoscope reading slide.
+        fs.copyFileSync(
+          path.join(widgetSourceDir, 'res', 'font', 'fraunces.ttf'),
+          path.join(resDir, 'font', 'fraunces.ttf')
+        );
       } catch (e) {
         console.error("Error copying widget files:", e);
         throw e;
@@ -155,7 +149,6 @@ const withAndroidWidgetManifest = (config) => {
       { name: 'EventsWidget', resource: 'events_widget_info' },
       { name: 'GoldSilverWidget', resource: 'gold_silver_widget_info' },
       { name: 'HoroscopeWidget', resource: 'horoscope_widget_info' },
-      { name: 'DateConverterWidget', resource: 'date_converter_widget_info' },
       { name: 'TodayDateWidget', resource: 'today_date_widget_info' }
     ];
 

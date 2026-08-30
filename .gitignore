@@ -18,6 +18,9 @@ expo-env.d.ts
 *.key
 *.mobileprovision
 
+# Release signing secrets (keep the keystore + passwords out of git)
+android/keystore.properties
+
 # Metro
 .metro-health-check*
 
@@ -44,6 +47,10 @@ app-example
 
 # Local APK outputs from scripts/build-apk.sh
 apks/
+
+# Release artifacts copied to the repo root
+/*.apk
+/*.aab
 
 .claude/
 

@@ -29,67 +29,58 @@ internal fun updateGoldSilverWidget(
 ) {
     try {
         val views = RemoteViews(context.packageName, R.layout.gold_silver_widget)
-    
-    // Deep linking intent (Open Tools tab)
-    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("tithimiti://(tabs)/converter"))
-    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-    val pendingIntent = PendingIntent.getActivity(
-        context, 
-        0, 
-        intent, 
-        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-    )
-    views.setOnClickPendingIntent(R.id.widget_root, pendingIntent)
 
-    // Read from SharedPreferences
-    val sharedPref = context.getSharedPreferences("WIDGET_DATA", Context.MODE_PRIVATE)
-    var dataString = sharedPref.getString("gold_silver_widget", "")
-    if (dataString.isNullOrEmpty()) {
-        val altPref = context.getSharedPreferences("widget_data", Context.MODE_PRIVATE)
-        dataString = altPref.getString("gold_silver_widget", "")
-    }
-    var goldTola = ""
-    var silverTola = ""
-    var date = ""
+        // Tapping opens the Tools tab.
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("tithimiti://(tabs)/converter"))
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        views.setOnClickPendingIntent(R.id.widget_root, pendingIntent)
 
-    if (!dataString.isNullOrEmpty()) {
-        try {
-            val prices = JSONObject(dataString)
-            goldTola = prices.optString("goldHallmarkTola", "")
-            silverTola = prices.optString("silverTola", "")
-            date = prices.optString("date", "")
-        } catch (e: Exception) {
-            e.printStackTrace()
+        // Read prices from SharedPreferences (written by the JS side).
+        val sharedPref = context.getSharedPreferences("WIDGET_DATA", Context.MODE_PRIVATE)
+        var dataString = sharedPref.getString("gold_silver_widget", "")
+        if (dataString.isNullOrEmpty()) {
+            val altPref = context.getSharedPreferences("widget_data", Context.MODE_PRIVATE)
+            dataString = altPref.getString("gold_silver_widget", "")
         }
-    }
+        var goldTola = ""
+        var silverTola = ""
+        if (!dataString.isNullOrEmpty()) {
+            try {
+                val prices = JSONObject(dataString)
+                goldTola = prices.optString("goldHallmarkTola", "")
+                silverTola = prices.optString("silverTola", "")
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
 
-    // A real price is a non-empty numeric string greater than 0 (allowing commas/dots)
-    fun isRealPrice(s: String): Boolean {
-        if (s.isEmpty()) return false
-        val digits = s.replace(",", "").replace(".", "")
-        if (digits.isEmpty() || !digits.all { it.isDigit() }) return false
-        return (digits.toLongOrNull() ?: 0L) > 0L
-    }
+        // A real price is a non-empty numeric string greater than 0 (allowing commas/dots).
+        fun isRealPrice(s: String): Boolean {
+            if (s.isEmpty()) return false
+            val digits = s.replace(",", "").replace(".", "")
+            if (digits.isEmpty() || !digits.all { it.isDigit() }) return false
+            return (digits.toLongOrNull() ?: 0L) > 0L
+        }
 
-    if (isRealPrice(goldTola) && isRealPrice(silverTola)) {
-        views.setTextViewText(R.id.gold_price, "Rs. $goldTola")
-        views.setTextViewText(R.id.silver_price, "Rs. $silverTola")
-        views.setTextViewText(R.id.updated_date, if (date.isNotEmpty()) date else "Updated")
-    } else {
-        views.setTextViewText(R.id.gold_price, "—")
-        views.setTextViewText(R.id.silver_price, "—")
-        views.setTextViewText(R.id.updated_date, "Open Tools to sync")
-    }
-    
+        // Drop a trailing ".00"/".0" so the minimal card stays clean.
+        fun tidy(s: String): String = s.removeSuffix(".00").removeSuffix(".0")
+
+        if (isRealPrice(goldTola) && isRealPrice(silverTola)) {
+            views.setTextViewText(R.id.gold_price, "Rs. ${tidy(goldTola)}")
+            views.setTextViewText(R.id.silver_price, "Rs. ${tidy(silverTola)}")
+        } else {
+            views.setTextViewText(R.id.gold_price, "—")
+            views.setTextViewText(R.id.silver_price, "—")
+        }
+
         appWidgetManager.updateAppWidget(appWidgetId, views)
     } catch (e: Exception) {
         e.printStackTrace()
-        try {
-            val fallbackViews = RemoteViews(context.packageName, R.layout.gold_silver_widget)
-            fallbackViews.setTextViewText(R.id.gold_price, "Error")
-            fallbackViews.setTextViewText(R.id.silver_price, "Error")
-            fallbackViews.setTextViewText(R.id.updated_date, "Open app")
-            appWidgetManager.updateAppWidget(appWidgetId, fallbackViews)
-        } catch (ignored: Exception) {}
     }
 }

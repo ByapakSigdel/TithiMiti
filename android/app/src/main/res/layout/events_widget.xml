@@ -1,90 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Minimal custom-event widget: shows only the single closest upcoming event,
+     on a dark card matching the metal-prices widget. Title on top, date + a
+     friendly "in N days" hint below. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/widget_bg_card"
-    android:orientation="horizontal"
-    android:padding="12dp"
-    android:baselineAligned="false"
-    android:gravity="center_vertical">
+    android:background="@drawable/widget_bg_event"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="12dp">
 
-    <LinearLayout
-        android:layout_width="0dp"
+    <TextView
+        android:id="@+id/next_event_title"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="4dp">
-
-            <ImageView
-                android:layout_width="6dp"
-                android:layout_height="6dp"
-                android:src="@drawable/widget_accent_dot"
-                android:contentDescription="@null"
-                android:layout_marginEnd="6dp" />
-
-            <TextView
-                android:id="@+id/widget_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="MY EVENTS"
-                android:textColor="#FF808080"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:textAllCaps="true" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/next_event_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="No upcoming events"
-            android:textColor="#FF000000"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:maxLines="1"
-            android:ellipsize="end" />
-
-        <TextView
-            android:id="@+id/next_event_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:textColor="#FF808080"
-            android:textSize="11sp"
-            android:layout_marginTop="1dp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:gravity="center"
-        android:layout_marginStart="8dp">
+        android:text="No upcoming events"
+        android:textColor="#FFF2F2F4"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        android:maxLines="1"
+        android:ellipsize="end" />
 
-        <TextView
-            android:id="@+id/event_count"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="0"
-            android:textColor="#FFD71921"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:gravity="center" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="UPCOMING"
-            android:textColor="#FF808080"
-            android:textSize="8sp"
-            android:gravity="center" />
-    </LinearLayout>
+    <TextView
+        android:id="@+id/next_event_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:gravity="center"
+        android:text=""
+        android:textColor="#FFE2606C"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:letterSpacing="0.02"
+        android:maxLines="1"
+        android:ellipsize="end" />
 
 </LinearLayout>

@@ -9,7 +9,20 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system/legacy';
 
+import { getTodayISO } from '@/src/utils/dateUtils';
+
 const ART_API_OBJECT = 'https://collectionapi.metmuseum.org/public/collection/v1/objects/';
+
+// Bare fetch() can hang indefinitely on flaky mobile networks; cap each call.
+async function fetchWithTimeout(url: string, timeoutMs = 10000): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 // Zodiac-themed painting queries (Met Museum search) — the sign's archetype.
 const ZODIAC_PAINTING_QUERIES: Record<string, string> = {
@@ -50,7 +63,7 @@ function buildArtSearchUrl(term: string): string {
  */
 export async function getCachedArtImage(zodiac: string, mood: string): Promise<string> {
   try {
-    const today = new Date().toISOString().split('T')[0];
+    const today = getTodayISO();
     const savedDate = await AsyncStorage.getItem(`art-image-date-${zodiac}`);
     if (savedDate === `${today}-${mood}`) {
       return (await AsyncStorage.getItem(`art-image-${zodiac}`)) || '';
@@ -69,7 +82,7 @@ export async function getCachedArtImage(zodiac: string, mood: string): Promise<s
  */
 export async function fetchArtImage(zodiac: string, mood: string): Promise<string> {
   try {
-    const today = new Date().toISOString().split('T')[0];
+    const today = getTodayISO();
     const cacheKey = `art-image-${zodiac}`;
     const dateKey = `art-image-date-${zodiac}`;
 
@@ -84,7 +97,7 @@ export async function fetchArtImage(zodiac: string, mood: string): Promise<strin
 
     for (const query of queries) {
       try {
-        const searchRes = await fetch(buildArtSearchUrl(query));
+        const searchRes = await fetchWithTimeout(buildArtSearchUrl(query));
         const searchData = await searchRes.json();
         if (!searchData.objectIDs || searchData.objectIDs.length === 0) continue;
 
@@ -92,7 +105,7 @@ export async function fetchArtImage(zodiac: string, mood: string): Promise<strin
         for (let i = 0; i < 6; i++) {
           const randomId = candidates[Math.floor(Math.random() * candidates.length)];
           try {
-            const objRes = await fetch(`${ART_API_OBJECT}${randomId}`);
+            const objRes = await fetchWithTimeout(`${ART_API_OBJECT}${randomId}`);
             const objData = await objRes.json();
             if (objData.primaryImageSmall) {
               const downloadDest = FileSystem.documentDirectory + `horoscope_bg_${zodiac}.jpg`;

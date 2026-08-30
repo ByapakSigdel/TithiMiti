@@ -5,24 +5,26 @@
 
 import { Platform } from 'react-native';
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+import { HundredPalette } from '@/src/ui/theme/hundred';
+
+const tintColorLight = HundredPalette.light.accent;
+const tintColorDark = HundredPalette.dark.accent;
 
 export const Colors = {
   light: {
-    text: '#11181C',
-    background: '#fff',
+    text: HundredPalette.light.text,
+    background: HundredPalette.light.background,
     tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
+    icon: HundredPalette.light.textSecondary,
+    tabIconDefault: HundredPalette.light.textSecondary,
     tabIconSelected: tintColorLight,
   },
   dark: {
-    text: '#ECEDEE',
-    background: '#151718',
+    text: HundredPalette.dark.text,
+    background: HundredPalette.dark.background,
     tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
+    icon: HundredPalette.dark.textSecondary,
+    tabIconDefault: HundredPalette.dark.textSecondary,
     tabIconSelected: tintColorDark,
   },
 };

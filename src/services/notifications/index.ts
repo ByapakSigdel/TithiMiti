@@ -5,11 +5,23 @@ const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreCl
 
 export async function initNotifications() {
   // Skip setup in Expo Go to avoid unsupported features
-  if (Constants.appOwnership === 'expo') {
+  if (isExpoGo) {
     return;
   }
 
   const Notifications = require('expo-notifications');
+
+  // Without a handler, notifications that fire while the app is foregrounded
+  // are silently dropped.
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowBanner: true,
+      shouldShowList: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+    }),
+  });
+
   // Request permissions on app start
   const { status } = await Notifications.getPermissionsAsync();
   if (status !== 'granted') {
@@ -22,15 +34,25 @@ export async function initNotifications() {
   });
 }
 
-export async function scheduleReminder(title: string, body: string, fireISO: string) {
-  if (isExpoGo) return;
+/**
+ * Schedule (or replace) a reminder. `id` is used as the notification
+ * identifier so the reminder can be cancelled/replaced by event id later.
+ * Returns false when the date is invalid or in the past.
+ */
+export async function scheduleReminder(id: string, title: string, body: string, fireISO: string): Promise<boolean> {
+  if (isExpoGo) return false;
 
   const Notifications = require('expo-notifications');
   const date = new Date(fireISO);
-  return Notifications.scheduleNotificationAsync({
+  if (!isFinite(date.getTime()) || date.getTime() <= Date.now()) {
+    return false;
+  }
+  await Notifications.scheduleNotificationAsync({
+    identifier: id,
     content: { title, body },
     trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date },
   });
+  return true;
 }
 
 export async function cancelReminder(id: string) {

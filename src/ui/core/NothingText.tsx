@@ -1,5 +1,4 @@
 import { useAppState } from '@/src/state/appState';
-import { NothingTheme } from '@/src/ui/theme/nothing';
 import React from 'react';
 import { StyleSheet, Text, TextProps, TextStyle } from 'react-native';
 
@@ -8,10 +7,10 @@ interface NothingTextProps extends TextProps {
   color?: string;
 }
 
-// Map a fontWeight to the matching static Inter family. Inter is shipped as
-// per-weight files, so a bare fontWeight wouldn't select the right file (Android
-// would ignore it or fake-bold). Callers can still pass fontWeight as usual and
-// we translate it here.
+// Map a fontWeight to the matching static font file. Both Inter and Fraunces
+// ship as per-weight files, so a bare fontWeight wouldn't select the right
+// file (Android would ignore it or fake-bold). Callers can still pass
+// fontWeight as usual and we translate it here.
 function interForWeight(weight: string | number | undefined): string {
   if (weight === 'bold') return 'Inter_700Bold';
   const n = typeof weight === 'string' ? parseInt(weight, 10) : weight;
@@ -20,6 +19,13 @@ function interForWeight(weight: string | number | undefined): string {
   if (n >= 600) return 'Inter_600SemiBold';
   if (n >= 500) return 'Inter_500Medium';
   return 'Inter_400Regular';
+}
+
+function frauncesForWeight(weight: string | number | undefined): string {
+  if (weight === 'bold') return 'Fraunces_700Bold';
+  const n = typeof weight === 'string' ? parseInt(weight, 10) : weight;
+  if (n && n >= 700) return 'Fraunces_700Bold';
+  return 'Fraunces_600SemiBold';
 }
 
 export function NothingText({ style, variant = 'body', color, ...props }: NothingTextProps) {
@@ -36,17 +42,28 @@ export function NothingText({ style, variant = 'body', color, ...props }: Nothin
     }
   };
 
-  // Resolve the final font family: a caller-supplied fontWeight wins (translated
-  // to the matching Inter file); otherwise keep the variant's family. Drop
-  // fontWeight from the output so Android doesn't fake-bold on top of it.
+  const isDisplay = variant === 'h1' || variant === 'h2';
+
+  // Resolve the final font family: a caller-supplied fontWeight wins
+  // (translated to the matching file of the variant's typeface); otherwise
+  // keep the variant's family. Drop fontWeight from the output so Android
+  // doesn't fake-bold on top of it.
   const flat = (StyleSheet.flatten([getStyle(), style]) || {}) as TextStyle;
-  const fontFamily = flat.fontWeight ? interForWeight(flat.fontWeight) : flat.fontFamily;
+  const fontFamily = flat.fontWeight
+    ? (isDisplay ? frauncesForWeight(flat.fontWeight) : interForWeight(flat.fontWeight))
+    : flat.fontFamily;
+
+  const baseColor = color || (variant === 'caption' ? colors.textSecondary : colors.text);
 
   return (
     <Text
+      // Cap OS font scaling: several usages sit in fixed, overflow-hidden
+      // containers (calendar day cells, date boxes) that clip at 2x scale.
+      // Callers can still override via the prop.
+      maxFontSizeMultiplier={1.4}
       style={[
         getStyle(),
-        { color: color || colors.text },
+        { color: baseColor },
         style,
         { fontFamily, fontWeight: undefined },
       ]}
@@ -55,22 +72,23 @@ export function NothingText({ style, variant = 'body', color, ...props }: Nothin
   );
 }
 
-// App typeface is Inter. Static weights carry their own weight, so we set the
-// weighted family per variant and avoid fontWeight (which would make Android
-// try to synthesize a weight and can fall back to the system font).
+// Hundred Studios type scale: Fraunces (serif) for display sizes, Inter for
+// UI text. Static weight files carry their own weight, so we set the weighted
+// family per variant and avoid fontWeight (which would make Android try to
+// synthesize a weight and can fall back to the system font).
 const styles = StyleSheet.create({
   h1: {
-    fontSize: 32,
-    letterSpacing: -1,
-    fontFamily: 'Inter_700Bold',
+    fontSize: 30,
+    letterSpacing: 0,
+    fontFamily: 'Fraunces_700Bold',
   },
   h2: {
-    fontSize: 24,
-    letterSpacing: -0.5,
-    fontFamily: 'Inter_600SemiBold',
+    fontSize: 22,
+    letterSpacing: 0,
+    fontFamily: 'Fraunces_600SemiBold',
   },
   h3: {
-    fontSize: 18,
+    fontSize: 17,
     fontFamily: 'Inter_600SemiBold',
   },
   body: {
@@ -78,15 +96,16 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter_400Regular',
   },
   caption: {
-    fontSize: 12,
-    fontFamily: 'Inter_400Regular',
-    color: NothingTheme.colors.gray,
-    textTransform: 'uppercase', // Nothing OS uses uppercase captions often
-    letterSpacing: 1,
+    fontSize: 11,
+    fontFamily: 'Inter_500Medium',
+    textTransform: 'uppercase',
+    letterSpacing: 1.4,
   },
   dot: {
-    fontFamily: 'Courier New', // Hardcode fallback for now
-    fontSize: 14,
-    letterSpacing: 1,
+    // Legacy variant name; now a spaced label style used for small emphasis
+    // text (toggles, buttons, weekday headers).
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: 13,
+    letterSpacing: 1.2,
   },
 });

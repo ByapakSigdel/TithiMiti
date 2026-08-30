@@ -1,6 +1,6 @@
 /**
  * Vedic Horoscope Generator
- * Generates quirky, brutally honest horoscopes using:
+ * Generates playful, very-online "chaotic bestie" horoscopes using:
  * - Vedic astrology principles (tithi, nakshatra, day of week)
  * - Zodiac personality traits
  * - Algorithmic message generation with a seeded RNG so each slot
@@ -174,130 +174,130 @@ function moodForCategory(category: MessageCategory, element: ZodiacTraits['eleme
 //   {time}                             - a time-of-day hint
 const MESSAGE_TEMPLATES: Record<MessageCategory, string[]> = {
   challenge: [
-    "Stop {tendency}. The cosmos filed a formal complaint.",
-    "Your habit of {tendency} is doing cardio while your goals nap on the couch.",
-    "{tendency}? Bold choice. Wrong, but bold.",
-    "The universe is tired of watching you {tendency}. Honestly, same.",
-    "That thing where you keep {tendency}? Today's the day you quit cold turkey.",
-    "Mercury didn't go retrograde just so you could keep {tendency}.",
-    "Plot twist: {tendency} is not a personality trait. Set it down.",
-    "If {tendency} were an Olympic sport you'd have gold. Now retire undefeated.",
-    "{ruler} is side-eyeing your talent for {tendency}. Quit while you're ahead.",
-    "Being {negative} again? The stars rolled their eyes so hard they realigned.",
-    "Today the {energy} energy wants you to drop {tendency} like a bad habit. Because it is one.",
-    "Your {negative} streak called. It wants a day off. Give it one.",
-    "Less {tendency}, more {action}. The math really isn't hard.",
-    "You keep {tendency} and calling it 'just how I am.' The planets disagree.",
-    "The {planet} hour exposes your {negative} side. Don't feed it.",
-    "Newsflash: {tendency} has never once worked out for you. Check the receipts.",
-    "Stop running on {negative} autopilot today. {warning}.",
-    "{tendency} again? Even your guardian planet {ruler} needs a break.",
-    "Your {element}-sign confidence is great until it curdles into {negative}. Watch that line.",
-    "The thing you call 'being real' is just {tendency} wearing a disguise. Take it off.",
+    "the stars said be {positive} today and you said 'no thx' and went right back to {tendency}. babe.",
+    "{tendency} AGAIN?? we literally talked about this. the cosmos took notes and everything.",
+    "you have {tendency} the way other people have hobbies. terrifying. unsubscribe.",
+    "mercury is NOT retrograde, you just need to stop {tendency}. those are two different problems.",
+    "the universe filed a report. subject line: '{tendency}, once more.' please respond.",
+    "imagine being this {negative} on a {energy} day. couldn't be— oh. oh it's you.",
+    "{ruler} pulled your stats and it's just {tendency} as far as the eye can see. seek help (mine).",
+    "today's forecast: 100% chance of you {tendency} and calling it self care. it is not self care.",
+    "you're {negative} again and the planets are too tired to even react. that's the real curse.",
+    "the {energy} energy is RIGHT THERE and you picked {tendency}. picked it. on purpose. wow.",
+    "stop {tendency}. i mean it, {ruler} means it, your future self is on the floor begging.",
+    "being {negative} is not the lore drop you think it is. retire the bit, bestie.",
+    "you and {tendency} need to break up. it's not even toxic-fun anymore, just toxic.",
+    "the planets aligned SPECIFICALLY to watch you {tendency} and they are not entertained today.",
+    "'it's just how i am' is a wild excuse for {tendency}. growth is free. it's literally free.",
+    "less {negative}, more {action}. i drew you a chart. it's one arrow pointing away from {tendency}.",
+    "the {planet} hour is exposing your {negative} side like a group chat screenshot. behave.",
+    "you keep {tendency} like the receipts won't surface. they always surface. always.",
+    "{tendency} is doing the absolute most while your goals do the absolute least. fix the ratio.",
+    "today the cosmos gently (violently) suggests you stop being {negative}. for one day. just try.",
   ],
   advice: [
-    "Channel that {positive} energy into {action}. You might surprise yourself.",
-    "Your {positive} side is the main character today. Let it {action}.",
-    "Be {positive}, not {negative}. {advice}, and watch a door swing open.",
-    "The stars whisper one word: {action}. Your ruler {ruler} cosigns.",
-    "Today's {dayFocus} vibe was built for you to {action}. Go on.",
-    "Lead with {positive}. The {negative} version of you can sit this round out.",
-    "Small move, big ripple: {action} today and your future self sends thanks.",
-    "Trust the {positive} instinct over the {negative} fear. {advice}.",
-    "The {energy} energy favors the bold: {action} before the day gets loud.",
-    "Put your {positive} foot forward. {planet} is lighting the path today.",
-    "Don't overthink it. Be {positive}, {action}, repeat.",
-    "{advice}. Your {positive} nature handles the rest.",
-    "A {positive} heart and a clear head — that's today's entire strategy. {action}.",
-    "Let {ruler} guide you. {advice} and stop negotiating with your fears.",
-    "The day rewards {positive} people who {action}. That's literally you.",
-    "Tune out the {negative} voice. Tune in to the {positive} one. Then {action}.",
-    "{warning}, sure — but mostly just {action} and trust your {positive} streak.",
-    "Your {quality} nature wants to {action} today. Honor it instead of fighting it.",
-    "One {positive} decision early changes the whole shape of the day. {action}.",
-    "Stop polishing the plan. {action}. {advice}.",
+    "ok listen: be {positive}, {action} a little, log off, win. that's the whole horoscope today.",
+    "the stars say {action} and for once they're not being cryptic about it. so. go.",
+    "channel the {positive} energy, bestie. the {negative} version of you can wait in the car.",
+    "{ruler} said {action} and {ruler} has never been wrong about you (we don't talk about tuesday).",
+    "today's plan: be {positive}, {action}, refuse to spiral. revolutionary. you're welcome.",
+    "{advice}. that's it. that's the cosmic wisdom. can't believe they pay me for this.",
+    "lead with {positive} and let the {negative} thoughts buffer forever. no wifi for them.",
+    "the {energy} energy is on your side today, which is rare, so {action} before it changes its mind.",
+    "small move, huge plot armor: {action} today and watch the timeline reroute in your favor.",
+    "trust the {positive} instinct over the {negative} panic. the panic lies. the panic always lies.",
+    "you're {quality}-coded so {action}-ing today isn't optional, it's literally your design spec.",
+    "stop refreshing the plan. {action}. {advice}. the plan was never the problem, the scrolling was.",
+    "be {positive} on purpose today. fake it til {ruler} makes it real. it works, i checked.",
+    "tune out the {negative} voice (it's a hater) and {action}. the {positive} voice has better taste.",
+    "{warning}, technically. but mostly just {action} and trust your {positive} streak, it's been cooking.",
+    "one {positive} decision before {time} and the whole day reorganizes itself around you. flex.",
+    "the day literally rewards {positive} people who {action}. that's you. that's the assignment. go.",
   ],
   callout: [
-    "Not everything is about you. (Okay, today a little of it is.)",
-    "That grudge is renting space in your head rent-free. Time to evict.",
-    "Stop waiting for perfect. Perfect is stuck in traffic and not coming.",
-    "Your {tendency} is showing again. Gently tuck it back in.",
-    "Being {negative} is a full-time job with terrible pay. Consider quitting.",
-    "You've now read this twice. Close the app and go {action}.",
-    "The thing you're avoiding? It's smaller than the dread. {action} already.",
-    "You're {positive} and you know it. So why are you acting {negative}?",
-    "Spoiler: nobody's thinking about your mistake as much as you are.",
-    "Your comfort zone called; it's getting a little crowded in there.",
-    "Stop rehearsing the argument in your head. {action} instead.",
-    "You promised yourself you'd {action}. {ruler} remembers, even if you don't.",
-    "The {energy} energy says: less scrolling, more living. Yes, this counts.",
-    "You're allowed to {action} without asking permission. Shocking, I know.",
-    "Quit waiting to feel ready. Ready is a myth {negative} people invented.",
-    "That 'I'll do it tomorrow' has a suspicious number of yesterdays attached.",
+    "not everything is about you. (today, like, 12% is. enjoy responsibly.)",
+    "that grudge is living in your head rent free AND eating your snacks. evict it.",
+    "you've read this twice now. close the app, go {action}. i'll still be here judging.",
+    "the thing you're avoiding is smaller than the dread you built around it. it's giving haunted house.",
+    "your {tendency} is showing. not in the cute way. tuck it back in.",
+    "being {negative} is a full-time unpaid internship. quit. log the hours as character development.",
+    "you're {positive} and you KNOW it so why are you out here acting {negative}. for who. for WHAT.",
+    "spoiler: nobody remembers the embarrassing thing except you, replaying it nightly in 4k.",
+    "your comfort zone is at capacity. fire marshal {ruler} says somebody has to leave (it's you).",
+    "stop rehearsing the argument in the shower and {action} instead. the shower can't even respond.",
+    "you promised yourself you'd {action} today. {ruler} remembers. {ruler} writes EVERYTHING down.",
+    "the {energy} energy says less doomscrolling, more living. and yes, opening this app counts. barely.",
+    "you're allowed to {action} without a permission slip. shocking. wild. unprecedented, even.",
+    "'i'll do it tomorrow' has a suspicious number of yesterdays stacked behind it. just saying.",
+    "ready is fake. {negative} people invented it to stall. {action} unready like the rest of us.",
+    "today's the day you stop {tendency}. or it isn't. but wouldn't that be so sexy of you though.",
   ],
   prediction: [
-    "Someone tests your patience by {time}. Pass the exam with a smile.",
-    "An unexpected message lands today. Reply with your {positive} face on.",
-    "Money, a snack, or a sincere compliment is heading your way. Stay open.",
-    "A tiny win is hiding inside a boring task. {action} to uncover it.",
-    "The {dayFocus} energy slips a small plot twist into your {time}. Roll with it.",
-    "Your future self left a note: '{action} today, trust me on this.'",
-    "Luck leans toward the {positive} around {time}. Make sure you show up.",
-    "By nightfall one worry shrinks back to its actual size: pretty small.",
-    "Around {time}, a door you assumed was locked turns out to be open.",
-    "A {positive} stranger crosses your path by {time}. Say hello.",
-    "{planet} sends a coincidence dressed as an accident around {time}. Notice it.",
-    "Something you lost — an item, a mood, a friend — circles back this week.",
-    "Expect a small {energy} moment near {time}. Let it land.",
-    "Today's quiet plot twist: you change your mind about something by {time}, and you're right to.",
-    "A conversation around {time} matters more than it looks. Be present.",
-    "The {element} in you stirs around {time}. Follow it one honest step.",
-    "An old idea resurfaces today wearing better clothes. Give it a second look.",
+    "someone tests your patience by {time}. pass the exam. do NOT show your work (or the receipts).",
+    "unexpected text incoming. reply with your {positive} face on, not the {negative} 3am one.",
+    "money, a snack, or a random compliment is heading your way. stay open. stay hungry.",
+    "a tiny win is hiding in a boring task like a prize in cereal. {action} to dig it out.",
+    "the {dayFocus} energy slips a plot twist into your {time}. it's a good one. mostly. probably.",
+    "your future self left a sticky note: '{action} today. trust me. i'm you but slightly smarter.'",
+    "luck leans {positive} around {time}. be there. don't be in your room overthinking. be THERE.",
+    "by tonight one worry shrinks back to actual size, which is. tiny. embarrassing, even.",
+    "around {time} a door you swore was locked is just... open. has been the whole time. anyway.",
+    "a {positive} stranger crosses your path by {time}. say hi. or don't and write a poem about it.",
+    "{planet} sends a coincidence disguised as an accident around {time}. notice it. it's the sign.",
+    "something you lost — a thing, a mood, a person — does a little loop and circles back this week.",
+    "expect a small {energy} moment near {time}. let it land. don't intellectualize it to death.",
+    "you change your mind about something by {time} and (rare) you're actually right to. trust it.",
+    "a convo around {time} matters more than it's dressed for. be present. put the phone DOWN.",
+    "an old idea resurfaces today in better fits. give it a second look, it glowed up.",
   ],
   praise: [
-    "Your {positive} energy is genuinely magnetic today. People can tell.",
-    "You've been quietly {positive} lately. The universe noticed. Keep going.",
-    "Today rewards your {positive} streak. Go ahead and take the bow.",
-    "Rare alignment: you're actually right about the thing. Act on it.",
-    "Your ruler {ruler} is proud. {action} and ride the momentum.",
-    "You handled something hard with grace recently. {planet} saw. Respect.",
-    "That {positive} thing you do without noticing? It's your superpower today.",
-    "You're in your {positive} era and it shows. Don't dim it for anyone.",
-    "The {energy} energy and your {positive} nature are finally on the same team.",
-    "Give yourself credit: being {positive} when it's hard is the whole flex.",
-    "You've grown more {positive} than you realize. {planet} kept the receipts.",
-    "Today the room tilts toward the {positive}. Good thing that's your default.",
+    "your {positive} energy is genuinely insane today (good insane). people can feel it. iconic.",
+    "you've been quietly {positive} lately and the universe SAW. screenshot saved. keep going.",
+    "today rewards your {positive} streak so take the bow. take two. milk it. you earned it.",
+    "rare cosmic event: you're right about the thing. ACT on it before the doubt logs back in.",
+    "{ruler} is so proud it's a little embarrassing actually. {action} and ride the high.",
+    "you handled something hard with grace recently and {planet} clocked it. quiet legend behavior.",
+    "that {positive} thing you do without noticing? superpower. today especially. don't nerf yourself.",
+    "you're in your {positive} era and it's SO obvious. do not dim it for some {negative} side character.",
+    "the {energy} energy and your {positive} nature, finally on the same team. unstoppable. slightly scary.",
+    "give yourself the credit. being {positive} when it's hard is the entire flex, and you did that.",
+    "you've grown more {positive} than you clock. {planet} kept every receipt. it's a thick folder.",
+    "the whole room tilts {positive} today and good news: that's just your factory setting.",
   ],
 };
 
 // Optional lead-in fragments (end with punctuation so they glue to the body).
 const OPENERS = [
-  'Cosmic memo:',
-  'Real talk:',
-  "Today's forecast:",
-  'Heads up:',
-  'Star tip:',
-  'Note from the universe:',
-  'Quick read:',
-  'Between us:',
-  'Listen —',
-  'Okay, so:',
+  'cosmic memo:',
+  'real talk:',
+  "today's forecast:",
+  'heads up bestie:',
+  'star tip:',
+  'note from the universe:',
+  'ok so:',
+  'between us:',
+  'listen.',
+  'breaking:',
+  'psa:',
+  'hot off the planets:',
 ];
 
 // Optional closing nudges (standalone sentences).
 const CLOSERS = [
-  'Trust the timing.',
-  "You've got this.",
-  'The stars are rooting for you.',
-  'Breathe, then begin.',
-  'Small steps still count.',
-  "Don't overthink the rest.",
-  'Eyes up, shoulders back.',
-  "Today's yours if you claim it.",
-  'Proceed accordingly.',
-  'The rest is just noise.',
-  'Onward.',
-  'No notes — just go.',
+  'trust the timing or whatever.',
+  "you've got this. probably. yes.",
+  'the stars are rooting for you (low stakes, but still).',
+  'breathe, then go be a menace (gently).',
+  'small steps still count, drama queen.',
+  "don't overthink the rest, i'm begging.",
+  'eyes up, phone down.',
+  "today's yours if you actually claim it.",
+  'proceed chaotically but responsibly.',
+  'the rest is just noise and you know it.',
+  'onward, you absolute legend.',
+  'no notes. just go. shoo.',
+  'anyway. slay, i guess.',
+  'log off and live a little.',
 ];
 
 const LUCKY_COLORS = ['crimson', 'indigo', 'gold', 'emerald', 'ivory', 'charcoal', 'saffron', 'teal', 'plum', 'amber', 'turquoise', 'maroon', 'olive', 'rose', 'cobalt'];
@@ -328,20 +328,30 @@ function luckyLine(rng: () => number): string {
   // ~half the time also drop a lucky direction for extra variety.
   if (rng() < 0.5) {
     const dir = pick(rng, LUCKY_DIRECTIONS);
-    return `Lucky color: ${color}. Lucky number: ${num}. Face ${dir} for the big stuff.`;
+    return `lucky color: ${color}. lucky number: ${num}. face ${dir} for the big stuff (i don't make the rules).`;
   }
-  return `Lucky color: ${color}. Lucky number: ${num}.`;
+  return `lucky color: ${color}. lucky number: ${num}. don't ask, just trust.`;
 }
 
 function fillTemplate(tpl: string, ctx: Record<string, string>): string {
   return tpl.replace(/\{(\w+)\}/g, (_, key) => ctx[key] ?? '');
 }
 
-function getTithiEnergy(tithi: number | null): { energy: string; advice: string; warning: string } {
-  if (!tithi || tithi < 1 || tithi > 30) {
-    return { energy: 'unknown', advice: 'stay present', warning: 'be mindful' };
-  }
+/**
+ * Approximate the lunar day (tithi, 1-30) from the date when the caller has no
+ * real tithi at hand. Uses the mean synodic month from a known new-moon epoch
+ * (2000-01-06 18:14 UTC) — accurate to within a day or so, which is plenty for
+ * picking a moon-phase energy. Keeps messages deterministic per day.
+ */
+function approximateTithi(date: Date): number {
+  const NEW_MOON_EPOCH_MS = Date.UTC(2000, 0, 6, 18, 14);
+  const SYNODIC_MONTH_DAYS = 29.530588853;
+  const daysSince = (date.getTime() - NEW_MOON_EPOCH_MS) / 86400000;
+  const phase = ((daysSince % SYNODIC_MONTH_DAYS) + SYNODIC_MONTH_DAYS) % SYNODIC_MONTH_DAYS;
+  return Math.min(30, Math.floor((phase / SYNODIC_MONTH_DAYS) * 30) + 1);
+}
 
+function getTithiEnergy(tithi: number): { energy: string; advice: string; warning: string } {
   const match = TITHI_ENERGY.find(t => tithi >= t.range[0] && tithi <= t.range[1]);
   return match || TITHI_ENERGY[0];
 }
@@ -369,8 +379,13 @@ export function generateRichHoroscope(
 ): RichHoroscope {
   const traits = ZODIAC_TRAITS[zodiac];
   if (!traits) {
-    return { message: 'The stars are a bit cloudy today. Open the app to refresh your horoscope.', mood: 'airy' };
+    return { message: "the stars are buffering today, bestie. open the app to refresh your horoscope.", mood: 'airy' };
   }
+
+  // No real tithi supplied (or out of range): approximate it from the moon
+  // phase so templates never interpolate a literal "unknown" energy.
+  const effectiveTithi =
+    tithi && tithi >= 1 && tithi <= 30 ? tithi : approximateTithi(date);
 
   // Deterministic but daily-changing seed, well-mixed across sign/day/tithi so
   // neighbouring signs and consecutive days don't read alike.
@@ -384,7 +399,7 @@ export function generateRichHoroscope(
       Math.imul(year, 668265263)) >>> 0;
   const rng = makeRng(seed);
 
-  const tithiEnergy = getTithiEnergy(tithi);
+  const tithiEnergy = getTithiEnergy(effectiveTithi);
   const dayEnergy = getDayEnergy(date);
 
   const category = pick(rng, CATEGORIES);

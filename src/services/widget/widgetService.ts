@@ -6,6 +6,8 @@
 
 import { NativeModules, Platform } from 'react-native';
 
+import { getTodayISO } from '@/src/utils/dateUtils';
+
 const WidgetData = NativeModules.WidgetData;
 
 /**
@@ -23,9 +25,12 @@ export async function initializeAllWidgets(): Promise<void> {
     // which tab opens — and so a slow/stalled date API below can't starve it.
     await seedHoroscopeWidget();
 
-    // Compute today's real BS date so widgets show meaningful data immediately
-    const todayISO = new Date().toISOString().slice(0, 10);
+    // Compute today's real BS date so widgets show meaningful data immediately.
+    // Must be local time, not UTC — Nepal is UTC+5:45, so toISOString() would
+    // yield yesterday between 00:00 and 05:45 local.
+    const todayISO = getTodayISO();
     let bsDate = 'Loading...';
+    let bsDateNepali = '';
     let tithi = 'Open app to load';
     let sunrise = '--:--';
     let sunset = '--:--';
@@ -34,9 +39,11 @@ export async function initializeAllWidgets(): Promise<void> {
     try {
       const { convertAdToBs } = await import('@/src/domain/calendar/converter');
       const { getBsMonth } = await import('@/src/services/api/bsCalendarApi');
+      const { formatBsDateNepali } = await import('@/src/domain/calendar/labels');
       const result = await convertAdToBs(todayISO);
       if (result.bs) {
         bsDate = `${result.bs.bsYear}/${result.bs.bsMonth}/${result.bs.bsDay}`;
+        bsDateNepali = formatBsDateNepali(result.bs.bsYear, result.bs.bsMonth, result.bs.bsDay);
         try {
           const monthData = await getBsMonth(result.bs.bsYear, result.bs.bsMonth);
           const todayData = monthData.days.find(d => d.adDateISO === todayISO);
@@ -58,14 +65,8 @@ export async function initializeAllWidgets(): Promise<void> {
       console.warn('[Widget] Date computation failed, using placeholders:', e);
     }
 
-    await updateDateWidget(bsDate);
-    await updateTodayWidget(bsDate, tithi, sunrise, sunset, todayEvent);
-    await updateUserEventsWidget([]);
-
-    // Populate AD->BS map for the date-converter widget stepper
-    populateDateConverterMap().catch((e) =>
-      console.warn('[Widget] populateDateConverterMap failed:', e),
-    );
+    await updateTodayWidget(bsDate, tithi, sunrise, sunset, todayEvent, bsDateNepali);
+    await seedUserEventsWidget();
 
     // Best-effort metals fetch so the widget shows real prices on first install
     try {
@@ -118,8 +119,31 @@ export async function seedHoroscopeWidget(): Promise<void> {
         .catch((e) => console.warn('[Widget] Art download failed:', e));
     }
   } catch (e) {
+    // Leave any previously written payload intact — overwriting with a 'Mesh'
+    // placeholder would clobber a valid widget for users with another zodiac.
     console.warn('[Widget] Horoscope init failed:', e);
-    await updateHoroscopeWidget('Mesh', 'Open Tools to load horoscope', '', 'airy');
+  }
+}
+
+/**
+ * Seed the "my events" widget from stored custom events at startup, so it shows
+ * the closest upcoming event even before the Events tab has been opened.
+ * updateUserEventsWidget does the upcoming-filter + earliest-pick.
+ */
+export async function seedUserEventsWidget(): Promise<void> {
+  if (Platform.OS !== 'android' || !WidgetData) return;
+  try {
+    const { getAllEvents } = await import('@/src/services/events/eventsStore');
+    const all = await getAllEvents();
+    const mapped = all.map((e) => ({
+      title: e.title,
+      date: e.adDateISO,
+      adDateISO: e.adDateISO,
+    }));
+    await updateUserEventsWidget(mapped);
+  } catch (e) {
+    console.warn('[Widget] seedUserEventsWidget failed:', e);
+    await updateUserEventsWidget([]);
   }
 }
 
@@ -162,77 +186,6 @@ export async function updateHoroscopeWidget(zodiac: string, horoscope: string, i
 }
 
 /**
- * Update date converter widget
- */
-export async function updateDateWidget(bsDate: string): Promise<void> {
-  if (Platform.OS !== 'android' || !WidgetData) return;
-
-  try {
-    const data = JSON.stringify({ bsDate });
-    WidgetData.setData('date_converter_widget', data, () => {
-      console.log('[Widget] Updated date converter widget:', bsDate);
-    });
-  } catch (error) {
-    console.error('[Widget] Failed to update date converter widget:', error);
-  }
-}
-
-/**
- * Populate AD->BS map covering ±60 days from today so the widget's
- * prev/next stepper can resolve a BS date for any picked AD date offline.
- */
-export async function populateDateConverterMap(): Promise<void> {
-  if (Platform.OS !== 'android' || !WidgetData) return;
-  try {
-    const { getAdMonth } = await import('@/src/services/api/bsCalendarApi');
-    const map: Record<string, string> = {};
-
-    const today = new Date();
-    const months = new Set<string>();
-    for (let delta = -2; delta <= 2; delta++) {
-      const d = new Date(today.getFullYear(), today.getMonth() + delta, 1);
-      months.add(`${d.getFullYear()}-${d.getMonth() + 1}`);
-    }
-
-    for (const ym of months) {
-      const [yStr, mStr] = ym.split('-');
-      try {
-        const monthData = await getAdMonth(parseInt(yStr, 10), parseInt(mStr, 10));
-        for (const day of monthData.days) {
-          if (day.adDateISO) {
-            map[day.adDateISO] = `${day.bsYear}/${day.bsMonth}/${day.bsDay}`;
-          }
-        }
-      } catch (e) {
-        console.warn('[Widget] populateDateConverterMap: month fetch failed', ym, e);
-      }
-    }
-
-    WidgetData.setData('date_converter_map', JSON.stringify(map), () => {
-      console.log('[Widget] Populated date_converter_map with', Object.keys(map).length, 'entries');
-    });
-  } catch (error) {
-    console.error('[Widget] Failed to populate date converter map:', error);
-  }
-}
-
-/**
- * Update events widget
- */
-export async function updateEventsWidget(events: string[]): Promise<void> {
-  if (Platform.OS !== 'android' || !WidgetData) return;
-  
-  try {
-    const data = JSON.stringify({ events });
-    WidgetData.setData('events_widget', data, () => {
-      console.log('[Widget] Updated events widget with', events.length, 'events');
-    });
-  } catch (error) {
-    console.error('[Widget] Failed to update events widget:', error);
-  }
-}
-
-/**
  * Update today widget (BS date, tithi, sunrise, sunset, today's event)
  */
 export async function updateTodayWidget(
@@ -240,13 +193,15 @@ export async function updateTodayWidget(
   tithi: string,
   sunrise: string,
   sunset: string,
-  todayEvent: string = ''
+  todayEvent: string = '',
+  bsDateNepali: string = ''
 ): Promise<void> {
   if (Platform.OS !== 'android' || !WidgetData) return;
 
   try {
     const data = JSON.stringify({
       bsDate,
+      bsDateNepali,
       tithi,
       sunrise,
       sunset,
@@ -264,20 +219,21 @@ export async function updateTodayWidget(
  * Update user events widget
  * Filters and shows only upcoming events
  */
-export async function updateUserEventsWidget(events: Array<any>): Promise<void> {
+export async function updateUserEventsWidget(events: any[]): Promise<void> {
   if (Platform.OS !== 'android' || !WidgetData) return;
   
   try {
-    // Filter for upcoming events only (today and future)
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const todayISO = today.toISOString().split('T')[0];
-    
+    // Filter for upcoming events only (today and future). Local-time boundary:
+    // toISOString() is UTC and would keep yesterday / drop today in Nepal.
+    const todayISO = getTodayISO();
+
+    // Send the full upcoming list — the Kotlin side re-filters with the device
+    // clock and picks the earliest, so truncating here to one event could leave
+    // the widget empty once that single event passes.
     const upcomingEvents = events
       .filter(event => event.adDateISO >= todayISO)
-      .sort((a, b) => a.adDateISO.localeCompare(b.adDateISO))
-      .slice(0, 5); // Limit to next 5 events
-    
+      .sort((a, b) => a.adDateISO.localeCompare(b.adDateISO));
+
     const data = JSON.stringify({ events: upcomingEvents });
     WidgetData.setData('user_events_widget', data, () => {
       console.log('[Widget] Updated user events widget with', upcomingEvents.length, 'upcoming events');

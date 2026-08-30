@@ -1,5 +1,5 @@
 import { useAppState } from '@/src/state/appState';
-import { NothingTheme } from '@/src/ui/theme/nothing';
+import { HundredTheme } from '@/src/ui/theme/hundred';
 import React, { useState } from 'react';
 import { StyleSheet, TextInput, TextInputProps, View } from 'react-native';
 import { NothingText } from './NothingText';
@@ -16,19 +16,19 @@ export function NothingTextInput({ label, error, style, ...props }: NothingTextI
   return (
     <View style={styles.container}>
       {label && (
-        <NothingText variant="caption" style={[styles.label, { color: colors.textSecondary }]}>
+        <NothingText variant="caption" style={styles.label}>
           {label.toUpperCase()}
         </NothingText>
       )}
       <TextInput
         style={[
           styles.input,
-          { 
-            color: colors.text, 
-            backgroundColor: colors.card,
-            borderColor: colors.border 
+          {
+            color: colors.text,
+            backgroundColor: colors.surface,
+            borderColor: colors.border,
           },
-          isFocused && { borderColor: colors.text },
+          isFocused && { borderColor: colors.accent, backgroundColor: colors.card },
           !!error && { borderColor: colors.accent },
           style,
         ]}
@@ -55,9 +55,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    height: 48,
-    borderWidth: 1,
-    borderRadius: NothingTheme.radius.sm,
+    height: 50,
+    borderWidth: 1.5,
+    borderRadius: HundredTheme.radius.md,
     paddingHorizontal: 16,
     fontFamily: 'Inter_400Regular',
     fontSize: 16,

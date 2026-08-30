@@ -7,49 +7,34 @@ function isoToYMD(iso: string): { y: number; m: number; d: number } {
   return { y, m, d };
 }
 
+// Maps an AD (Gregorian) month to the (at most two) BS months that overlap it,
+// matching the logic used to render the AD calendar grid. Any AD date in a
+// given AD month falls within one of these two BS months.
+function bsMonthsOverlappingAd(adYear: number, adMonth: number): { year: number; month: number }[] {
+  const map: Record<number, number[]> = {
+    1: [9, 10], 2: [10, 11], 3: [11, 12], 4: [12, 1], 5: [1, 2], 6: [2, 3],
+    7: [3, 4], 8: [4, 5], 9: [5, 6], 10: [6, 7], 11: [7, 8], 12: [8, 9],
+  };
+  return (map[adMonth] || []).map((bsMonth) => {
+    let fetchYear = adYear + 57;
+    if (adMonth < 4) fetchYear = adYear + 56;
+    if (adMonth === 4 && bsMonth === 12) fetchYear = adYear + 56;
+    return { year: fetchYear, month: bsMonth };
+  });
+}
+
 async function fetchSurroundingBsMonths(adISO: string): Promise<BsMonth[]> {
   const { y, m } = isoToYMD(adISO);
-  
-  // Approximate BS Year
-  // Mid-April is the cutoff.
-  // If month > 4, we are definitely in AD+57.
-  // If month < 4, we are in AD+56.
-  // If month == 4, could be either.
-  
-  const baseYear = m > 4 ? y + 57 : y + 56;
-  
-  // Approximate BS Month
-  // AD Jan (1) -> BS Poush (9)
-  // AD Apr (4) -> BS Chaitra (12) / Baisakh (1)
-  // AD Dec (12) -> BS Poush (9)
-  // Formula: (m + 8) % 12 || 12 seems roughly okay for offset.
-  // 1+8 = 9 (Poush). 12+8 = 20 -> 8 (Mangsir).
-  // Wait, Dec is usually Poush (9).
-  // Let's just fetch a wider range to be safe.
-  
-  const approxBsMonth = (m + 8) % 12 || 12;
 
-  const candidates = [
-    { year: baseYear, month: approxBsMonth },
-    { year: baseYear, month: approxBsMonth - 1 },
-    { year: baseYear, month: approxBsMonth + 1 },
-    // Add year boundary checks
-    { year: m === 4 ? y + 57 : baseYear, month: 1 }, 
-    { year: m === 4 ? y + 56 : baseYear, month: 12 },
-  ];
+  // Only the two BS months that overlap this AD month are needed.
+  const unique = bsMonthsOverlappingAd(y, m);
 
-  // Normalize months
-  const normalizedCandidates = candidates.map(c => {
-    let { year, month } = c;
-    if (month < 1) { month = 12; year--; }
-    if (month > 12) { month = 1; year++; }
-    return { year, month };
-  });
-
-  // Deduplicate
-  const unique = normalizedCandidates.filter((v, i, a) => a.findIndex(t => t.year === v.year && t.month === v.month) === i);
-
-  const results = await Promise.all(unique.map(({ year, month }) => getBsMonth(year, month).catch(() => null)));
+  // The converter only needs the AD<->BS date mapping, which the primary source
+  // provides even for "skeleton" months. Skip Hamro Patro enrichment here so a
+  // single conversion never triggers an HTML scrape.
+  const results = await Promise.all(
+    unique.map(({ year, month }) => getBsMonth(year, month, { enrich: false }).catch(() => null)),
+  );
   return results.filter((r: BsMonth | null): r is BsMonth => r !== null);
 }
 

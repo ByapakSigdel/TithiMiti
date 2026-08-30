@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Today's date widget (dark card, matches the metals/event widgets). Hero BS
+     date, with weekday pill + AD date, tithi, sunrise/sunset and today's event. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/widget_bg_card"
+    android:background="@drawable/widget_bg_event"
     android:orientation="vertical"
-    android:padding="12dp">
+    android:padding="14dp">
 
     <!-- Top row: weekday pill + AD date -->
     <LinearLayout
@@ -23,25 +25,22 @@
             android:textColor="#FFFFFFFF"
             android:textStyle="bold"
             android:textAllCaps="true"
-            android:paddingLeft="7dp"
-            android:paddingRight="7dp"
-            android:paddingTop="2dp"
-            android:paddingBottom="2dp"
+            android:letterSpacing="0.06"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="3dp"
+            android:paddingBottom="3dp"
             android:background="@drawable/widget_pill_red" />
-
-        <ImageView
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:contentDescription="@null" />
 
         <TextView
             android:id="@+id/ad_date_text"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="end"
             android:text="—"
             android:textSize="11sp"
-            android:textColor="#FF808080" />
+            android:textColor="#FF9AA0A8" />
     </LinearLayout>
 
     <!-- Hero BS Date -->
@@ -50,10 +49,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="—"
-        android:textSize="24sp"
-        android:textColor="#FF000000"
+        android:textSize="26sp"
+        android:textColor="#FFF2F2F4"
         android:textStyle="bold"
-        android:layout_marginTop="6dp" />
+        android:layout_marginTop="8dp" />
 
     <TextView
         android:id="@+id/bs_date_nepali"
@@ -61,7 +60,7 @@
         android:layout_height="wrap_content"
         android:text=""
         android:textSize="11sp"
-        android:textColor="#FF808080" />
+        android:textColor="#FF9AA0A8" />
 
     <!-- Tithi -->
     <LinearLayout
@@ -69,13 +68,14 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layout_marginTop="6dp">
+        android:layout_marginTop="7dp">
 
-        <ImageView
-            android:layout_width="6dp"
-            android:layout_height="6dp"
-            android:src="@drawable/widget_accent_dot"
-            android:contentDescription="@null"
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="•"
+            android:textSize="12sp"
+            android:textColor="#FFE2606C"
             android:layout_marginEnd="6dp" />
 
         <TextView
@@ -84,18 +84,18 @@
             android:layout_height="wrap_content"
             android:text="—"
             android:textSize="12sp"
-            android:textColor="#FF000000" />
+            android:textColor="#FFE6E6EA" />
     </LinearLayout>
 
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#FFE0E0E0"
+        android:background="#22FFFFFF"
         android:contentDescription="@null"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginTop="9dp"
+        android:layout_marginBottom="9dp" />
 
-    <!-- Sunrise / Sunset compact row -->
+    <!-- Sunrise / Sunset row -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -103,30 +103,30 @@
         android:gravity="center_vertical">
 
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="SUNRISE"
-            android:textSize="9sp"
-            android:textColor="#FF808080" />
+            android:text="☀"
+            android:textSize="13sp"
+            android:textColor="#FFE9C46A"
+            android:layout_marginEnd="5dp" />
 
         <TextView
             android:id="@+id/sunrise_time"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="--:--"
             android:textSize="12sp"
-            android:textColor="#FF000000"
-            android:textStyle="bold"
-            android:layout_marginEnd="14dp" />
+            android:textColor="#FFF2F2F4"
+            android:textStyle="bold" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="SUNSET"
-            android:textSize="9sp"
-            android:textColor="#FF808080"
-            android:layout_marginEnd="6dp" />
+            android:text="☾"
+            android:textSize="13sp"
+            android:textColor="#FFC8CCD0"
+            android:layout_marginEnd="5dp" />
 
         <TextView
             android:id="@+id/sunset_time"
@@ -134,7 +134,7 @@
             android:layout_height="wrap_content"
             android:text="--:--"
             android:textSize="12sp"
-            android:textColor="#FF000000"
+            android:textColor="#FFF2F2F4"
             android:textStyle="bold" />
     </LinearLayout>
 
@@ -145,9 +145,9 @@
         android:layout_height="wrap_content"
         android:text="No event today"
         android:textSize="11sp"
-        android:textColor="#FF808080"
+        android:textColor="#FF9AA0A8"
         android:maxLines="1"
         android:ellipsize="end"
-        android:layout_marginTop="6dp" />
+        android:layout_marginTop="9dp" />
 
 </LinearLayout>

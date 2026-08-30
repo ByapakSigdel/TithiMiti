@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Warm cream "notebook page" the written reading sits on, kept fully separate
+     from the painting. A faint vignette gives it a little paper depth. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#FFF3EAD6" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:centerX="0.5"
+                android:centerY="0.42"
+                android:gradientRadius="80%"
+                android:startColor="#00000000"
+                android:endColor="#1A4A3B1E" />
+        </shape>
+    </item>
+</layer-list>
