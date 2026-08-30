@@ -1,7 +1,7 @@
 import { convertAdToBs } from '@/src/domain/calendar/converter';
 import { BS_MONTHS_ROMANIZED } from '@/src/domain/calendar/labels';
 import { BsDay, BsMonth } from '@/src/domain/calendar/types';
-import { getBsMonth } from '@/src/services/api/bsCalendarApi';
+import { getBsMonth, subscribeBsMonthUpdates } from '@/src/services/api/bsCalendarApi';
 import { updateUserEventsWidget } from '@/src/services/widget/widgetService';
 import { useAppState } from '@/src/state/appState';
 import { NothingText } from '@/src/ui/core/NothingText';
@@ -62,6 +62,16 @@ export default function EventsScreen() {
       loadCurrentMonthEvents();
     }, [loadCurrentMonthEvents]),
   );
+
+  // Re-read the month when background enrichment or a stale-cache refresh
+  // lands more events for it.
+  useEffect(() => {
+    return subscribeBsMonthUpdates((bsYear, bsMonth) => {
+      if (data && data.bsYear === bsYear && data.bsMonth === bsMonth) {
+        loadCurrentMonthEvents();
+      }
+    });
+  }, [data, loadCurrentMonthEvents]);
 
   // Process events when data changes
   useEffect(() => {
@@ -140,14 +150,6 @@ export default function EventsScreen() {
     }
   }, [data, todayISO, userEvents]);
 
-  if (loading) {
-    return (
-      <View style={[styles.container, { backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator color={colors.accent} />
-      </View>
-    );
-  }
-
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
@@ -163,6 +165,13 @@ export default function EventsScreen() {
         )}
       </View>
 
+      {/* Keep the header on screen while the first load runs — a bare
+          full-screen spinner made every visit feel like a fresh app start. */}
+      {loading && !data ? (
+        <View style={styles.loadingBody}>
+          <ActivityIndicator color={colors.accent} />
+        </View>
+      ) : (
       <FlatList
         ref={flatListRef}
         data={sortedEvents}
@@ -238,6 +247,7 @@ export default function EventsScreen() {
           )
         }
       />
+      )}
     </SafeAreaView>
   );
 }
@@ -249,6 +259,11 @@ const styles = StyleSheet.create({
   header: {
     padding: 16,
     paddingBottom: 12,
+  },
+  loadingBody: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   brandRow: {
     flexDirection: 'row',

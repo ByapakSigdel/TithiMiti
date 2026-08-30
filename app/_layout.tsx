@@ -31,8 +31,22 @@ export const unstable_settings = {
 // dark toggle) so headers, the status bar, and screen backgrounds all match
 // the Hundred Studios palette.
 function ThemedNavigation() {
-  const { activeTheme, colors } = useAppState();
+  const { activeTheme, colors, hydrated } = useAppState();
   const isDark = activeTheme === 'dark';
+
+  // Fonts are ready (the parent gates on them); also wait for the persisted
+  // theme/calendar mode before lifting the splash, or a dark-theme AD-mode
+  // user watches the app flash light/BS and then snap over every launch.
+  useEffect(() => {
+    if (hydrated) {
+      SplashScreen.hideAsync();
+      return;
+    }
+    // Safety valve: never let a wedged storage read hold the splash hostage.
+    const timer = setTimeout(() => SplashScreen.hideAsync(), 2000);
+    return () => clearTimeout(timer);
+  }, [hydrated]);
+
   const base = isDark ? DarkTheme : DefaultTheme;
   const navTheme = {
     ...base,
@@ -70,13 +84,6 @@ export default function RootLayout() {
     // Preload @expo/vector-icons fonts that are used in the app
     'Ionicons': require('@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Ionicons.ttf'),
   });
-
-  useEffect(() => {
-    if (fontsLoaded || fontError) {
-      // Hide the splash screen after fonts are loaded
-      SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded, fontError]);
 
   // Seed all widgets at app startup (best-effort; runs regardless of starting
   // tab). Deferred a few seconds so its network calls (BS month, gold prices,

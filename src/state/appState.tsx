@@ -24,6 +24,9 @@ type AppState = {
   setThemeMode: (t: ThemeMode) => void;
   activeTheme: 'light' | 'dark'; // The actual resolved theme
   colors: ThemeColors;
+  // True once persisted preferences (theme + calendar mode) have loaded, so
+  // the splash screen can outlast the light-theme/BS-mode flash.
+  hydrated: boolean;
 };
 
 const StateCtx = createContext<AppState | null>(null);
@@ -37,6 +40,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   // between 00:00 and 05:45 in Nepal (UTC+5:45).
   const [selectedDateISO, setSelectedDateISO] = useState<string>(getTodayISO());
   const [events, setEvents] = useState<EventItem[]>([]);
+  const [hydrated, setHydrated] = useState(false);
 
   // Hydrate persisted preferences once at startup
   useEffect(() => {
@@ -54,6 +58,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
         }
       } catch {
         // best-effort — fall back to defaults
+      } finally {
+        setHydrated(true);
       }
     })();
   }, []);
@@ -94,10 +100,11 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       events, refreshEvents,
       themeMode, setThemeMode,
       activeTheme,
-      colors
+      colors,
+      hydrated
     }),
-     
-    [mode, lang, selectedDateISO, events, themeMode, activeTheme, colors],
+
+    [mode, lang, selectedDateISO, events, themeMode, activeTheme, colors, hydrated],
   );
   return <StateCtx.Provider value={value}>{children}</StateCtx.Provider>;
 }
