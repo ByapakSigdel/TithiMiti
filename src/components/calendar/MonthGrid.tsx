@@ -1,6 +1,7 @@
+import { bsMonthsOverlappingAd } from '@/src/domain/calendar/converter';
 import { getLocalAdMonthSkeleton, getLocalBsMonthSkeleton } from '@/src/domain/calendar/localBsCalendar';
 import { BsDay, BsMonth, CalendarMode } from '@/src/domain/calendar/types';
-import { getAdMonth, getBsMonth } from '@/src/services/api/bsCalendarApi';
+import { getAdMonth, getBsMonth, subscribeBsMonthUpdates } from '@/src/services/api/bsCalendarApi';
 import { useAppState } from '@/src/state/appState';
 import { NothingText } from '@/src/ui/core/NothingText';
 import { HundredTheme } from '@/src/ui/theme/hundred';
@@ -70,6 +71,18 @@ export function MonthGrid({ year, month, mode, onSelectDay, onMonthData }: Month
   }, [year, month, mode, attempt]);
 
   const retry = useCallback(() => setAttempt(a => a + 1), []);
+
+  // Months can get richer after the fetch resolved (background Hamro Patro
+  // enrichment, stale-cache refresh). Re-read from the now-updated cache when
+  // it's this grid's month.
+  useEffect(() => {
+    return subscribeBsMonthUpdates((bsYear, bsMonth) => {
+      const relevant = mode === 'BS'
+        ? bsYear === year && bsMonth === month
+        : bsMonthsOverlappingAd(year, month).some(t => t.year === bsYear && t.month === bsMonth);
+      if (relevant) setAttempt(a => a + 1);
+    });
+  }, [year, month, mode]);
 
   if (loading && !data) {
     return (

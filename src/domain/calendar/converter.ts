@@ -11,7 +11,7 @@ function isoToYMD(iso: string): { y: number; m: number; d: number } {
 // Maps an AD (Gregorian) month to the (at most two) BS months that overlap it,
 // matching the logic used to render the AD calendar grid. Any AD date in a
 // given AD month falls within one of these two BS months.
-function bsMonthsOverlappingAd(adYear: number, adMonth: number): { year: number; month: number }[] {
+export function bsMonthsOverlappingAd(adYear: number, adMonth: number): { year: number; month: number }[] {
   const map: Record<number, number[]> = {
     1: [9, 10], 2: [10, 11], 3: [11, 12], 4: [12, 1], 5: [1, 2], 6: [2, 3],
     7: [3, 4], 8: [4, 5], 9: [5, 6], 10: [6, 7], 11: [7, 8], 12: [8, 9],

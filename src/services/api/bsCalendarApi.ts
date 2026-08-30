@@ -1,5 +1,5 @@
 import { getBsMonthName, romanizeTithi } from '@/src/domain/calendar/labels';
-import { getCached, setCached } from '@/src/services/cache/asyncStorage';
+import { getCachedWithMeta, setCached } from '@/src/services/cache/asyncStorage';
 import { BsDay, BsMonth } from '../../domain/calendar/types';
 import { fetchHamroPatroMonth, HpDay } from './hamroPatroCalendarApi';
 
@@ -128,9 +128,8 @@ async function buildMonthFromHamroPatro(year: number, month: number): Promise<Bs
   };
 }
 
-// De-duplicate concurrent fetches of the same month. The map is keyed by the
-// month plus whether the caller wants Hamro Patro enrichment, so a lightweight
-// (date-only) request never starves a full enriching request and vice-versa.
+// De-duplicate concurrent fetches of the same month. Enrichment no longer
+// blocks the fetch, so lite and enriching callers share one flight.
 const inFlight = new Map<string, Promise<BsMonth>>();
 
 export interface GetBsMonthOptions {
@@ -139,53 +138,111 @@ export interface GetBsMonthOptions {
   enrich?: boolean;
 }
 
-async function fetchBsMonth(
-  year: number,
-  month: number,
-  enrich: boolean,
-): Promise<{ month: BsMonth; cacheable: boolean }> {
+// Screens subscribe to hear about months that got richer AFTER getBsMonth
+// resolved: background Hamro Patro enrichment, or a stale-cache refresh.
+type MonthUpdateListener = (bsYear: number, bsMonth: number) => void;
+const monthUpdateListeners = new Set<MonthUpdateListener>();
+
+export function subscribeBsMonthUpdates(listener: MonthUpdateListener): () => void {
+  monthUpdateListeners.add(listener);
+  return () => { monthUpdateListeners.delete(listener); };
+}
+
+function notifyMonthUpdated(bsYear: number, bsMonth: number) {
+  for (const listener of monthUpdateListeners) {
+    try { listener(bsYear, bsMonth); } catch { /* listener bugs stay local */ }
+  }
+}
+
+function cacheKey(year: number, month: number): string {
+  return `${CACHE_PREFIX}${year}:${month}`;
+}
+
+function cacheMonth(year: number, month: number, value: BsMonth) {
+  // Fire-and-forget: callers must not wait on an AsyncStorage write.
+  setCached(cacheKey(year, month), value, isDegraded(value) ? SHORT_TTL_MS : TTL_MS)
+    .catch(() => {});
+}
+
+function monthsDiffer(a: BsMonth, b: BsMonth): boolean {
+  // enrichWithHamroPatro returns fresh objects even when it added nothing, so
+  // compare content — identity checks would loop update notifications forever.
+  return JSON.stringify(a.days) !== JSON.stringify(b.days);
+}
+
+// One background enrichment per month at a time, with a cooldown so months the
+// fallback source genuinely lacks aren't re-scraped on every grid mount.
+const enrichInFlight = new Set<string>();
+const enrichLastAttempt = new Map<string, number>();
+const ENRICH_RETRY_MS = 1000 * 60 * 10;
+
+function enrichInBackground(year: number, month: number, current: BsMonth) {
+  const key = cacheKey(year, month);
+  const last = enrichLastAttempt.get(key) || 0;
+  if (enrichInFlight.has(key) || Date.now() - last < ENRICH_RETRY_MS) return;
+  enrichInFlight.add(key);
+  enrichLastAttempt.set(key, Date.now());
+  (async () => {
+    try {
+      const enriched = await enrichWithHamroPatro(current);
+      if (monthsDiffer(enriched, current)) {
+        cacheMonth(year, month, enriched);
+        notifyMonthUpdated(year, month);
+      }
+    } catch {
+      // Keep the skeleton on screen; a later view retries after the cooldown.
+    } finally {
+      enrichInFlight.delete(key);
+    }
+  })();
+}
+
+// Background revalidation of expired cache entries (stale-while-revalidate).
+const refreshInFlight = new Set<string>();
+const refreshLastAttempt = new Map<string, number>();
+const REFRESH_RETRY_MS = 1000 * 60;
+
+function refreshInBackground(year: number, month: number, stale: BsMonth) {
+  const key = cacheKey(year, month);
+  const last = refreshLastAttempt.get(key) || 0;
+  if (refreshInFlight.has(key) || Date.now() - last < REFRESH_RETRY_MS) return;
+  refreshInFlight.add(key);
+  refreshLastAttempt.set(key, Date.now());
+  (async () => {
+    try {
+      const result = await fetchBsMonthRaw(year, month);
+      cacheMonth(year, month, result);
+      if (isDegraded(result)) enrichInBackground(year, month, result);
+      if (monthsDiffer(result, stale)) notifyMonthUpdated(year, month);
+    } catch {
+      // Offline: the stale month stays on screen and we retry after cooldown.
+    } finally {
+      refreshInFlight.delete(key);
+    }
+  })();
+}
+
+/** Primary source with retries, whole-month Hamro Patro as a last resort. */
+async function fetchBsMonthRaw(year: number, month: number): Promise<BsMonth> {
   const paddedMonth = String(month).padStart(2, '0');
   const url = `${BASE}/${year}/${paddedMonth}.json`;
 
-  let normalized: BsMonth | null = null;
   let lastErr: any = null;
-
-  // 1) Try the primary source.
   for (let i = 0; i < 2; i++) {
     try {
       const rawData = await fetchJson<any[]>(url);
-      normalized = normalizeBsMonth(rawData, year, month);
-      break;
+      return normalizeBsMonth(rawData, year, month);
     } catch (e) {
       lastErr = e;
       await new Promise((r) => setTimeout(r, 400));
     }
   }
 
-  // 2) Primary failed entirely -> fall back to Hamro Patro for the whole month.
-  if (!normalized) {
-    try {
-      const fallback = await buildMonthFromHamroPatro(year, month);
-      return { month: fallback, cacheable: true };
-    } catch (e) {
-      throw lastErr ?? e ?? new Error('Failed to fetch BS month');
-    }
+  try {
+    return await buildMonthFromHamroPatro(year, month);
+  } catch (e) {
+    throw lastErr ?? e ?? new Error('Failed to fetch BS month');
   }
-
-  // 3) Primary returned skeleton data (missing tithi/panchang).
-  if (isDegraded(normalized)) {
-    if (enrich) {
-      // Enrich the missing days from Hamro Patro and cache the merged result.
-      normalized = await enrichWithHamroPatro(normalized);
-      return { month: normalized, cacheable: true };
-    }
-    // Lightweight caller: return the date-only month but don't cache it, so we
-    // never overwrite a richer enriched version the calendar grid may store.
-    return { month: normalized, cacheable: false };
-  }
-
-  // Full data straight from the primary source.
-  return { month: normalized, cacheable: true };
 }
 
 export async function getBsMonth(
@@ -194,35 +251,41 @@ export async function getBsMonth(
   opts?: GetBsMonthOptions,
 ): Promise<BsMonth> {
   const enrich = opts?.enrich !== false;
-  const key = `${CACHE_PREFIX}${year}:${month}`;
 
-  const cached = await getCached<BsMonth>(key);
-  if (cached) return cached;
-
-  // Reuse an in-flight request when possible. An enriching request can only
-  // reuse another enriching request; a lightweight request can reuse either.
-  const enrichKey = `${key}|e`;
-  const liteKey = `${key}|r`;
-  const reusable = enrich
-    ? inFlight.get(enrichKey)
-    : inFlight.get(enrichKey) || inFlight.get(liteKey);
-  if (reusable) return reusable;
-
-  const flightKey = enrich ? enrichKey : liteKey;
-  const promise = (async () => {
-    const { month: result, cacheable } = await fetchBsMonth(year, month, enrich);
-    if (cacheable) {
-      await setCached(key, result, isDegraded(result) ? SHORT_TTL_MS : TTL_MS);
+  const cached = await getCachedWithMeta<BsMonth>(cacheKey(year, month));
+  if (cached) {
+    // Serve instantly; repair whatever is lacking in the background and let
+    // subscribers know when something better lands.
+    if (!cached.fresh) {
+      refreshInBackground(year, month, cached.value);
+    } else if (enrich && isDegraded(cached.value)) {
+      enrichInBackground(year, month, cached.value);
     }
-    return result;
-  })();
-
-  inFlight.set(flightKey, promise);
-  try {
-    return await promise;
-  } finally {
-    inFlight.delete(flightKey);
+    return cached.value;
   }
+
+  const key = cacheKey(year, month);
+  let flight = inFlight.get(key);
+  if (!flight) {
+    flight = fetchBsMonthRaw(year, month).finally(() => inFlight.delete(key));
+    inFlight.set(key, flight);
+  }
+  const result = await flight;
+
+  if (isDegraded(result)) {
+    if (enrich) {
+      // Return the date-complete month NOW and pull tithi/panchang from Hamro
+      // Patro in the background — blocking first paint on an HTML scrape made
+      // every uncached month feel broken.
+      cacheMonth(year, month, result);
+      enrichInBackground(year, month, result);
+    }
+    // Lite callers never cache a degraded month, so they can't overwrite a
+    // richer version the calendar grid may store later.
+  } else {
+    cacheMonth(year, month, result);
+  }
+  return result;
 }
 
 function npText(value: any): string {
