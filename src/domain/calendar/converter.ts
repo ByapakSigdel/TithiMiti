@@ -2,6 +2,7 @@ import { findBsDayByAd } from '@/src/domain/calendar/bsCalendar';
 import { localAdToBs, localBsToAdISO } from '@/src/domain/calendar/localBsCalendar';
 import { AdDay, BsDay, BsMonth, ConverterResult } from '@/src/domain/calendar/types';
 import { getBsMonth } from '@/src/services/api/bsCalendarApi';
+import { normalizeDateISO } from '@/src/utils/dateUtils';
 
 function isoToYMD(iso: string): { y: number; m: number; d: number } {
   const [y, m, d] = iso.split('-').map((n) => parseInt(n, 10));
@@ -50,6 +51,9 @@ function adDayFromISO(adISO: string): AdDay {
 }
 
 export async function convertAdToBs(adISO: string): Promise<ConverterResult> {
+  // Tolerate hand-typed dates like "2026-8-3" from the converter tool.
+  adISO = normalizeDateISO(adISO) || adISO;
+
   // Bundled table first: synchronous and offline. The network path below only
   // serves dates outside the bundled range.
   const localBs = localAdToBs(adISO);
