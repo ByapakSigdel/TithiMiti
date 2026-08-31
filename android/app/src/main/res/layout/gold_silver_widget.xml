@@ -1,46 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Minimal metal-prices widget: just the two prices on a dark card. Gold price
-     in gold, silver price in silver — the colour is the only label needed. A
-     short hairline separates them. Matches the custom-event widget's size/style. -->
+<!-- Metal-prices widget: two info-card rows (§7) on the warm paper card.
+     Marigold tick + GOLD caption with the price right-aligned; a hairline; the
+     same for SILVER with a muted tick (silver has no hue of its own). Prices
+     auto-size down a step rather than ellipsizing. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/widget_bg_metals"
+    android:background="@drawable/widget_card_bg"
     android:orientation="vertical"
-    android:gravity="center"
-    android:padding="12dp">
+    android:gravity="center_vertical"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp">
 
-    <TextView
-        android:id="@+id/gold_price"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="—"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:textColor="#FFE9C46A"
-        android:letterSpacing="0.01"
-        android:maxLines="1"
-        android:ellipsize="end" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:layout_marginEnd="7dp"
+            android:background="@drawable/widget_tick_marigold"
+            android:contentDescription="@null" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="GOLD"
+            android:textSize="9.5sp"
+            android:textColor="@color/widget_marigold"
+            android:fontFamily="sans-serif-medium"
+            android:textAllCaps="true"
+            android:letterSpacing="0.13"
+            android:maxLines="1" />
+
+        <TextView
+            android:id="@+id/gold_price"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:gravity="end"
+            android:text="—"
+            android:textSize="14.5sp"
+            android:textColor="@color/widget_text"
+            android:fontFamily="sans-serif-medium"
+            android:maxLines="1"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMinTextSize="10sp"
+            android:autoSizeMaxTextSize="14sp"
+            android:autoSizeStepGranularity="1sp" />
+    </LinearLayout>
 
     <ImageView
-        android:layout_width="34dp"
+        android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="6dp"
-        android:layout_marginBottom="6dp"
-        android:contentDescription="@null"
-        android:background="#22FFFFFF" />
+        android:layout_marginTop="7dp"
+        android:layout_marginBottom="7dp"
+        android:background="@color/widget_border"
+        android:contentDescription="@null" />
 
-    <TextView
-        android:id="@+id/silver_price"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="—"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:textColor="#FFC8CCD0"
-        android:letterSpacing="0.01"
-        android:maxLines="1"
-        android:ellipsize="end" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:layout_marginEnd="7dp"
+            android:background="@drawable/widget_tick_muted"
+            android:contentDescription="@null" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SILVER"
+            android:textSize="9.5sp"
+            android:textColor="@color/widget_text_secondary"
+            android:fontFamily="sans-serif-medium"
+            android:textAllCaps="true"
+            android:letterSpacing="0.13"
+            android:maxLines="1" />
+
+        <TextView
+            android:id="@+id/silver_price"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:gravity="end"
+            android:text="—"
+            android:textSize="14.5sp"
+            android:textColor="@color/widget_text"
+            android:fontFamily="sans-serif-medium"
+            android:maxLines="1"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMinTextSize="10sp"
+            android:autoSizeMaxTextSize="14sp"
+            android:autoSizeStepGranularity="1sp" />
+    </LinearLayout>
 
 </LinearLayout>

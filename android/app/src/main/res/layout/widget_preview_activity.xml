@@ -1,47 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Developer-only widget preview (unlocked via the Date Converter easter egg).
+     The activity inflates each widget's real RemoteViews into the container,
+     in both light and dark themes, and can pin live instances to the
+     launcher. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/preview_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:background="#EEF2FF">
-
-    <TextView
-        android:id="@+id/locked_message"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Widget preview locked. Open Date Converter and enter BS date 2060/03/24 to unlock."
-        android:textColor="#0B1220"
-        android:textSize="14sp"
-        android:padding="12dp"
-        android:background="#FFFFFFFF"
-        android:layout_marginBottom="12dp" />
-
-    <FrameLayout
-        android:id="@+id/preview_container"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="8dp" />
+    android:background="@color/widget_background"
+    android:fitsSystemWindows="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="end">
+        android:gravity="center_vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="14dp"
+        android:paddingBottom="6dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Widget preview"
+            android:textSize="20sp"
+            android:fontFamily="@font/fraunces_semibold"
+            android:textColor="@color/widget_text" />
 
         <Button
-            android:id="@+id/open_app_button"
+            android:id="@+id/theme_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Open App" />
+            android:text="Dark" />
 
         <Button
             android:id="@+id/refresh_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Refresh"
-            android:layout_marginStart="8dp" />
+            android:text="Refresh" />
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+
+        <Button
+            android:id="@+id/open_app_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Open app" />
+
+        <Button
+            android:id="@+id/pin_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pin all" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/locked_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:text="@string/widget_preview_locked"
+        android:textColor="@color/widget_text_secondary"
+        android:visibility="gone" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/preview_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingBottom="24dp" />
+    </ScrollView>
 
 </LinearLayout>

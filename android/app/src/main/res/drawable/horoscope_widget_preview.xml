@@ -1,60 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Picker thumbnail: a painterly background with the gray horoscope panel
-     (red zodiac chip + mono text lines) peeking up from the bottom — a glance
-     of the real widget: art on top, horoscope on a gray panel when scrolled. -->
+<!-- Picker thumbnail for launchers that can't render previewLayout (pre-12):
+     the painting page of the widget — airy mood gradient with the zodiac
+     scrim pill bottom-left. -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Painting placeholder (stormy mood gradient) -->
+    <!-- Painting placeholder (airy mood gradient) -->
     <item>
         <shape android:shape="rectangle">
             <gradient
                 android:angle="135"
-                android:startColor="#FF14161C"
-                android:centerColor="#FF2A2E3C"
-                android:endColor="#FF3A2A4A" />
-            <corners android:radius="18dp" />
+                android:startColor="#FF3A4C73"
+                android:centerColor="#FF7E78A8"
+                android:endColor="#FFD9C28E" />
+            <corners android:radius="24dp" />
         </shape>
     </item>
     <item>
         <shape android:shape="rectangle">
             <gradient
                 android:type="radial"
-                android:centerX="0.5"
+                android:centerX="0.35"
                 android:centerY="0.2"
-                android:gradientRadius="70%"
-                android:startColor="#598E9BC4"
+                android:gradientRadius="85%"
+                android:startColor="#80FFFFFF"
                 android:endColor="#00000000" />
-            <corners android:radius="18dp" />
+            <corners android:radius="24dp" />
         </shape>
     </item>
 
-    <!-- Gray horoscope panel rising from the bottom -->
-    <item android:top="84dp" android:left="8dp" android:right="8dp" android:bottom="8dp">
+    <!-- Warm scrim zodiac pill, bottom-left -->
+    <item android:left="12dp" android:right="88dp" android:top="122dp" android:bottom="12dp">
         <shape android:shape="rectangle">
-            <solid android:color="#FF2B2D31" />
-            <corners android:radius="14dp" />
-        </shape>
-    </item>
-
-    <!-- Red zodiac chip -->
-    <item android:top="94dp" android:left="18dp" android:right="104dp" android:bottom="52dp">
-        <shape android:shape="rectangle">
-            <solid android:color="#FFD71921" />
-            <corners android:radius="4dp" />
-        </shape>
-    </item>
-
-    <!-- Mono text lines -->
-    <item android:top="118dp" android:left="18dp" android:right="24dp" android:bottom="34dp">
-        <shape android:shape="rectangle">
-            <solid android:color="#FF8A8E96" />
-            <corners android:radius="2dp" />
-        </shape>
-    </item>
-    <item android:top="132dp" android:left="18dp" android:right="56dp" android:bottom="20dp">
-        <shape android:shape="rectangle">
-            <solid android:color="#FF8A8E96" />
-            <corners android:radius="2dp" />
+            <solid android:color="#99170E08" />
+            <corners android:radius="999dp" />
         </shape>
     </item>
 

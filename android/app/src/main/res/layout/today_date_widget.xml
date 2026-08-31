@@ -1,114 +1,137 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Today's date widget (dark card, matches the metals/event widgets). Hero BS
-     date, with weekday pill + AD date, tithi, sunrise/sunset and today's event. -->
+<!-- Today widget: a warm paper patro card (Hundred Studios language).
+     Kicker (brand tick + TODAY + weekday/AD caption), Fraunces BS-date hero,
+     Nepali date line, marigold tithi row, hairline, sunrise/sunset row, and
+     today's event line (accent when there is one, muted when not). All colors
+     come from widget color tokens so the launcher re-themes it automatically. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/widget_bg_event"
+    android:background="@drawable/widget_card_bg"
     android:orientation="vertical"
-    android:padding="14dp">
+    android:gravity="center_vertical"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="14dp"
+    android:paddingBottom="14dp">
 
-    <!-- Top row: weekday pill + AD date -->
+    <!-- Kicker row -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical">
 
+        <ImageView
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:layout_marginEnd="7dp"
+            android:background="@drawable/widget_tick_accent"
+            android:contentDescription="@null" />
+
         <TextView
-            android:id="@+id/weekday_pill"
+            android:id="@+id/kicker_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="TODAY"
-            android:textSize="9sp"
-            android:textColor="#FFFFFFFF"
-            android:textStyle="bold"
+            android:textSize="10sp"
+            android:textColor="@color/widget_accent"
+            android:fontFamily="sans-serif-medium"
             android:textAllCaps="true"
-            android:letterSpacing="0.06"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:paddingTop="3dp"
-            android:paddingBottom="3dp"
-            android:background="@drawable/widget_pill_red" />
+            android:letterSpacing="0.14"
+            android:maxLines="1" />
 
         <TextView
-            android:id="@+id/ad_date_text"
+            android:id="@+id/ad_date_label"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_marginStart="8dp"
             android:gravity="end"
-            android:text="—"
-            android:textSize="11sp"
-            android:textColor="#FF9AA0A8" />
+            android:text=""
+            android:textSize="9.5sp"
+            android:textColor="@color/widget_text_secondary"
+            android:fontFamily="sans-serif-medium"
+            android:textAllCaps="true"
+            android:letterSpacing="0.1"
+            android:maxLines="1"
+            android:ellipsize="end" />
     </LinearLayout>
 
-    <!-- Hero BS Date -->
-    <TextView
+    <!-- Hero BS date. Fraunces is drawn in-process into a white bitmap and
+         tinted here — launchers can't load another APK's font resources, so a
+         TextView with a custom fontFamily silently falls back to Roboto on the
+         home screen. The tint keeps it theme-aware. -->
+    <ImageView
         android:id="@+id/bs_date_large"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="—"
-        android:textSize="26sp"
-        android:textColor="#FFF2F2F4"
-        android:textStyle="bold"
-        android:layout_marginTop="8dp" />
+        android:layout_marginTop="8dp"
+        android:tint="@color/widget_text"
+        android:contentDescription="@null" />
 
     <TextView
         android:id="@+id/bs_date_nepali"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
         android:text=""
-        android:textSize="11sp"
-        android:textColor="#FF9AA0A8" />
+        android:textSize="11.5sp"
+        android:textColor="@color/widget_text_secondary"
+        android:maxLines="1"
+        android:ellipsize="end" />
 
-    <!-- Tithi -->
+    <!-- Tithi row (marigold owns the tithi kicker) -->
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:id="@+id/tithi_row"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layout_marginTop="7dp">
+        android:layout_marginTop="9dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="•"
-            android:textSize="12sp"
-            android:textColor="#FFE2606C"
-            android:layout_marginEnd="6dp" />
+        <ImageView
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:layout_marginEnd="7dp"
+            android:background="@drawable/widget_tick_marigold"
+            android:contentDescription="@null" />
 
         <TextView
             android:id="@+id/tithi_text"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="—"
             android:textSize="12sp"
-            android:textColor="#FFE6E6EA" />
+            android:textColor="@color/widget_text"
+            android:fontFamily="sans-serif-medium"
+            android:maxLines="1"
+            android:ellipsize="end" />
     </LinearLayout>
 
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#22FFFFFF"
-        android:contentDescription="@null"
-        android:layout_marginTop="9dp"
-        android:layout_marginBottom="9dp" />
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="@color/widget_border"
+        android:contentDescription="@null" />
 
-    <!-- Sunrise / Sunset row -->
+    <!-- Sunrise / sunset row (sun times are marigold's domain) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="☀"
-            android:textSize="13sp"
-            android:textColor="#FFE9C46A"
-            android:layout_marginEnd="5dp" />
+        <ImageView
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:layout_marginEnd="6dp"
+            android:src="@drawable/ic_sunrise"
+            android:tint="@color/widget_marigold"
+            android:contentDescription="@null" />
 
         <TextView
             android:id="@+id/sunrise_time"
@@ -117,16 +140,17 @@
             android:layout_weight="1"
             android:text="--:--"
             android:textSize="12sp"
-            android:textColor="#FFF2F2F4"
-            android:textStyle="bold" />
+            android:textColor="@color/widget_text"
+            android:fontFamily="sans-serif-medium"
+            android:maxLines="1" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="☾"
-            android:textSize="13sp"
-            android:textColor="#FFC8CCD0"
-            android:layout_marginEnd="5dp" />
+        <ImageView
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:layout_marginEnd="6dp"
+            android:src="@drawable/ic_sunset"
+            android:tint="@color/widget_marigold"
+            android:contentDescription="@null" />
 
         <TextView
             android:id="@+id/sunset_time"
@@ -134,20 +158,52 @@
             android:layout_height="wrap_content"
             android:text="--:--"
             android:textSize="12sp"
-            android:textColor="#FFF2F2F4"
-            android:textStyle="bold" />
+            android:textColor="@color/widget_text"
+            android:fontFamily="sans-serif-medium"
+            android:maxLines="1" />
     </LinearLayout>
 
-    <!-- Today's event (single line) -->
-    <TextView
-        android:id="@+id/today_event_text"
+    <!-- Today's event: accent row when there is one, muted line when not.
+         Two views toggled by visibility so every color stays in XML and
+         survives a system theme flip. -->
+    <LinearLayout
+        android:id="@+id/event_row"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="No event today"
-        android:textSize="11sp"
-        android:textColor="#FF9AA0A8"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="10dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:layout_marginEnd="7dp"
+            android:background="@drawable/widget_tick_accent"
+            android:contentDescription="@null" />
+
+        <TextView
+            android:id="@+id/today_event_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="11.5sp"
+            android:textColor="@color/widget_accent"
+            android:fontFamily="sans-serif-medium"
+            android:maxLines="1"
+            android:ellipsize="end" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/no_event_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Nothing on today"
+        android:textSize="11.5sp"
+        android:textColor="@color/widget_text_secondary"
+        android:fontFamily="sans-serif-medium"
         android:maxLines="1"
-        android:ellipsize="end"
-        android:layout_marginTop="9dp" />
+        android:ellipsize="end" />
 
 </LinearLayout>

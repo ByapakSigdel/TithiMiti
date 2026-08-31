@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Zodiac tag on the horoscope painting page: warm-tinted scrim pill (never a
+     neutral black overlay — DesignLanguage §2.1). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/widget_scrim" />
+    <corners android:radius="999dp" />
+</shape>

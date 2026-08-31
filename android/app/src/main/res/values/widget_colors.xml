@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hundred Studios palette for the home-screen widgets (light theme).
+     Mirrors src/ui/theme/hundred.ts — keep both in sync with DesignLanguage.md.
+     Dark values live in values-night/widget_colors.xml; every widget color must
+     be referenced from layout/drawable XML (never set programmatically) so the
+     launcher re-resolves them when the system theme flips. -->
+<resources>
+    <color name="widget_background">#FAF5EC</color>
+    <color name="widget_card">#FFFFFF</color>
+    <color name="widget_surface">#F1E8DA</color>
+    <color name="widget_text">#241C14</color>
+    <color name="widget_text_secondary">#6E624F</color>
+    <color name="widget_border">#E7DCC9</color>
+    <color name="widget_accent">#D93822</color>
+    <color name="widget_accent_soft">#FAE5DE</color>
+    <color name="widget_on_accent">#FFF8EF</color>
+    <color name="widget_marigold">#B97C0A</color>
+    <color name="widget_marigold_soft">#F7ECD2</color>
+    <color name="widget_teal">#0F766E</color>
+    <color name="widget_teal_soft">#DCEEE8</color>
+    <color name="widget_iris">#5356C5</color>
+    <color name="widget_iris_soft">#E8E8F8</color>
+    <!-- Warm-tinted scrim (never neutral black) for text over paintings. -->
+    <color name="widget_scrim">#99170E08</color>
+</resources>

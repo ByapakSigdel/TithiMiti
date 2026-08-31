@@ -29,27 +29,43 @@
       </intent-filter>
     </activity>
     <activity android:name=".widgets.WidgetPreviewActivity" android:exported="false" android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
-    <receiver android:name="com.byapak.tithimiti.widgets.TodayDateWidget" android:exported="true">
+    <receiver android:name="com.byapak.tithimiti.widgets.TodayDateWidget" android:label="@string/today_date_widget_label" android:exported="true">
       <intent-filter>
         <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+        <action android:name="android.intent.action.BOOT_COMPLETED"/>
+        <action android:name="android.intent.action.TIME_SET"/>
+        <action android:name="android.intent.action.TIMEZONE_CHANGED"/>
+        <action android:name="android.intent.action.DATE_CHANGED"/>
       </intent-filter>
       <meta-data android:name="android.appwidget.provider" android:resource="@xml/today_date_widget_info"/>
     </receiver>
-    <receiver android:name="com.byapak.tithimiti.widgets.EventsWidget" android:exported="true">
+    <receiver android:name="com.byapak.tithimiti.widgets.EventsWidget" android:label="@string/events_widget_label" android:exported="true">
       <intent-filter>
         <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+        <action android:name="android.intent.action.BOOT_COMPLETED"/>
+        <action android:name="android.intent.action.TIME_SET"/>
+        <action android:name="android.intent.action.TIMEZONE_CHANGED"/>
+        <action android:name="android.intent.action.DATE_CHANGED"/>
       </intent-filter>
       <meta-data android:name="android.appwidget.provider" android:resource="@xml/events_widget_info"/>
     </receiver>
-    <receiver android:name="com.byapak.tithimiti.widgets.GoldSilverWidget" android:exported="true">
+    <receiver android:name="com.byapak.tithimiti.widgets.GoldSilverWidget" android:label="@string/gold_silver_widget_label" android:exported="true">
       <intent-filter>
         <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+        <action android:name="android.intent.action.BOOT_COMPLETED"/>
+        <action android:name="android.intent.action.TIME_SET"/>
+        <action android:name="android.intent.action.TIMEZONE_CHANGED"/>
+        <action android:name="android.intent.action.DATE_CHANGED"/>
       </intent-filter>
       <meta-data android:name="android.appwidget.provider" android:resource="@xml/gold_silver_widget_info"/>
     </receiver>
-    <receiver android:name="com.byapak.tithimiti.widgets.HoroscopeWidget" android:exported="true">
+    <receiver android:name="com.byapak.tithimiti.widgets.HoroscopeWidget" android:label="@string/horoscope_widget_label" android:exported="true">
       <intent-filter>
         <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+        <action android:name="android.intent.action.BOOT_COMPLETED"/>
+        <action android:name="android.intent.action.TIME_SET"/>
+        <action android:name="android.intent.action.TIMEZONE_CHANGED"/>
+        <action android:name="android.intent.action.DATE_CHANGED"/>
       </intent-filter>
       <meta-data android:name="android.appwidget.provider" android:resource="@xml/horoscope_widget_info"/>
     </receiver>

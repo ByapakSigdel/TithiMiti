@@ -9,6 +9,7 @@
     android:updatePeriodMillis="3600000"
     android:initialLayout="@layout/horoscope_widget"
     android:previewImage="@drawable/horoscope_widget_preview"
+    android:previewLayout="@layout/horoscope_widget"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"
     android:description="@string/horoscope_widget_description" />

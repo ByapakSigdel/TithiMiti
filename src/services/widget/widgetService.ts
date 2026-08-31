@@ -1,7 +1,13 @@
 /**
  * Widget Service
- * Updates widget data for Android home screen widgets
- * Uses SharedPreferences via native module like the blog shows
+ * Updates the Android home-screen widgets via the WidgetData native module
+ * (SharedPreferences + an update broadcast).
+ *
+ * Date-derived widgets get a multi-day payload: alongside today's values we
+ * write a `days` map (AD ISO date -> that day's BS data) and, for the
+ * horoscope, a `byDate` map of upcoming readings. The Kotlin side picks the
+ * entry matching the device's current date on every refresh (hourly tick +
+ * a midnight alarm), so widgets roll over at midnight without the app running.
  */
 
 import { NativeModules, Platform } from 'react-native';
@@ -9,6 +15,20 @@ import { NativeModules, Platform } from 'react-native';
 import { getTodayISO } from '@/src/utils/dateUtils';
 
 const WidgetData = NativeModules.WidgetData;
+
+/** How many days ahead the today-widget payload covers. */
+const TODAY_WINDOW_DAYS = 14;
+/** How many days of horoscope readings to precompute. */
+const HOROSCOPE_WINDOW_DAYS = 7;
+
+function addDaysToISO(iso: string, add: number): string {
+  const [y, m, d] = iso.split('-').map(Number);
+  const dt = new Date(y, m - 1, d + add);
+  const yy = dt.getFullYear();
+  const mm = String(dt.getMonth() + 1).padStart(2, '0');
+  const dd = String(dt.getDate()).padStart(2, '0');
+  return `${yy}-${mm}-${dd}`;
+}
 
 /**
  * Initialize all widgets at app startup. Computes today's real BS date
@@ -29,11 +49,11 @@ export async function initializeAllWidgets(): Promise<void> {
     // Must be local time, not UTC — Nepal is UTC+5:45, so toISOString() would
     // yield yesterday between 00:00 and 05:45 local.
     const todayISO = getTodayISO();
-    let bsDate = 'Loading...';
+    let bsDate = '';
     let bsDateNepali = '';
-    let tithi = 'Open app to load';
-    let sunrise = '--:--';
-    let sunset = '--:--';
+    let tithi = '';
+    let sunrise = '';
+    let sunset = '';
     let todayEvent = '';
 
     try {
@@ -152,7 +172,7 @@ export async function seedUserEventsWidget(): Promise<void> {
  */
 export async function updateGoldSilverWidget(prices: any): Promise<void> {
   if (Platform.OS !== 'android' || !WidgetData) return;
-  
+
   try {
     const data = JSON.stringify(prices);
     WidgetData.setData('gold_silver_widget', data, () => {
@@ -164,17 +184,39 @@ export async function updateGoldSilverWidget(prices: any): Promise<void> {
 }
 
 /**
- * Update horoscope widget
+ * Update the horoscope widget. Alongside today's reading we precompute the next
+ * few days' readings (the Vedic generator is deterministic and fully local)
+ * into `byDate`, so the widget's text rolls over at midnight. The painting is
+ * stamped with its date + mood; the Kotlin side falls back to the bundled mood
+ * gradient once the image no longer matches the current day.
  */
 export async function updateHoroscopeWidget(zodiac: string, horoscope: string, imagePath: string = '', theme: string = ''): Promise<void> {
   if (Platform.OS !== 'android' || !WidgetData) return;
 
   try {
+    const todayISO = getTodayISO();
+    const byDate: Record<string, { message: string; mood: string }> = {
+      [todayISO]: { message: horoscope, mood: theme || 'airy' },
+    };
+    try {
+      const { generateRichHoroscope } = await import('@/src/services/horoscope/vedicHoroscopeGenerator');
+      const [y, m, d] = todayISO.split('-').map(Number);
+      for (let i = 1; i < HOROSCOPE_WINDOW_DAYS; i++) {
+        const rich = generateRichHoroscope(zodiac, new Date(y, m - 1, d + i), null);
+        byDate[addDaysToISO(todayISO, i)] = { message: rich.message, mood: rich.mood };
+      }
+    } catch (e) {
+      console.warn('[Widget] Horoscope window precompute failed:', e);
+    }
+
     const data = JSON.stringify({
       zodiac,
       message: horoscope,
       imagePath,
-      theme
+      theme,
+      byDate,
+      imageDate: imagePath ? todayISO : '',
+      imageMood: imagePath ? theme : '',
     });
     console.log('[Widget] Updating horoscope widget:', zodiac, horoscope.substring(0, 50));
     WidgetData.setData('horoscope_widget', data, () => {
@@ -186,7 +228,65 @@ export async function updateHoroscopeWidget(zodiac: string, horoscope: string, i
 }
 
 /**
- * Update today widget (BS date, tithi, sunrise, sunset, today's event)
+ * Build the {adISO -> day data} window for the today widget from the bundled
+ * BS table (instant, offline) plus the cached month data (tithi, sun times,
+ * holidays). Missing pieces degrade to empty strings per-day.
+ */
+async function buildTodayWindow(todayISO: string): Promise<Record<string, any>> {
+  const days: Record<string, any> = {};
+  const { localAdToBs } = await import('@/src/domain/calendar/localBsCalendar');
+  const { formatBsDateNepali } = await import('@/src/domain/calendar/labels');
+
+  // Collect the BS months the window touches, then fetch each once (served
+  // from cache after the first call; never blocks on enrichment).
+  const isoList: string[] = [];
+  const monthKeys = new Set<string>();
+  for (let i = 0; i < TODAY_WINDOW_DAYS; i++) {
+    const iso = addDaysToISO(todayISO, i);
+    isoList.push(iso);
+    const bs = localAdToBs(iso);
+    if (bs) monthKeys.add(`${bs.bsYear}/${bs.bsMonth}`);
+  }
+
+  const monthDays = new Map<string, any>();
+  try {
+    const { getBsMonth } = await import('@/src/services/api/bsCalendarApi');
+    for (const key of monthKeys) {
+      const [y, m] = key.split('/').map(Number);
+      try {
+        const month = await getBsMonth(y, m);
+        for (const d of month.days) monthDays.set(d.adDateISO, d);
+      } catch (e) {
+        console.warn('[Widget] Month fetch failed for window:', key, e);
+      }
+    }
+  } catch (e) {
+    console.warn('[Widget] Month data unavailable for window:', e);
+  }
+
+  for (const iso of isoList) {
+    const bs = localAdToBs(iso);
+    if (!bs) continue;
+    const dayData = monthDays.get(iso);
+    const event = dayData?.holidayNameRom
+      || (dayData?.events && dayData.events.length > 0 ? dayData.events[0] : '');
+    days[iso] = {
+      bsDate: `${bs.bsYear}/${bs.bsMonth}/${bs.bsDay}`,
+      bsDateNepali: formatBsDateNepali(bs.bsYear, bs.bsMonth, bs.bsDay),
+      tithi: dayData?.tithiRom || '',
+      sunrise: dayData?.extraDetails?.sunrise || '',
+      sunset: dayData?.extraDetails?.sunset || '',
+      event: event || '',
+    };
+  }
+  return days;
+}
+
+/**
+ * Update today widget (BS date, tithi, sunrise, sunset, today's event).
+ * The explicit arguments describe *today* (kept as legacy fields, stamped with
+ * `forDate`); a `days` window is added so the widget can keep rendering the
+ * correct BS date after midnight.
  */
 export async function updateTodayWidget(
   bsDate: string,
@@ -199,13 +299,39 @@ export async function updateTodayWidget(
   if (Platform.OS !== 'android' || !WidgetData) return;
 
   try {
+    const todayISO = getTodayISO();
+    let days: Record<string, any> = {};
+    try {
+      days = await buildTodayWindow(todayISO);
+    } catch (e) {
+      console.warn('[Widget] Today window build failed:', e);
+    }
+
+    // The caller's values are the freshest for today — let them win over the
+    // window (which may have been served from a staler cache).
+    if (bsDate) {
+      const fromWindow = days[todayISO] || {};
+      days[todayISO] = {
+        ...fromWindow,
+        bsDate,
+        bsDateNepali: bsDateNepali || fromWindow.bsDateNepali || '',
+        tithi: tithi || fromWindow.tithi || '',
+        sunrise: sunrise || fromWindow.sunrise || '',
+        sunset: sunset || fromWindow.sunset || '',
+        event: todayEvent || fromWindow.event || '',
+      };
+    }
+
     const data = JSON.stringify({
+      // Legacy single-day fields (older widget code reads these).
       bsDate,
       bsDateNepali,
       tithi,
       sunrise,
       sunset,
       todayEvent,
+      forDate: todayISO,
+      days,
     });
     WidgetData.setData('today_widget', data, () => {
       console.log('[Widget] Updated today widget');
@@ -221,7 +347,7 @@ export async function updateTodayWidget(
  */
 export async function updateUserEventsWidget(events: any[]): Promise<void> {
   if (Platform.OS !== 'android' || !WidgetData) return;
-  
+
   try {
     // Filter for upcoming events only (today and future). Local-time boundary:
     // toISOString() is UTC and would keep yesterday / drop today in Nepal.

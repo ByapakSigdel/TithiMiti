@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hundred Studios palette, dark remix (deep coffee neutrals, brightened hues).
+     Same token set as values/widget_colors.xml — see DesignLanguage.md §2.1. -->
+<resources>
+    <color name="widget_background">#171210</color>
+    <color name="widget_card">#211B16</color>
+    <color name="widget_surface">#2C241D</color>
+    <color name="widget_text">#F5EDE1</color>
+    <color name="widget_text_secondary">#A2937F</color>
+    <color name="widget_border">#3B3128</color>
+    <color name="widget_accent">#FF6B4F</color>
+    <color name="widget_accent_soft">#3D2019</color>
+    <color name="widget_on_accent">#26110B</color>
+    <color name="widget_marigold">#F0B64A</color>
+    <color name="widget_marigold_soft">#3A2D15</color>
+    <color name="widget_teal">#4FC7B4</color>
+    <color name="widget_teal_soft">#14302A</color>
+    <color name="widget_iris">#9B9DF0</color>
+    <color name="widget_iris_soft">#282A4A</color>
+    <color name="widget_scrim">#A6170E08</color>
+</resources>

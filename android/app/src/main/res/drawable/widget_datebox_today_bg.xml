@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Date box variant when the event is today — soft teal fill (user-content
+     hue), matching the soft-pair rule for tinted containers. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/widget_teal_soft" />
+    <corners android:radius="14dp" />
+</shape>

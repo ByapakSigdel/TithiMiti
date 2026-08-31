@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Two-page horoscope widget. Tapping the widget flips between the painting
-     page and the written-reading page (instant, no animation, no scrolling).
-     Exactly one page is visible at a time; the provider toggles visibility. -->
+<!-- Two-page horoscope widget. Tapping flips between the painting page and the
+     written-reading page (visibility toggled by the provider). The painting
+     carries a warm scrim pill naming the zodiac; the reading sits on a warm
+     paper page with the iris kicker (iris owns horoscope, §2.3). -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FF0E0E12">
+    android:background="@drawable/widget_card_bg"
+    android:clipToOutline="true">
 
-    <!-- Page 1: the mood painting, on its own. -->
+    <!-- Page 1: the mood painting. -->
     <FrameLayout
         android:id="@+id/painting_page"
         android:layout_width="match_parent"
@@ -22,51 +24,93 @@
             android:scaleType="centerCrop"
             android:contentDescription="@null"
             android:src="@drawable/horoscope_art_airy" />
+
+        <TextView
+            android:id="@+id/zodiac_pill_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|start"
+            android:layout_margin="12dp"
+            android:background="@drawable/widget_zodiac_pill"
+            android:paddingLeft="11dp"
+            android:paddingRight="11dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:text="MESH"
+            android:textSize="10sp"
+            android:textColor="#FFFFF8EF"
+            android:fontFamily="sans-serif-medium"
+            android:textAllCaps="true"
+            android:letterSpacing="0.13"
+            android:maxLines="1" />
     </FrameLayout>
 
-    <!-- Page 2: the written reading, on its own paper page (no painting behind). -->
+    <!-- Page 2: the written reading on its own paper page. -->
     <LinearLayout
         android:id="@+id/text_page"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:gravity="center"
         android:background="@drawable/horoscope_page_bg"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
+        android:paddingLeft="18dp"
+        android:paddingRight="18dp"
         android:paddingTop="16dp"
-        android:paddingBottom="16dp"
+        android:paddingBottom="14dp"
         android:visibility="gone">
 
-        <TextView
-            android:id="@+id/zodiac_label"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:text="MESH · DAILY"
-            android:textColor="#FFB81620"
-            android:textSize="11sp"
-            android:textStyle="bold"
-            android:textAllCaps="true"
-            android:letterSpacing="0.16" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
-        <TextView
+            <ImageView
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:layout_marginEnd="7dp"
+                android:background="@drawable/widget_tick_iris"
+                android:contentDescription="@null" />
+
+            <TextView
+                android:id="@+id/zodiac_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="MESH · DAILY"
+                android:textSize="10sp"
+                android:textColor="@color/widget_iris"
+                android:fontFamily="sans-serif-medium"
+                android:textAllCaps="true"
+                android:letterSpacing="0.14"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <!-- The reading, set in Fraunces. Drawn in-process into a bitmap sized
+             to this widget instance (see WidgetText — launchers can't load our
+             font resources) and tinted with the theme-aware text token.
+             centerInside keeps it crisp: it never upscales. -->
+        <ImageView
             android:id="@+id/horoscope_text"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:gravity="center"
-            android:text="Open Tools to load your horoscope"
-            android:textColor="#FF24201A"
-            android:fontFamily="@font/fraunces"
-            android:lineSpacingExtra="3dp"
-            android:ellipsize="end"
-            android:maxLines="8"
-            android:textSize="14sp"
-            android:autoSizeTextType="uniform"
-            android:autoSizeMinTextSize="11sp"
-            android:autoSizeMaxTextSize="24sp"
-            android:autoSizeStepGranularity="1sp" />
+            android:layout_marginTop="10dp"
+            android:scaleType="centerInside"
+            android:tint="@color/widget_text"
+            android:contentDescription="@null" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="end"
+            android:text="TAP FOR PAINTING"
+            android:textSize="8sp"
+            android:textColor="@color/widget_text_secondary"
+            android:fontFamily="sans-serif-medium"
+            android:textAllCaps="true"
+            android:letterSpacing="0.12"
+            android:maxLines="1" />
     </LinearLayout>
 
 </FrameLayout>

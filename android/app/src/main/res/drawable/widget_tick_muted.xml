@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Section squircle tick — muted (hue-less rows, e.g. the silver price). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/widget_text_secondary" />
+    <corners android:radius="2dp" />
+</shape>
